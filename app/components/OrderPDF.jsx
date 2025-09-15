@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
     borderBottom: 1,
-    borderBottomColor: "#4D343F",
+    borderBottomColor: "#524a98",
     paddingBottom: 10,
     display: "flex",
     flexDirection: "row",
@@ -32,11 +32,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     fontWeight: 600,
-    color: "#382628",
+    color: "#524a98",
   },
   quoteId: {
     fontSize: 12,
-    color: "#4D343F",
+    color: "#524a98",
     marginBottom: 5,
   },
   section: {
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 10,
     fontWeight: 600,
-    color: "#382628",
+    color: "#524a98",
   },
   row: {
     flexDirection: "row",
@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
   label: {
     width: "30%",
     fontSize: 12,
-    color: "#4D343F",
+    color: "#524a98",
   },
   value: {
     width: "70%",
     fontSize: 12,
-    color: "#382628",
+    color: "#524a98",
   },
   table: {
     width: "100%",
@@ -70,22 +70,22 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#4D343F",
+    backgroundColor: "#524a98",
     color: "#FFFCF8",
     padding: 5,
     borderBottom: 1,
-    borderBottomColor: "#382628",
+    borderBottomColor: "#524a98",
   },
   tableRow: {
     flexDirection: "row",
     padding: 5,
     borderBottom: 1,
-    borderBottomColor: "#4D343F",
+    borderBottomColor: "#524a98",
   },
   tableCell: {
     flex: 1,
     fontSize: 12,
-    color: "#382628",
+    color: "#524a98",
   },
   tableCellBold: {
     flex: 1,
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   tableCellName: {
     flex: 2,
     fontSize: 12,
-    color: "#382628",
+    color: "#524a98",
   },
   tableCellBoldName: {
     flex: 2,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   sandwichName: {
     fontSize: 12,
     fontWeight: 600,
-    color: "#382628",
+    color: "#524a98",
     marginBottom: 2,
   },
   sandwichDetails: {
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     fontSize: 12,
-    color: "#382628",
+    color: "#524a98",
     marginLeft: 10,
   },
   totalSection: {
@@ -136,25 +136,25 @@ const styles = StyleSheet.create({
     width: "30%",
     fontSize: 12,
     fontWeight: 600,
-    color: "#382628",
+    color: "#524a98",
   },
   totalValue: {
     width: "70%",
     fontSize: 12,
-    color: "#382628",
+    color: "#524a98",
   },
   companyDetails: {
     marginTop: 30,
     paddingTop: 20,
     borderTop: 1,
-    borderTopColor: "#4D343F",
+    borderTopColor: "#524a98",
     fontSize: 10,
-    color: "#4D343F",
+    color: "#524a98",
   },
   bold: {
     fontWeight: 600,
     fontSize: 12,
-    color: "#382628",
+    color: "#524a98",
   },
   deliveryDetails: {
     display: "flex",
@@ -499,7 +499,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
           <Text>NOON Sandwicherie & Koffie</Text>
           <Text>Keizer Leopoldstraat 1</Text>
           <Text>9000 Gent, België</Text>
-          <Text>orders@thesandwichbar.nl</Text>
+          <Text>bestel@noonsandwicherie.be</Text>
         </View>
       </Page>
     </Document>

@@ -197,21 +197,21 @@ const container = {
 const title = {
   fontSize: "24px",
   fontWeight: "600",
-  color: "#382628",
+  color: "#524a98",
   padding: "0 48px",
 };
 
 const subtitle = {
   fontSize: "16px",
   fontWeight: "600",
-  color: "#4D343F",
+  color: "#524a98",
   marginBottom: "4px",
 };
 
 const paragraph = {
   fontSize: "16px",
   lineHeight: "24px",
-  color: "#382628",
+  color: "#524a98",
   padding: "0 48px",
 };
 
@@ -220,11 +220,11 @@ const details = {
   backgroundColor: "#FFFCF8",
   borderRadius: "4px",
   margin: "24px 48px",
-  border: "1px solid #4D343F",
+  border: "1px solid #524a98",
 };
 
 const detailText = {
   fontSize: "14px",
-  color: "#382628",
+  color: "#524a98",
   margin: "0 0 16px",
 };

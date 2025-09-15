@@ -65,7 +65,7 @@ export default function PrivacyPage() {
         <h2 className="mb-4 text-2xl font-semibold">6. Your Rights</h2>
         <p className="mb-4">
           You may request access to, correction, or deletion of your data by
-          contacting us at orders@thesandwichbar.nl.
+          contacting us at bestel@noonsandwicherie.be.
         </p>
       </section>
 
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
           <br />
           VAT Number: BTW BE 0795406037
           <br />
-          Email: orders@thesandwichbar.nl
+          Email: bestel@noonsandwicherie.be
         </p>
       </section>
     </div>
