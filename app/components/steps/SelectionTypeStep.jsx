@@ -4,7 +4,7 @@ import { Utensils } from "lucide-react";
 import MenuCategories from "@/app/components/MenuCategories";
 import VarietySelector from "@/app/components/VarietySelector";
 
-const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
+const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTypes, sauceTypes, toppingTypes }) => {
   return (
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-custom-gray">
@@ -46,6 +46,9 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
             sandwichOptions={sandwichOptions}
             formData={formData}
             updateFormData={updateFormData}
+            breadTypes={breadTypes}
+            sauceTypes={sauceTypes}
+            toppingTypes={toppingTypes}
           />
 
           <div className="p-4 mt-6 rounded-lg bg-custom-gray/10">
@@ -88,7 +91,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                 Choose a distribution
               </h3>
               <VarietySelector
-                totalSandwiches={formData.totalSandwiches}
+                totalSandwiches={formData.numberOfPeople}
                 formData={formData}
                 updateFormData={updateFormData}
               />
@@ -265,8 +268,8 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                 <span>€6,83</span>
               </div>
               <div className="flex justify-between text-sm text-custom-gray">
-                <span>Number of sandwiches</span>
-                <span>{formData.totalSandwiches}</span>
+                <span>Number of people</span>
+                <span>{formData.numberOfPeople}</span>
               </div>
               {formData.addDrinks && (formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
                 <>
@@ -286,7 +289,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions }) => {
                 <span>Total amount</span>
                 <span>
                   €{(
-                    formData.totalSandwiches * 6.83 + 
+                    formData.numberOfPeople * 6.83 + 
                     (formData.addDrinks && formData.drinks ? 
                       (formData.drinks.verseJus || 0) * 3.62 +
                       (formData.drinks.sodas || 0) * 2.71 +

@@ -496,9 +496,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
         </View>
 
         <View style={styles.companyDetails}>
-          <Text>The Sandwich Bar Nassaukade B.V.</Text>
-          <Text>Nassaukade 378 H</Text>
-          <Text>1054 AD Amsterdam</Text>
+          <Text>NOON Sandwicherie & Koffie</Text>
+          <Text>Keizer Leopoldstraat 1</Text>
+          <Text>9000 Gent, België</Text>
           <Text>orders@thesandwichbar.nl</Text>
         </View>
       </Page>

@@ -4,20 +4,22 @@ export const useOrderValidation = (formData, deliveryError) => {
   const isStepValid = (step) => {
     switch (step) {
       case 1:
-        return formData.totalSandwiches >= 15; // Minimum order requirement
+        return formData.numberOfPeople >= 15; // Minimum 15 people requirement
       case 2:
         if (formData.selectionType === "custom") {
           const totalSelected = Object.values(formData.customSelection)
             .flat()
             .reduce((total, selection) => total + selection.quantity, 0);
-          return totalSelected >= formData.totalSandwiches;
+          return totalSelected >= formData.numberOfPeople;
         }
         return (
           formData.selectionType === "variety" &&
-          formData.varietySelection.vega +
-            formData.varietySelection.nonVega +
-            formData.varietySelection.vegan >=
-            formData.totalSandwiches
+          (formData.varietySelection.meat +
+            formData.varietySelection.chicken +
+            formData.varietySelection.fish +
+            formData.varietySelection.veggie +
+            formData.varietySelection.vegan) >=
+            formData.numberOfPeople
         );
       case 3:
         return true; // Overview step is always valid
@@ -63,26 +65,23 @@ export const useOrderValidation = (formData, deliveryError) => {
           const totalSelected = Object.values(formData.customSelection)
             .flat()
             .reduce((total, selection) => total + selection.quantity, 0);
-          const remaining = formData.totalSandwiches - totalSelected;
+          const remaining = formData.numberOfPeople - totalSelected;
           if (remaining > 0) {
-            return `Please select ${remaining} sandwich${
+            return `Please select ${remaining} more sandwich${
               remaining === 1 ? "" : "es"
-            }`;
+            } for ${formData.numberOfPeople} people`;
           }
-          // if (remaining < 0) {
-          //   return `U heeft ${Math.abs(remaining)} broodje${
-          //     Math.abs(remaining) === 1 ? "" : "s"
-          //   } te veel geselecteerd`;
-          // }
         }
         if (formData.selectionType === "variety") {
           const total =
-            formData.varietySelection.vega +
-            formData.varietySelection.nonVega +
+            formData.varietySelection.meat +
+            formData.varietySelection.chicken +
+            formData.varietySelection.fish +
+            formData.varietySelection.veggie +
             formData.varietySelection.vegan;
 
-          if (Number(total) !== Number(formData.totalSandwiches)) {
-            return `The total must be ${formData.totalSandwiches} sandwiches`;
+          if (Number(total) !== Number(formData.numberOfPeople)) {
+            return `The total must be ${formData.numberOfPeople} sandwiches for ${formData.numberOfPeople} people`;
           }
         }
         return "";

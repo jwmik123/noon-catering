@@ -184,45 +184,10 @@ export const invoice = defineType({
       ],
     }),
 
-    // -- Yuki Integration Fields --
-    defineField({
-      name: "yukiSent",
-      title: "Sent to Yuki",
-      type: "boolean",
-      initialValue: false,
-      readOnly: true,
-      fieldset: "yuki",
-    }),
-    defineField({
-      name: "yukiSentAt",
-      title: "Sent to Yuki At",
-      type: "datetime",
-      readOnly: true,
-      fieldset: "yuki",
-    }),
-    defineField({
-      name: "yukiContactCode",
-      title: "Yuki Contact Code",
-      type: "string",
-      readOnly: true,
-      fieldset: "yuki",
-    }),
-    defineField({
-      name: "yukiInvoiceReference",
-      title: "Yuki Invoice Reference",
-      type: "string",
-      readOnly: true,
-      fieldset: "yuki",
-    }),
+
   ],
 
-  fieldsets: [
-    {
-      name: "yuki",
-      title: "Yuki Integration Status",
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+
 });
 
 export default invoice;

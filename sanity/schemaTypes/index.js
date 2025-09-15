@@ -1,7 +1,10 @@
 import { product } from "./productType";
 import { quote } from "./quoteType";
 import { invoice } from "./invoiceType";
+import { breadType } from "./breadType";
+import { sauceType } from "./sauceType";
+import { toppingType } from "./toppingType";
 
 export const schema = {
-  types: [product, quote, invoice],
+  types: [product, quote, invoice, breadType, sauceType, toppingType],
 };

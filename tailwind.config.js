@@ -52,6 +52,9 @@ module.exports = {
         },
         custom: {
           gray: "hsl(var(--custom-gray))",
+          paars: "#524a98", /* Purple */
+          oranje: "#f29169", /* Orange */
+          lichtroze: "#efdcd8", /* Light pink */
         },
       },
       backgroundColor: {

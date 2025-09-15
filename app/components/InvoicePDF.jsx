@@ -438,16 +438,12 @@ const InvoicePDF = ({
               </View>
               <View style={styles.row}>
                 <Text style={styles.value}>
-                  The Sandwich Bar Nassaukade B.V.
+                  NOON Sandwicherie & Koffie
                 </Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>KvK Number:</Text>
-                <Text style={styles.value}>81038739</Text>
-              </View>
-              <View style={styles.row}>
                 <Text style={styles.label}>VAT Number:</Text>
-                <Text style={styles.value}>NL861900558B01</Text>
+                <Text style={styles.value}>BTW BE 0795406037</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>Due Date:</Text>
@@ -675,9 +671,9 @@ const InvoicePDF = ({
         </View>
 
         <View style={styles.companyDetails}>
-          <Text>The Sandwich Bar Nassaukade B.V.</Text>
-          <Text>Nassaukade 378 H</Text>
-          <Text>1054 AD Amsterdam</Text>
+          <Text>NOON Sandwicherie & Koffie</Text>
+          <Text>Keizer Leopoldstraat 1</Text>
+          <Text>9000 Gent, België</Text>
           <Text>orders@thesandwichbar.nl</Text>
         </View>
       </Page>

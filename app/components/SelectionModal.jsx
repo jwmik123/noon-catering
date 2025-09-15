@@ -22,7 +22,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { breadTypes, sauces, toppings } from "@/app/assets/constants";
 import { isDrink } from "@/lib/product-helpers";
 import { Info, X } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
@@ -32,10 +31,13 @@ const SelectionModal = ({
   onClose,
   sandwich,
   onAdd,
+  breadTypes = [],
+  sauceTypes = [],
+  toppingTypes = [],
 }) => {
   const [quantity, setQuantity] = React.useState("1");
-  const [breadType, setBreadType] = React.useState(breadTypes[0].id);
-  const [sauce, setSauce] = React.useState(sauces[0].id);
+  const [breadType, setBreadType] = React.useState(breadTypes[0]?.slug || "");
+  const [sauce, setSauce] = React.useState(sauceTypes[0]?.slug || "");
   const [selectedToppings, setSelectedToppings] = React.useState([]);
   const [showAllergyInfo, setShowAllergyInfo] = useState(false);
 
@@ -78,7 +80,7 @@ const SelectionModal = ({
     selectedToppings
   ) => {
     const breadSurcharge = selectedBreadType
-      ? breadTypes.find((b) => b.id === selectedBreadType)?.surcharge || 0
+      ? breadTypes.find((b) => b.slug === selectedBreadType)?.surcharge || 0
       : 0;
 
     // Add sauce cost if applicable
@@ -223,7 +225,7 @@ const SelectionModal = ({
                   </SelectTrigger>
                   <SelectContent>
                     {breadTypes.map((bread) => (
-                      <SelectItem key={bread.id} value={bread.id}>
+                      <SelectItem key={bread.slug} value={bread.slug}>
                         {bread.name}
                         {bread.surcharge > 0 &&
                           ` (+€${bread.surcharge.toFixed(2)})`}
@@ -299,7 +301,7 @@ const SelectionModal = ({
                   <span>€{sandwich?.price?.toFixed(2) || "0.00"}</span>
                 </div>
                 {!isDrink(sandwich) &&
-                  breadTypes.find((b) => b.id === breadType)?.surcharge > 0 && (
+                  breadTypes.find((b) => b.slug === breadType)?.surcharge > 0 && (
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>Bread surcharge:</span>
                       <span>

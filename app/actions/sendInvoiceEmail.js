@@ -3,7 +3,7 @@
 import { client } from "@/sanity/lib/client";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
-import { createYukiInvoice } from "@/lib/yuki-api";
+
 
 export async function sendInvoiceEmail(quoteId) {
   try {
@@ -77,23 +77,6 @@ export async function sendInvoiceEmail(quoteId) {
     const emailSent = await sendOrderConfirmation(emailData, true);
 
     if (emailSent) {
-      // If email is sent successfully, also create the Yuki invoice
-      if (process.env.YUKI_ENABLED === "true") {
-        console.log(
-          `Creating Yuki invoice on delivery date for quote: ${quoteId}`
-        );
-        // We don't need to await this, it can run in the background
-        createYukiInvoice(quoteId, invoice._id).catch((error) => {
-          console.error(
-            `Background Yuki invoice creation failed for ${quoteId}:`,
-            error
-          );
-        });
-      } else {
-        console.log(
-          "Yuki integration disabled, skipping invoice creation for cron job."
-        );
-      }
 
       // Update the invoice status to indicate email was sent
       await client

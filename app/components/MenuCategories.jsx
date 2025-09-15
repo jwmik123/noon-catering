@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SelectionManager from "./SelectionManager";
 import { urlFor } from "@/sanity/lib/image";
 import SelectedSandwichesList from "./SelectedSandwichesList";
-import { breadTypes } from "@/app/assets/constants";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -11,7 +10,7 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
+const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes, sauceTypes, toppingTypes }) => {
   const categoryRefs = useRef({});
   const buttonRefs = useRef({});
   const [activeCategory, setActiveCategory] = useState("");
@@ -24,29 +23,31 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
     return <div className="p-4 text-red-600">Missing required props</div>;
   }
 
-  // Get categories in the specified order
+  // Get categories using new category structure: typeCategory + subCategory combinations
   const uniqueCategories = useMemo(() => {
-    const categoryNames = {
-      specials: "Specials",
-      basics: "Basics",
-      croissants: "Breakfast",
-      zoetigheden: "Sweets",
-      dranken: "Drinks",
-    };
-
-    // Get all categories that exist in the data
-    const existingCategories = new Set(
-      sandwichOptions.map((item) => item.category)
-    );
-
-    // Filter categoryNames to only include categories that exist in the data
-    return Object.entries(categoryNames)
-      .filter(([key]) => existingCategories.has(key))
-      .map(([key, name]) => ({
-        id: key,
-        name: name,
-        value: key,
-      }));
+    const categoryMap = new Map();
+    
+    sandwichOptions.forEach(item => {
+      if (item.typeCategory && item.subCategory) {
+        const key = `${item.typeCategory}-${item.subCategory}`;
+        const name = `${item.typeCategory} - ${item.subCategory}`;
+        categoryMap.set(key, { 
+          id: key, 
+          name, 
+          value: key, 
+          typeCategory: item.typeCategory, 
+          subCategory: item.subCategory 
+        });
+      }
+    });
+    
+    // Sort by type category then sub category
+    return Array.from(categoryMap.values()).sort((a, b) => {
+      if (a.typeCategory !== b.typeCategory) {
+        return a.typeCategory.localeCompare(b.typeCategory);
+      }
+      return a.subCategory.localeCompare(b.subCategory);
+    });
   }, [sandwichOptions]);
 
   // Detect reduced motion preference
@@ -253,7 +254,10 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
             {/* Category items */}
             <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
               {sandwichOptions
-                .filter((item) => item.category === category.value)
+                .filter((item) => {
+                  return item.typeCategory === category.typeCategory && 
+                         item.subCategory === category.subCategory;
+                })
                 .map((item) => (
                   <div key={item._id} className="relative">
                     {/* this is the card for each sandwich */}
@@ -268,10 +272,10 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
                           <p className="mt-1 text-sm font-medium">
                             €{item.price.toFixed(2)}
                           </p>
-                          {item.dietaryType && (
+                          {item.subCategory && (
                             <div className="mt-2 text-xs font-medium rounded text-muted-foreground">
                               <span className="px-2 py-1 rounded-sm bg-muted">
-                                {item.dietaryType}
+                                {item.subCategory}
                               </span>
                             </div>
                           )}
@@ -292,6 +296,9 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData }) => {
                       formData={formData}
                       updateFormData={updateFormData}
                       totalAllowed={formData.totalSandwiches}
+                      breadTypes={breadTypes}
+                      sauceTypes={sauceTypes}
+                      toppingTypes={toppingTypes}
                     />
                   </div>
                 ))}

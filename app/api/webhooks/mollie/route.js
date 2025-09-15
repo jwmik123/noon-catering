@@ -1,11 +1,11 @@
-// app/api/webhooks/mollie/route.js - Enhanced with Yuki integration
+// app/api/webhooks/mollie/route.js
 import { createMollieClient } from "@mollie/api-client";
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
-import { createYukiInvoice } from "@/lib/yuki-api";
+
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -68,9 +68,7 @@ export async function POST(request) {
       switch (status) {
         case "paid":
           // Payment completed successfully
-          console.log(
-            "Payment paid - sending confirmation and processing Yuki"
-          );
+          console.log("Payment paid - sending confirmation");
           await handlePaidStatus(quoteId);
           break;
         case "failed":
@@ -217,21 +215,7 @@ async function handlePaidStatus(quoteId) {
         `Invoice document created in Sanity with ID: ${newInvoice._id}`
       );
 
-      // Now, send this to Yuki
-      if (process.env.YUKI_ENABLED === "true") {
-        console.log(
-          `Triggering Yuki invoice creation for quote: ${order.quoteId}`
-        );
-        // Run in the background, but log if it fails. No need to await.
-        createYukiInvoice(order.quoteId, newInvoice._id).catch((error) => {
-          console.error(
-            `Background Yuki invoice creation failed for ${order.quoteId}:`,
-            error
-          );
-        });
-      } else {
-        console.log("Yuki integration is disabled. Skipping invoice creation.");
-      }
+
     } catch (invoiceError) {
       console.error(
         "Failed to create invoice document for paid order:",

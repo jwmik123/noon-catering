@@ -72,15 +72,13 @@ export default function PrivacyPage() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">7. Contact Information</h2>
         <p className="mb-4">
-          The Sandwich Bar Nassaukade B.V.
+          NOON Sandwicherie & Koffie
           <br />
-          Nassaukade 378 H
+          Keizer Leopoldstraat 1
           <br />
-          1054 AD Amsterdam
+          9000 Gent, België
           <br />
-          KVK Number: 81264782
-          <br />
-          VAT Number: NL81264782B01
+          VAT Number: BTW BE 0795406037
           <br />
           Email: orders@thesandwichbar.nl
         </p>

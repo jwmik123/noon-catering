@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, BREAD_TYPES_QUERY, SAUCE_TYPES_QUERY, TOPPING_TYPES_QUERY } from "@/sanity/lib/queries";
 import Wizard from "@/app/components/wizard/Wizard";
 import SandwichAmountStep from "@/app/components/steps/SandwichAmountStep";
 import SelectionTypeStep from "@/app/components/steps/SelectionTypeStep";
@@ -24,6 +24,9 @@ import { useOrderValidation } from "@/app/hooks/useOrderValidation";
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
+  const [breadTypes, setBreadTypes] = useState([]);
+  const [sauceTypes, setSauceTypes] = useState([]);
+  const [toppingTypes, setToppingTypes] = useState([]);
   const [date, setDate] = useState(null);
   const {
     formData,
@@ -37,11 +40,25 @@ const Home = () => {
   const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const products = await client.fetch(PRODUCT_QUERY);
-      setSandwichOptions(products);
+    const fetchData = async () => {
+      try {
+        const [products, breads, sauces, toppings] = await Promise.all([
+          client.fetch(PRODUCT_QUERY),
+          client.fetch(BREAD_TYPES_QUERY),
+          client.fetch(SAUCE_TYPES_QUERY),
+          client.fetch(TOPPING_TYPES_QUERY),
+        ]);
+        
+        setSandwichOptions(products);
+        setBreadTypes(breads);
+        setSauceTypes(sauces);
+        setToppingTypes(toppings);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-    fetchProducts();
+    
+    fetchData();
   }, []);
 
   const [currentStep, setCurrentStep] = useState(() => {
@@ -72,7 +89,7 @@ const Home = () => {
   const secondaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
 
   const steps = [
-    { icon: Users, title: "Amount of sandwiches" },
+    { icon: Users, title: "How many people?" },
     { icon: Utensils, title: "Offer" },
     { icon: FileText, title: "Summary" },
     { icon: Calendar, title: "Delivery" },
@@ -95,6 +112,9 @@ const Home = () => {
             formData={formData}
             updateFormData={updateFormData}
             sandwichOptions={sandwichOptions}
+            breadTypes={breadTypes}
+            sauceTypes={sauceTypes}
+            toppingTypes={toppingTypes}
           />
         );
       case 3:
@@ -104,6 +124,9 @@ const Home = () => {
             updateFormData={updateFormData}
             setCurrentStep={setCurrentStep}
             sandwichOptions={sandwichOptions}
+            breadTypes={breadTypes}
+            sauceTypes={sauceTypes}
+            toppingTypes={toppingTypes}
             secondaryButtonClasses={secondaryButtonClasses}
             totalAmount={totalAmount}
           />

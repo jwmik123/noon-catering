@@ -6,12 +6,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 
 const SandwichAmountStep = ({ formData, updateFormData }) => {
+  const handlePeopleChange = (people) => {
+    const numPeople = parseInt(people) || 0;
+    const totalSandwiches = Math.max(numPeople, 15); // 1 per person, minimum 15
+    updateFormData("numberOfPeople", numPeople);
+    updateFormData("totalSandwiches", totalSandwiches.toString());
+  };
+
   return (
     <div className="space-y-8">
       {/* Header section */}
       <div className="flex gap-2 items-center text-lg font-medium text-custom-gray">
         <Users className="w-5 h-5" />
-        <h2 className="text-gray-700">Amount of sandwiches</h2>
+        <h2 className="text-gray-700">How many people?</h2>
       </div>
       <div className="flex flex-col gap-4 md:flex-row">
         <div className="flex flex-row w-full md:w-1/2">
@@ -20,21 +27,19 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="mb-4 w-full">
                 <Label htmlFor="peopleSelect">
-                  How many sandwiches would you like?
+                  How many people are you ordering for?
                 </Label>
                 <Select
-                  value={formData.totalSandwiches.toString()}
-                  onValueChange={(value) =>
-                    updateFormData("totalSandwiches", value)
-                  }
+                  value={formData.numberOfPeople?.toString() || ""}
+                  onValueChange={handlePeopleChange}
                 >
                   <SelectTrigger className="mt-1 w-full">
-                    <SelectValue placeholder="Select number of sandwiches" />
+                    <SelectValue placeholder="Select number of people" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[15, 20, 30, 50, 100, 200, 300, 500].map((num) => (
+                    {[15, 20, 25, 30, 50, 75, 100, 150, 200, 300].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
-                        {num} sandwiches
+                        {num} people
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -46,13 +51,11 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
                 <Input
                   id="peopleInput"
                   type="number"
-                  min="1"
-                  value={formData.totalSandwiches}
-                  onChange={(e) =>
-                    updateFormData("totalSandwiches", e.target.value)
-                  }
+                  min="15"
+                  value={formData.numberOfPeople || ""}
+                  onChange={(e) => handlePeopleChange(e.target.value)}
                   className="mt-1"
-                  placeholder="Enter number of sandwiches"
+                  placeholder="Enter number of people"
                 />
               </div>
             </div>
@@ -60,8 +63,8 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
             <div className="w-full">
               <div className="space-y-6">
                 <div className="p-4 text-sm text-green-500 bg-green-50 rounded-md bg-beige-50">
-                  <p>* We recommend 2 sandwiches per person</p>
-                  <p>* Minimum 15 sandwiches</p>
+                  <p>* We provide 1 sandwich per person</p>
+                  <p>* Minimum 15 people</p>
                 </div>
               </div>
             </div>
@@ -73,16 +76,18 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
           <h3 className="mb-4 text-lg font-medium text-custom-gray">Summary</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <p className="text-sm text-custom-gray">
-                Total number of sandwiches
-              </p>
-              <p className="text-lg font-medium">{formData.totalSandwiches}</p>
-              {formData.totalSandwiches < 15 &&
-                formData.totalSandwiches > 0 && (
-                  <p className="mt-1 text-sm text-red-600">
-                    * Minimum 15 sandwiches
+              <div>
+                <p className="text-sm text-custom-gray">Number of people</p>
+                <p className="text-lg font-medium">{formData.numberOfPeople || 0}</p>
+                {formData.numberOfPeople < 15 && formData.numberOfPeople > 0 && (
+                  <p className="mt-1 text-sm text-red-600">* Minimum 15 people required</p>
+                )}
+                {formData.numberOfPeople >= 15 && (
+                  <p className="mt-1 text-sm text-green-600">
+                    = {formData.numberOfPeople} sandwiches (1 per person)
                   </p>
                 )}
+              </div>
             </div>
           </div>
         </div>

@@ -18,9 +18,9 @@ export default function TermsPage() {
       <section className="mb-8">
         <h2 className="mb-4 text-2xl font-semibold">1. Company Information</h2>
         <p className="mb-4">
-          This website is operated by The Sandwich Bar Nassaukade B.V.,
-          registered with the Dutch Chamber of Commerce under number 81264782,
-          with VAT ID NL81264782B01.
+          This website is operated by NOON Sandwicherie & Koffie,
+          registered with the Belgian Chamber of Commerce under number 81264782,
+          with VAT ID BTW BE 0795406037.
         </p>
       </section>
 

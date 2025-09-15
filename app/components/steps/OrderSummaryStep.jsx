@@ -4,7 +4,6 @@ import { FileText } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import QuoteButton from "@/app/components/QuoteButton";
-import { breadTypes } from "@/app/assets/constants";
 import { isDrink } from "@/lib/product-helpers";
 
 const OrderSummaryStep = ({
@@ -12,6 +11,9 @@ const OrderSummaryStep = ({
   updateFormData,
   setCurrentStep,
   sandwichOptions,
+  breadTypes,
+  sauceTypes,
+  toppingTypes,
   secondaryButtonClasses,
   totalAmount,
 }) => {
@@ -56,7 +58,7 @@ const OrderSummaryStep = ({
                         </div>
                         {selections.map((selection, index) => {
                           const breadType = breadTypes.find(
-                            (b) => b.id === selection.breadType
+                            (b) => b.slug === selection.breadType
                           )?.name;
 
                           return (

@@ -39,7 +39,7 @@ const Wizard = ({
           <div className="flex justify-between items-center">
             <Image
               src={"/tsb-logo-full.png"}
-              alt="The Sandwich Bar Nassaukade B.V. Logo"
+              alt="NOON Sandwicherie & Koffie Logo"
               className="w-16 md:w-20"
               width={250}
               height={250}

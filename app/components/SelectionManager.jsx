@@ -7,6 +7,9 @@ const SelectionManager = ({
   formData,
   updateFormData,
   totalAllowed,
+  breadTypes,
+  sauceTypes,
+  toppingTypes,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const sandwichId = sandwich._id;
@@ -42,6 +45,9 @@ const SelectionManager = ({
         sandwich={sandwich}
         onAdd={handleAddSelection}
         remainingQuantity={remainingQuantity}
+        breadTypes={breadTypes}
+        sauceTypes={sauceTypes}
+        toppingTypes={toppingTypes}
       />
     </div>
   );

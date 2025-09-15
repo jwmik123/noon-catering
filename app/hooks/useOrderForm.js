@@ -5,13 +5,16 @@ import { postalCodeDeliveryCosts } from "@/app/assets/postals";
 export const useOrderForm = () => {
   const [formData, setFormData] = useState({
     // Stap 1
+    numberOfPeople: 15,
     totalSandwiches: 15,
     // Stap 3
     selectionType: "",
     allergies: "",
     varietySelection: {
-      vega: 0,
-      nonVega: 0,
+      meat: 0,
+      chicken: 0,
+      fish: 0,
+      veggie: 0,
       vegan: 0,
     },
     // Stap 5
@@ -86,7 +89,7 @@ export const useOrderForm = () => {
         .reduce((total, selection) => total + selection.subTotal, 0);
     } else {
       // For variety selection
-      subtotal = formData.totalSandwiches * 6.83; // Assuming €6.83 per sandwich
+      subtotal = formData.numberOfPeople * 6.83; // €6.83 per person (1 sandwich each)
     }
     
     // Add drinks pricing if drinks are selected
@@ -195,7 +198,8 @@ export const useOrderForm = () => {
           // Restore form data
           setFormData({
             // Step 1
-            totalSandwiches: quote.orderDetails.totalSandwiches,
+            numberOfPeople: quote.orderDetails.numberOfPeople || quote.orderDetails.totalSandwiches || 15,
+            totalSandwiches: quote.orderDetails.numberOfPeople || quote.orderDetails.totalSandwiches || 15,
             // Step 3
             selectionType: quote.orderDetails.selectionType,
             customSelection:

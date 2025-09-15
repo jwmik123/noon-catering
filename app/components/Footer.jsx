@@ -18,26 +18,24 @@ const Footer = () => {
           {/* Company Details */}
           <div>
             <h3 className="mb-4 text-lg font-semibold">Company Details</h3>
-            <p className="text-sm text-muted-foreground">
-              The Sandwich Bar Nassaukade B.V.
+            <p className="text-sm text-white">
+              NOON Sandwicherie & Koffie
               <br />
-              Nassaukade 378 H
+              Keizer Leopoldstraat 1
               <br />
-              1054 AD Amsterdam
+              9000 Gent, België
               <br />
-              KVK Number: 81038739
-              <br />
-              VAT Number: NL861900558B01
+              VAT Number: BTW BE 0795406037
             </p>
           </div>
 
           {/* Contact */}
           <div>
             <h3 className="mb-4 text-lg font-semibold">Contact</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white">
               <a
                 href="mailto:orders@thesandwichbar.nl"
-                className="text-muted-foreground hover:text-white"
+                className="text-white hover:text-gray-300"
               >
                 orders@thesandwichbar.nl
               </a>
@@ -51,7 +49,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/terms"
-                  className="text-muted-foreground hover:text-white"
+                  className="text-white hover:text-gray-300"
                 >
                   Terms and Conditions
                 </Link>
@@ -59,7 +57,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/privacy"
-                  className="text-muted-foreground hover:text-white"
+                  className="text-white hover:text-gray-300"
                 >
                   Privacy Policy
                 </Link>
@@ -69,9 +67,9 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="flex justify-between pt-4 mt-8 text-sm text-center border-t text-muted-foreground border-muted-foreground">
+        <div className="flex justify-between pt-4 mt-8 text-sm text-center border-t text-white border-white/30">
           <p>
-            &copy; {new Date().getFullYear()} The Sandwich Bar Nassaukade B.V.
+            &copy; {new Date().getFullYear()} NOON Sandwicherie & Koffie
             All rights reserved.
           </p>
           <p>
@@ -79,7 +77,7 @@ const Footer = () => {
             <Link
               href="https://mikdevelopment.nl"
               target="_blank"
-              className="font-bold transition-colors duration-300 hover:text-orange-500"
+              className="font-bold transition-colors duration-300 text-white hover:text-orange-500"
             >
               Mik Development
             </Link>

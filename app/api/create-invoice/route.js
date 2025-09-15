@@ -3,7 +3,7 @@ import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
-import { createYukiInvoice } from "@/lib/yuki-api";
+
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -131,19 +131,7 @@ export async function POST(request) {
 
     console.log("Invoice created in Sanity with ID:", updatedQuote._id);
 
-    // Send invoice to Yuki right away
-    // if (process.env.YUKI_ENABLED === "true") {
-    //   console.log(`Triggering Yuki invoice creation for quote: ${quoteId}`);
-    //   // Run in the background, but log if it fails. No need to await.
-    //   createYukiInvoice(quoteId, updatedQuote._id).catch((error) => {
-    //     console.error(
-    //       `Background Yuki invoice creation failed for ${quoteId}:`,
-    //       error
-    //     );
-    //   });
-    // } else {
-    //   console.log("Yuki integration is disabled. Skipping invoice creation.");
-    // }
+
 
     // Fetch sandwich options to include in the email
     console.log("Fetching sandwich options for email...");

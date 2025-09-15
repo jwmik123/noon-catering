@@ -56,7 +56,7 @@ export default function OrderConfirmation({
   return (
     <Html>
       <Head />
-      <Preview>Thank you for your order at The Sandwich Bar</Preview>
+      <Preview>Thank you for your order at NOON Sandwicherie & Koffie</Preview>
       <Body style={main}>
         <Container style={container}>
           <Text style={title}>Order Confirmation</Text>
@@ -174,7 +174,7 @@ export default function OrderConfirmation({
           <Text style={paragraph}>
             With kind regards,
             <br />
-            The Sandwich Bar Nassaukade B.V.
+            NOON Sandwicherie & Koffie
           </Text>
         </Container>
       </Body>

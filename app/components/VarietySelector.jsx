@@ -6,14 +6,18 @@ import { HelpCircle } from "lucide-react";
 
 const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
   const [selectedTypes, setSelectedTypes] = useState({
-    nonVega: false,
-    vega: false,
+    meat: false,
+    chicken: false,
+    fish: false,
+    veggie: false,
     vegan: false,
   });
 
   const [suggestedDistribution, setSuggestedDistribution] = useState({
-    nonVega: 0,
-    vega: 0,
+    meat: 0,
+    chicken: 0,
+    fish: 0,
+    veggie: 0,
     vegan: 0,
   });
 
@@ -33,8 +37,10 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
     const remainder = totalSandwiches % selectedCount;
 
     const newDistribution = {
-      nonVega: selectedTypes.nonVega ? portionSize : 0,
-      vega: selectedTypes.vega ? portionSize : 0,
+      meat: selectedTypes.meat ? portionSize : 0,
+      chicken: selectedTypes.chicken ? portionSize : 0,
+      fish: selectedTypes.fish ? portionSize : 0,
+      veggie: selectedTypes.veggie ? portionSize : 0,
       vegan: selectedTypes.vegan ? portionSize : 0,
     };
 
@@ -92,24 +98,24 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-6">
           <div className="flex flex-col">
-            <Label htmlFor="nonVega" className="text-base font-bold">
-              Chicken, Meat, Fish
+            <Label htmlFor="meat" className="text-base font-bold">
+              Meat
             </Label>
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="nonVega"
-                checked={selectedTypes.nonVega}
+                id="meat"
+                checked={selectedTypes.meat}
                 onCheckedChange={(checked) =>
-                  handleCheckChange("nonVega", checked)
+                  handleCheckChange("meat", checked)
                 }
               />
               <div className="flex-1">
                 <div className="flex items-center mt-2">
                   <Input
                     type="number"
-                    value={formData.varietySelection.nonVega || ""}
+                    value={formData.varietySelection.meat || ""}
                     onChange={(e) =>
-                      handleInputChange("nonVega", e.target.value)
+                      handleInputChange("meat", e.target.value)
                     }
                     className="w-24"
                     min="0"
@@ -118,10 +124,10 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                   <span className="ml-2 text-sm text-custom-gray">
                     sandwiches
                   </span>
-                  {selectedTypes.nonVega &&
-                    suggestedDistribution.nonVega > 0 && (
+                  {selectedTypes.meat &&
+                    suggestedDistribution.meat > 0 && (
                       <span className="ml-2 text-sm text-blue-600">
-                        (Suggested: {suggestedDistribution.nonVega})
+                        (Suggested: {suggestedDistribution.meat})
                       </span>
                     )}
                 </div>
@@ -130,23 +136,23 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
           </div>
 
           <div className="flex flex-col">
-            <Label htmlFor="vega" className="text-base font-bold">
-              Vegetarian
+            <Label htmlFor="chicken" className="text-base font-bold">
+              Chicken
             </Label>
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="vega"
-                checked={selectedTypes.vega}
+                id="chicken"
+                checked={selectedTypes.chicken}
                 onCheckedChange={(checked) =>
-                  handleCheckChange("vega", checked)
+                  handleCheckChange("chicken", checked)
                 }
               />
               <div className="flex-1">
                 <div className="flex items-center mt-2">
                   <Input
                     type="number"
-                    value={formData.varietySelection.vega || ""}
-                    onChange={(e) => handleInputChange("vega", e.target.value)}
+                    value={formData.varietySelection.chicken || ""}
+                    onChange={(e) => handleInputChange("chicken", e.target.value)}
                     className="w-24"
                     min="0"
                     max={totalSandwiches}
@@ -154,9 +160,79 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                   <span className="ml-2 text-sm text-custom-gray">
                     sandwiches
                   </span>
-                  {selectedTypes.vega && suggestedDistribution.vega > 0 && (
+                  {selectedTypes.chicken && suggestedDistribution.chicken > 0 && (
                     <span className="ml-2 text-sm text-blue-600">
-                      (Suggested: {suggestedDistribution.vega})
+                      (Suggested: {suggestedDistribution.chicken})
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <Label htmlFor="fish" className="text-base font-bold">
+              Fish
+            </Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="fish"
+                checked={selectedTypes.fish}
+                onCheckedChange={(checked) =>
+                  handleCheckChange("fish", checked)
+                }
+              />
+              <div className="flex-1">
+                <div className="flex items-center mt-2">
+                  <Input
+                    type="number"
+                    value={formData.varietySelection.fish || ""}
+                    onChange={(e) => handleInputChange("fish", e.target.value)}
+                    className="w-24"
+                    min="0"
+                    max={totalSandwiches}
+                  />
+                  <span className="ml-2 text-sm text-custom-gray">
+                    sandwiches
+                  </span>
+                  {selectedTypes.fish && suggestedDistribution.fish > 0 && (
+                    <span className="ml-2 text-sm text-blue-600">
+                      (Suggested: {suggestedDistribution.fish})
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <Label htmlFor="veggie" className="text-base font-bold">
+              Veggie
+            </Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="veggie"
+                checked={selectedTypes.veggie}
+                onCheckedChange={(checked) =>
+                  handleCheckChange("veggie", checked)
+                }
+              />
+              <div className="flex-1">
+                <div className="flex items-center mt-2">
+                  <Input
+                    type="number"
+                    value={formData.varietySelection.veggie || ""}
+                    onChange={(e) => handleInputChange("veggie", e.target.value)}
+                    className="w-24"
+                    min="0"
+                    max={totalSandwiches}
+                  />
+                  <span className="ml-2 text-sm text-custom-gray">
+                    sandwiches
+                  </span>
+                  {selectedTypes.veggie && suggestedDistribution.veggie > 0 && (
+                    <span className="ml-2 text-sm text-blue-600">
+                      (Suggested: {suggestedDistribution.veggie})
                     </span>
                   )}
                 </div>
