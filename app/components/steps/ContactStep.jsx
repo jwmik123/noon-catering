@@ -63,6 +63,7 @@ const ContactStep = ({
             isCompany: formData.isCompany,
             name: formData.companyName,
             vatNumber: formData.companyVAT,
+            btwNumber: formData.btwNumber,
             referenceNumber: formData.referenceNumber,
             address: {
               street: formData.street,
@@ -185,6 +186,20 @@ const ContactStep = ({
                   onChange={(e) =>
                     updateFormData("companyName", e.target.value)
                   }
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="btwNumber">BTW number*</Label>
+                <Input
+                  id="btwNumber"
+                  type="text"
+                  value={formData.btwNumber}
+                  onChange={(e) =>
+                    updateFormData("btwNumber", e.target.value)
+                  }
+                  placeholder="BE0123456789"
                   required
                 />
               </div>

@@ -42,6 +42,7 @@ export const useOrderForm = () => {
     isCompany: false,
     companyName: "",
     companyVAT: "",
+    btwNumber: "",
     referenceNumber: "",
     // Stap 7
     paymentMethod: "",
@@ -89,13 +90,15 @@ export const useOrderForm = () => {
       if (
         field === "isCompany" ||
         field === "companyName" ||
-        field === "companyVAT"
+        field === "companyVAT" ||
+        field === "btwNumber"
       ) {
         console.log("========= COMPANY DETAILS UPDATED =========");
         console.log("Company Details:", {
           isCompany: newData.isCompany,
           companyName: newData.companyName,
           companyVAT: newData.companyVAT,
+          btwNumber: newData.btwNumber,
         });
       }
 
@@ -149,6 +152,7 @@ export const useOrderForm = () => {
             isCompany: !!quote.companyDetails,
             companyName: quote.companyDetails?.companyName || "",
             companyVAT: quote.companyDetails?.companyVAT || "",
+            btwNumber: quote.companyDetails?.btwNumber || "",
             referenceNumber: quote.companyDetails?.referenceNumber || "",
           });
 

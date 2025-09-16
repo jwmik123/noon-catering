@@ -420,6 +420,12 @@ const InvoicePDF = ({
                 <Text style={styles.label}>Company:</Text>
                 <Text style={styles.value}>{companyName}</Text>
               </View>
+              {companyDetails.btwNumber && (
+                <View style={styles.row}>
+                  <Text style={styles.label}>BTW Number:</Text>
+                  <Text style={styles.value}>{companyDetails.btwNumber}</Text>
+                </View>
+              )}
               <View style={styles.row}>
                 <Text style={styles.label}>Address:</Text>
                 <Text style={styles.value}>
@@ -471,6 +477,12 @@ const InvoicePDF = ({
               <Text style={styles.label}>Company Name:</Text>
               <Text style={styles.value}>{companyName}</Text>
             </View>
+            {companyDetails.btwNumber && (
+              <View style={styles.row}>
+                <Text style={styles.label}>BTW Number:</Text>
+                <Text style={styles.value}>{companyDetails.btwNumber}</Text>
+              </View>
+            )}
           </View>
         )}
 
