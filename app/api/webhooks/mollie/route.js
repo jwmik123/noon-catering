@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 
 const mollieClient = createMollieClient({
@@ -171,23 +172,26 @@ async function handlePaidStatus(quoteId) {
       console.log("Will continue with empty sandwich options array");
     }
 
-    // Calculate amounts using PaymentStep.jsx pattern
+    // Calculate amounts using correct Belgian VAT rates
     const subtotalAmount = calculateOrderTotal(order.orderDetails); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
-    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
-    const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Consistent with InvoicePDF calculation
-    
+    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
+
     console.log(`Amount calculation for quote ${quoteId}:`);
     console.log(`- Subtotal (items): €${subtotalAmount.toFixed(2)}`);
     console.log(`- Delivery cost: €${deliveryCost.toFixed(2)}`);
-    console.log(`- VAT (9%): €${vatAmount.toFixed(2)}`);
-    console.log(`- Total: €${totalAmount.toFixed(2)}`);
-    
+    console.log(`- VAT Food (6%): €${vatBreakdown.foodVAT.toFixed(2)}`);
+    console.log(`- VAT Delivery (21%): €${vatBreakdown.deliveryVAT.toFixed(2)}`);
+    console.log(`- Total VAT: €${vatBreakdown.totalVAT.toFixed(2)}`);
+    console.log(`- Total: €${vatBreakdown.totalWithVAT.toFixed(2)}`);
+
     const amountData = {
-      subtotal: subtotalAmount,
-      delivery: deliveryCost,
-      vat: vatAmount,
-      total: totalAmount,
+      subtotal: vatBreakdown.subtotal,
+      delivery: vatBreakdown.deliverySubtotal,
+      foodVAT: vatBreakdown.foodVAT,
+      deliveryVAT: vatBreakdown.deliveryVAT,
+      vat: vatBreakdown.totalVAT,
+      total: vatBreakdown.totalWithVAT,
     };
 
     // Create an invoice document in Sanity for consistency

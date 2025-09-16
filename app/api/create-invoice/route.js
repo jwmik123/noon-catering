@@ -3,6 +3,7 @@ import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 
 export async function POST(request) {
@@ -88,15 +89,36 @@ export async function POST(request) {
     const finalTotal = Number(amount) || 0;
     const deliveryCost = orderDetails.deliveryCost || 0;
     
-    // Reverse calculate to get the subtotal (items only, VAT-exclusive)  
-    const subtotalAmount = (finalTotal / 1.09) - deliveryCost;
-    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
-    
+    // Reverse calculate from final total using correct VAT rates
+    // This is complex because we need to work backwards from total with mixed VAT rates
+    // For now, we'll use a simplified approach and recalculate properly
+
+    // First, extract delivery VAT if there's a delivery cost
+    let remainingTotal = finalTotal;
+    let deliveryWithoutVAT = deliveryCost;
+    let deliveryVATAmount = 0;
+
+    if (deliveryCost > 0) {
+      // Delivery total includes 21% VAT, so delivery without VAT = total / 1.21
+      deliveryWithoutVAT = deliveryCost / 1.21;
+      deliveryVATAmount = deliveryCost - deliveryWithoutVAT;
+      remainingTotal = finalTotal - deliveryCost;
+    }
+
+    // The remaining total is food + food VAT (6%)
+    const foodSubtotal = remainingTotal / 1.06;
+    const foodVATAmount = remainingTotal - foodSubtotal;
+
+    // Use proper VAT breakdown calculation
+    const vatBreakdown = calculateVATBreakdown(foodSubtotal, deliveryWithoutVAT);
+
     const amountData = {
-      subtotal: subtotalAmount,
-      delivery: deliveryCost,
-      vat: vatAmount,
-      total: finalTotal,
+      subtotal: vatBreakdown.subtotal,
+      delivery: vatBreakdown.deliverySubtotal,
+      foodVAT: vatBreakdown.foodVAT,
+      deliveryVAT: vatBreakdown.deliveryVAT,
+      vat: vatBreakdown.totalVAT,
+      total: vatBreakdown.totalWithVAT,
     };
 
     console.log("Creating invoice in Sanity with data:");

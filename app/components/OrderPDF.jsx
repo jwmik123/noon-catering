@@ -7,6 +7,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
+import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 const styles = StyleSheet.create({
   page: {
@@ -504,18 +505,42 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
               €{calculateSubtotal(orderData).toFixed(2)}
             </Text>
           </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>VAT (9%):</Text>
-            <Text style={styles.totalValue}>
-              €{(calculateSubtotal(orderData) * 0.09).toFixed(2)}
-            </Text>
-          </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={[styles.totalValue, { fontWeight: 600 }]}>
-              €{(calculateSubtotal(orderData) * 1.09).toFixed(2)}
-            </Text>
-          </View>
+          {(() => {
+            const foodSubtotal = calculateSubtotal(orderData);
+            const deliveryCost = orderData.deliveryCost || 0;
+            const vatBreakdown = calculateVATBreakdown(foodSubtotal, deliveryCost);
+
+            return (
+              <>
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>VAT Food (6%):</Text>
+                  <Text style={styles.totalValue}>
+                    €{vatBreakdown.foodVAT.toFixed(2)}
+                  </Text>
+                </View>
+                {deliveryCost > 0 && (
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>VAT Delivery (21%):</Text>
+                    <Text style={styles.totalValue}>
+                      €{vatBreakdown.deliveryVAT.toFixed(2)}
+                    </Text>
+                  </View>
+                )}
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Total VAT:</Text>
+                  <Text style={styles.totalValue}>
+                    €{vatBreakdown.totalVAT.toFixed(2)}
+                  </Text>
+                </View>
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Total:</Text>
+                  <Text style={[styles.totalValue, { fontWeight: 600 }]}>
+                    €{vatBreakdown.totalWithVAT.toFixed(2)}
+                  </Text>
+                </View>
+              </>
+            );
+          })()}
         </View>
 
         <View style={styles.companyDetails}>

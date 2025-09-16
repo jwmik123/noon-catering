@@ -8,6 +8,7 @@ import {
   Section,
 } from "@react-email/components";
 import { isDrink } from "@/lib/product-helpers";
+import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 export default function OrderConfirmation({
   quoteId,
@@ -180,7 +181,7 @@ export default function OrderConfirmation({
             <Text style={detailText}>
               Subtotal: €{calculateSubtotal(orderDetails).toFixed(2)}
               <br />
-              VAT (9%): €{Math.ceil(calculateSubtotal(orderDetails) * 0.09 * 100) / 100}
+              VAT Food (6%): €{Math.ceil(calculateSubtotal(orderDetails) * 0.06 * 100) / 100}
               <br />
               Total: €{totalAmount.toFixed(2)}
             </Text>

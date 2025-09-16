@@ -8,6 +8,7 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
+import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 const styles = StyleSheet.create({
   page: {
@@ -208,15 +209,16 @@ const InvoicePDF = ({
     // Delivery cost (VAT-exclusive)
     const deliveryCost = orderDetails.deliveryCost || 0;
     
-    // Calculate VAT and total using PaymentStep pattern
-    const vatAmount = Math.ceil((subtotalAmount + deliveryCost) * 0.09 * 100) / 100;
-    const totalAmount = subtotalAmount + deliveryCost + vatAmount; // Always calculate total correctly
+    // Calculate VAT and total using correct Belgian VAT rates
+    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
 
     return {
-      subtotal: subtotalAmount,
-      delivery: deliveryCost,
-      vat: vatAmount,
-      total: totalAmount,
+      subtotal: vatBreakdown.subtotal,
+      delivery: vatBreakdown.deliverySubtotal,
+      foodVAT: vatBreakdown.foodVAT,
+      deliveryVAT: vatBreakdown.deliveryVAT,
+      vat: vatBreakdown.totalVAT,
+      total: vatBreakdown.totalWithVAT,
     };
   })();
 
@@ -695,7 +697,17 @@ const InvoicePDF = ({
             </View>
           )}
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>VAT (9%):</Text>
+            <Text style={styles.totalLabel}>VAT Food (6%):</Text>
+            <Text style={styles.totalValue}>€{amountData.foodVAT.toFixed(2)}</Text>
+          </View>
+          {amountData.deliveryVAT > 0 && (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>VAT Delivery (21%):</Text>
+              <Text style={styles.totalValue}>€{amountData.deliveryVAT.toFixed(2)}</Text>
+            </View>
+          )}
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total VAT:</Text>
             <Text style={styles.totalValue}>€{amountData.vat.toFixed(2)}</Text>
           </View>
           <View style={styles.totalRow}>

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { CreditCard } from "lucide-react";
 import { generateQuote } from "@/app/actions/generateQuote";
+import { calculateTotalWithVAT, formatVATBreakdown } from "@/lib/vat-calculations";
 
 const PaymentStep = ({
   formData,
@@ -12,6 +13,9 @@ const PaymentStep = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("online");
+
+  // Calculate VAT breakdown with correct rates
+  const vatBreakdown = formatVATBreakdown(totalAmount, deliveryCost || 0);
 
   const handlePayment = async () => {
     try {
@@ -33,7 +37,7 @@ const PaymentStep = ({
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: (totalAmount + (deliveryCost || 0)) * 1.09, // Include VAT
+              amount: calculateTotalWithVAT(totalAmount, deliveryCost || 0), // Include correct VAT rates
               orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
@@ -53,7 +57,7 @@ const PaymentStep = ({
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: (totalAmount + (deliveryCost || 0)) * 1.09, // Include VAT
+              amount: calculateTotalWithVAT(totalAmount, deliveryCost || 0), // Include correct VAT rates
               orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
@@ -100,19 +104,23 @@ const PaymentStep = ({
             </div>
           )}
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">VAT (9%):</span>
-            <span className="font-medium">
-              €
-              {Math.ceil((totalAmount + (deliveryCost || 0)) * 0.09 * 100) /
-                100}
-            </span>
+            <span className="text-gray-600">VAT Food (6%):</span>
+            <span className="font-medium">{vatBreakdown.foodVAT}</span>
+          </div>
+          {deliveryCost > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600">VAT Delivery (21%):</span>
+              <span className="font-medium">{vatBreakdown.deliveryVAT}</span>
+            </div>
+          )}
+          <div className="flex justify-between items-center border-t pt-2">
+            <span className="text-gray-600">Total VAT:</span>
+            <span className="font-medium">{vatBreakdown.totalVAT}</span>
           </div>
           <div className="pt-4 border-t">
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold">Total:</span>
-              <span className="text-lg font-bold">
-                €{((totalAmount + (deliveryCost || 0)) * 1.09).toFixed(2)}
-              </span>
+              <span className="text-lg font-bold">{vatBreakdown.total}</span>
             </div>
           </div>
         </div>
