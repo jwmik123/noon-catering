@@ -73,7 +73,7 @@ const SelectedSandwichesList = ({
                     <span>
                       {selection.quantity}x -{" "}
                       {
-                        breadTypes.find((b) => b.id === selection.breadType)
+                        breadTypes.find((b) => b.slug === selection.breadType)
                           ?.name
                       }
                       {getSauceName(sandwich, selection.sauce)}

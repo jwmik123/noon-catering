@@ -307,7 +307,7 @@ const SelectionModal = ({
                       <span>
                         +€
                         {breadTypes
-                          .find((b) => b.id === breadType)
+                          .find((b) => b.slug === breadType)
                           ?.surcharge.toFixed(2)}
                       </span>
                     </div>

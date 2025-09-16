@@ -32,7 +32,9 @@ const Home = () => {
     formData,
     updateFormData,
     deliveryCost,
+    setDeliveryCost,
     deliveryError,
+    setDeliveryError,
     totalAmount,
     restoreQuote,
   } = useOrderForm();
@@ -140,6 +142,9 @@ const Home = () => {
             setDate={setDate}
             deliveryError={deliveryError}
             deliveryCost={deliveryCost}
+            setDeliveryCost={setDeliveryCost}
+            setDeliveryError={setDeliveryError}
+            totalAmount={totalAmount}
           />
         );
       case 5:

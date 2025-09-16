@@ -22,31 +22,36 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     updateFormData("deliveryTime", "");
   };
 
-  // Function to disable past dates and weekends
+  // Function to disable dates - only allow 2 days ahead or later
   const disabledDays = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    // Disable today and past dates
-    if (date <= today) return true;
+    // Calculate minimum delivery date (2 days from today)
+    const minDeliveryDate = new Date(today);
+    minDeliveryDate.setDate(today.getDate() + 2);
+    // Disable dates before minimum delivery date
+    if (date < minDeliveryDate) return true;
     return false;
   };
 
   const generateTimeSlots = () => {
     const slots = [];
-    // Generate slots between 10:00 and 17:00 (5 PM)
-    for (let hour = 10; hour < 17; hour++) {
+    // Generate slots between 11:00 and 15:30
+    for (let hour = 11; hour <= 15; hour++) {
       // Add full hour slot
       const fullHourValue = `${hour.toString().padStart(2, "0")}:00`;
       slots.push({
         value: fullHourValue,
         label: `${fullHourValue}`,
       });
-      // Add half hour slot
-      const halfHourValue = `${hour.toString().padStart(2, "0")}:30`;
-      slots.push({
-        value: halfHourValue,
-        label: `${halfHourValue}`,
-      });
+      // Add half hour slot, but stop at 15:30
+      if (hour < 15 || (hour === 15 && 30 <= 30)) {
+        const halfHourValue = `${hour.toString().padStart(2, "0")}:30`;
+        slots.push({
+          value: halfHourValue,
+          label: `${halfHourValue}`,
+        });
+      }
     }
     return slots;
   };

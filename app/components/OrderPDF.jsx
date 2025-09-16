@@ -205,9 +205,9 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
 
   // Safely get the image URL
   const baseUrl =
-    process.env.NEXT_PUBLIC_URL || "https://catering.thesandwichbar.nl";
+    process.env.NEXT_PUBLIC_URL || "https://catering.noonsandwicherie.be";
   const imageUrl = {
-    uri: `${baseUrl}/tsb-logo-full.png`,
+    uri: `${baseUrl}/noon-logos/Logo-Noon-Catering3.png`,
     method: "GET",
   };
 
@@ -365,53 +365,76 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                 )
               ) : (
                 <>
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>
-                      Chicken, Meat, Fish
-                    </Text>
-                    <Text style={styles.tableCell}>
-                      {orderData.varietySelection?.nonVega || 0}x
-                    </Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>
-                      €
-                      {(
-                        (orderData.varietySelection?.nonVega || 0) * 6.83
-                      ).toFixed(2)}
-                    </Text>
-                  </View>
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>Vegetarian</Text>
-                    <Text style={styles.tableCell}>
-                      {orderData.varietySelection?.vega || 0}x
-                    </Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>
-                      €
-                      {((orderData.varietySelection?.vega || 0) * 6.83).toFixed(
-                        2
-                      )}
-                    </Text>
-                  </View>
-                  <View style={styles.tableRow}>
-                    <Text style={styles.tableCellName}>Vegan</Text>
-                    <Text style={styles.tableCell}>
-                      {orderData.varietySelection?.vegan || 0}x
-                    </Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>-</Text>
-                    <Text style={styles.tableCell}>
-                      €
-                      {(
-                        (orderData.varietySelection?.vegan || 0) * 6.83
-                      ).toFixed(2)}
-                    </Text>
-                  </View>
+                  {orderData.varietySelection?.meat > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Meat</Text>
+                      <Text style={styles.tableCell}>
+                        {orderData.varietySelection.meat}x
+                      </Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderData.varietySelection.meat * 6.83).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderData.varietySelection?.chicken > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Chicken</Text>
+                      <Text style={styles.tableCell}>
+                        {orderData.varietySelection.chicken}x
+                      </Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderData.varietySelection.chicken * 6.83).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderData.varietySelection?.fish > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Fish</Text>
+                      <Text style={styles.tableCell}>
+                        {orderData.varietySelection.fish}x
+                      </Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderData.varietySelection.fish * 6.83).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderData.varietySelection?.veggie > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Vegetarian</Text>
+                      <Text style={styles.tableCell}>
+                        {orderData.varietySelection.veggie}x
+                      </Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderData.varietySelection.veggie * 6.83).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderData.varietySelection?.vegan > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Vegan</Text>
+                      <Text style={styles.tableCell}>
+                        {orderData.varietySelection.vegan}x
+                      </Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderData.varietySelection.vegan * 6.83).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
                 </>
               )}
             </View>

@@ -25,15 +25,19 @@ export const useOrderValidation = (formData, deliveryError) => {
         return true; // Overview step is always valid
       case 4:
         // Validate delivery details
-        return (
-          formData.deliveryDate &&
-          formData.deliveryTime &&
-          formData.street &&
-          formData.houseNumber &&
-          formData.postalCode &&
-          formData.city &&
-          deliveryError !== "We do not deliver to this postal code."
+        const hasBasicDeliveryInfo = formData.deliveryDate && formData.deliveryTime;
+
+        // Check if address is filled (either through Google Maps or manual entry)
+        const hasAddressInfo = (
+          // Google Maps autocomplete provides fullAddress
+          formData.fullAddress ||
+          // Manual entry requires all fields
+          (formData.street && formData.houseNumber && formData.postalCode && formData.city)
         );
+
+        const hasValidDeliveryLocation = deliveryError !== "We do not deliver to this postal code.";
+
+        return hasBasicDeliveryInfo && hasAddressInfo && hasValidDeliveryLocation;
 
       case 5:
         // Validate email format
@@ -86,7 +90,24 @@ export const useOrderValidation = (formData, deliveryError) => {
         }
         return "";
       case 4:
-        return "Please fill in all fields";
+        if (!formData.deliveryDate) {
+          return "Please select a delivery date";
+        }
+        if (!formData.deliveryTime) {
+          return "Please select a delivery time";
+        }
+        if (!formData.fullAddress && (!formData.street || !formData.houseNumber || !formData.postalCode || !formData.city)) {
+          return "Please provide a complete delivery address";
+        }
+        if (deliveryError && (
+          deliveryError === "We do not deliver to this postal code." ||
+          deliveryError.includes("delivery area") ||
+          deliveryError.includes("within our delivery") ||
+          deliveryError.includes("10km")
+        )) {
+          return "Please select an address within our delivery area";
+        }
+        return "";
       default:
         return "";
     }

@@ -104,18 +104,36 @@ const OrderSummaryStep = ({
                 Distribution of sandwiches
               </p>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span>Chicken, Meat, Fish</span>
-                  <span>{formData.varietySelection.nonVega} sandwiches</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Vegetarian</span>
-                  <span>{formData.varietySelection.vega} sandwiches</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Vegan</span>
-                  <span>{formData.varietySelection.vegan} sandwiches</span>
-                </div>
+                {formData.varietySelection?.meat > 0 && (
+                  <div className="flex justify-between">
+                    <span>Meat</span>
+                    <span>{formData.varietySelection.meat} sandwiches</span>
+                  </div>
+                )}
+                {formData.varietySelection?.chicken > 0 && (
+                  <div className="flex justify-between">
+                    <span>Chicken</span>
+                    <span>{formData.varietySelection.chicken} sandwiches</span>
+                  </div>
+                )}
+                {formData.varietySelection?.fish > 0 && (
+                  <div className="flex justify-between">
+                    <span>Fish</span>
+                    <span>{formData.varietySelection.fish} sandwiches</span>
+                  </div>
+                )}
+                {formData.varietySelection?.veggie > 0 && (
+                  <div className="flex justify-between">
+                    <span>Vegetarian</span>
+                    <span>{formData.varietySelection.veggie} sandwiches</span>
+                  </div>
+                )}
+                {formData.varietySelection?.vegan > 0 && (
+                  <div className="flex justify-between">
+                    <span>Vegan</span>
+                    <span>{formData.varietySelection.vegan} sandwiches</span>
+                  </div>
+                )}
                 <div className="pt-3 border-t">
                   <div className="flex justify-between font-medium">
                     <span>Total</span>

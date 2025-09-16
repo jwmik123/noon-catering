@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { postalCodeDeliveryCosts } from "@/app/assets/postals";
 
 export const useOrderForm = () => {
   const [formData, setFormData] = useState({
@@ -25,6 +24,10 @@ export const useOrderForm = () => {
     houseNumberAddition: "",
     postalCode: "",
     city: "",
+    // Google Maps specific fields
+    fullAddress: "",
+    coordinates: null,
+    usingGoogleMaps: false,
     // Invoice address
     sameAsDelivery: true,
     invoiceStreet: "",
@@ -48,37 +51,7 @@ export const useOrderForm = () => {
   const [deliveryCost, setDeliveryCost] = useState(null);
   const [deliveryError, setDeliveryError] = useState(null);
 
-  const calculateDeliveryCost = (postalCode, orderAmount) => {
-    if (!postalCode) return null;
-    // Format postal code - remove spaces and take first 4 digits
-    const formattedPostal = postalCode.replace(/\s/g, "").substring(0, 4);
-    // Check if postal code exists in our delivery zones
-    const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
-    if (!deliveryZone) {
-      return { error: "We do not deliver to this postal code." };
-    }
-
-    // For special always-charge postal codes
-    if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
-      return {
-        cost: deliveryZone.cost,
-      };
-    }
-
-    // For regular postal codes (not special zones)
-    if (typeof deliveryZone === "number") {
-      return {
-        cost: orderAmount >= 100 ? 0 : deliveryZone,
-      };
-    }
-
-    // For special zones (postal codes that require €100 for free delivery)
-    if (typeof deliveryZone === "object") {
-      return {
-        cost: orderAmount >= 100 ? 0 : deliveryZone.cost,
-      };
-    }
-  };
+  // Old calculateDeliveryCost function removed - now using Google Maps validation
 
   const calculateTotal = (formData) => {
     let subtotal = 0;
@@ -106,31 +79,7 @@ export const useOrderForm = () => {
 
   const totalAmount = calculateTotal(formData);
 
-  // Effect to recalculate delivery cost when total amount changes
-  useEffect(() => {
-    if (formData.postalCode && totalAmount > 0) {
-      const result = calculateDeliveryCost(formData.postalCode, totalAmount);
-      if (result && !result.error) {
-        setDeliveryCost(result.cost || null);
-
-        // Update delivery messages based on new cost
-        const formattedPostal = formData.postalCode
-          .replace(/\s/g, "")
-          .substring(0, 4);
-        const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
-
-        if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
-          setDeliveryError(``);
-        } else if (result.cost > 0) {
-          setDeliveryError(
-            `Free delivery available for orders over €100 in your area`
-          );
-        } else if (result.cost === 0 && totalAmount >= 100) {
-          setDeliveryError(null);
-        }
-      }
-    }
-  }, [totalAmount, formData.postalCode]);
+  // Old postal code effect removed - delivery cost now handled by Google Maps validation
 
   const updateFormData = (field, value) => {
     setFormData((prev) => {
@@ -150,35 +99,7 @@ export const useOrderForm = () => {
         });
       }
 
-      if (field === "postalCode") {
-        const result = calculateDeliveryCost(value, totalAmount);
-        if (result?.error) {
-          setDeliveryError(result.error);
-          setDeliveryCost(null);
-        } else {
-          setDeliveryError(null);
-          setDeliveryCost(result?.cost || null);
-
-          // Add message about delivery costs or free delivery threshold
-          const formattedPostal = value.replace(/\s/g, "").substring(0, 4);
-          const deliveryZone = postalCodeDeliveryCosts[formattedPostal];
-
-          // Special case for postal codes that always have a delivery fee
-          if (typeof deliveryZone === "object" && deliveryZone.alwaysCharge) {
-            setDeliveryError(``);
-          }
-          // Regular case with minimum order for free delivery
-          else if (typeof deliveryZone === "object" && result.cost > 0) {
-            setDeliveryError(
-              `Free delivery available for orders over €100 in your area`
-            );
-          } else if (result?.cost > 0) {
-            setDeliveryError(
-              `Free delivery available for orders over €100 in your area`
-            );
-          }
-        }
-      }
+      // Old postal code validation removed - now using Google Maps validation
       return newData;
     });
   };
@@ -253,7 +174,6 @@ export const useOrderForm = () => {
     setDeliveryError,
     totalAmount,
     calculateTotal,
-    calculateDeliveryCost,
     restoreQuote,
   };
 }; 

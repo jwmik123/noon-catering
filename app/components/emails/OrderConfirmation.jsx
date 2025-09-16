@@ -115,12 +115,36 @@ export default function OrderConfirmation({
             ) : (
               <>
                 <Text style={detailText}>
-                  Chicken, Meat, Fish: {orderDetails.varietySelection.nonVega}{" "}
-                  sandwiches
-                  <br />
-                  Vegetarian: {orderDetails.varietySelection.vega} sandwiches
-                  <br />
-                  Vegan: {orderDetails.varietySelection.vegan} sandwiches
+                  {orderDetails.varietySelection?.meat > 0 && (
+                    <>
+                      Meat: {orderDetails.varietySelection.meat} sandwiches
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.varietySelection?.chicken > 0 && (
+                    <>
+                      Chicken: {orderDetails.varietySelection.chicken} sandwiches
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.varietySelection?.fish > 0 && (
+                    <>
+                      Fish: {orderDetails.varietySelection.fish} sandwiches
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.varietySelection?.veggie > 0 && (
+                    <>
+                      Vegetarian: {orderDetails.varietySelection.veggie} sandwiches
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.varietySelection?.vegan > 0 && (
+                    <>
+                      Vegan: {orderDetails.varietySelection.vegan} sandwiches
+                      <br />
+                    </>
+                  )}
                 </Text>
               </>
             )}
