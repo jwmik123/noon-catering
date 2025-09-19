@@ -28,7 +28,7 @@ const AddressAutocomplete = ({
 
         if (!isMounted || !inputRef.current) return;
 
-        // Initialize autocomplete with restrictions to Belgium and Gent
+        // Use the current Autocomplete API (the new PlaceAutocompleteElement isn't stable yet)
         autocompleteRef.current = new maps.places.Autocomplete(inputRef.current, {
           componentRestrictions: { country: 'BE' },
           fields: ['address_components', 'formatted_address', 'geometry', 'place_id'],
@@ -67,11 +67,13 @@ const AddressAutocomplete = ({
       setError('Please select a valid address from the suggestions');
       return;
     }
-
     setIsLoading(true);
     setError("");
 
     try {
+      // Get the original user input to extract house number if Google Maps doesn't provide it
+      const userInput = inputRef.current.value;
+
       // Validate address and calculate delivery cost
       const result = await validateAddressAndCalculateDelivery(
         place.formatted_address,
@@ -80,7 +82,7 @@ const AddressAutocomplete = ({
 
       if (result.isValid) {
         // Parse address components
-        const addressComponents = parseAddressComponents(place.address_components);
+        const addressComponents = parseAddressComponents(place.address_components, userInput);
 
         // Update form data with parsed address
         updateFormData("street", addressComponents.street);
@@ -121,7 +123,7 @@ const AddressAutocomplete = ({
     }
   };
 
-  const parseAddressComponents = (components) => {
+  const parseAddressComponents = (components, userInput = '') => {
     const result = {
       street: "",
       houseNumber: "",
@@ -142,12 +144,43 @@ const AddressAutocomplete = ({
       } else if (types.includes('locality') || types.includes('administrative_area_level_2')) {
         result.city = component.long_name;
       }
+      // Check for additional component types that might contain the street number
+      else if (types.includes('premise') || types.includes('subpremise')) {
+        // If we don't have a house number yet, try these components
+        if (!result.houseNumber) {
+          result.houseNumber = component.long_name;
+        } else {
+          result.houseNumberAddition = component.long_name;
+        }
+      }
     });
 
+    // If no street number found in components, try to extract from the original user input
+    if (!result.houseNumber && userInput) {
+      const inputMatch = userInput.match(/^(.+?)\s+(\d+[a-zA-Z]*)(.*)$/);
+      if (inputMatch) {
+        result.houseNumber = inputMatch[2];
+        if (inputMatch[3].trim()) {
+          result.houseNumberAddition = inputMatch[3].trim();
+        }
+      }
+    }
+
+    // If still no house number found and we have a street, try to extract from the route name
+    if (!result.houseNumber && result.street) {
+      const streetMatch = result.street.match(/^(.+?)\s+(\d+[a-zA-Z]*)(.*)$/);
+      if (streetMatch) {
+        result.street = streetMatch[1].trim();
+        result.houseNumber = streetMatch[2];
+        if (streetMatch[3].trim()) {
+          result.houseNumberAddition = streetMatch[3].trim();
+        }
+      }
+    }
     return result;
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = () => {
     // Clear validation result when user starts typing
     if (validationResult) {
       setValidationResult(null);
