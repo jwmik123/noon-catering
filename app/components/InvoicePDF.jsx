@@ -176,6 +176,8 @@ const InvoicePDF = ({
       return {
         subtotal: amount.subtotal || 0,
         delivery: amount.delivery || 0,
+        foodVAT: amount.foodVAT || 0,
+        deliveryVAT: amount.deliveryVAT || 0,
         vat: amount.vat || 0,
         total: amount.total || 0,
       };
@@ -199,7 +201,7 @@ const InvoicePDF = ({
 
     // Add drinks pricing if drinks are selected
     if (orderDetails.addDrinks && orderDetails.drinks) {
-      const drinksTotal = 
+      const drinksTotal =
         (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62 VAT-exclusive
         (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71 VAT-exclusive
         (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62 VAT-exclusive
@@ -208,17 +210,17 @@ const InvoicePDF = ({
 
     // Delivery cost (VAT-exclusive)
     const deliveryCost = orderDetails.deliveryCost || 0;
-    
+
     // Calculate VAT and total using correct Belgian VAT rates
     const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
 
     return {
-      subtotal: vatBreakdown.subtotal,
-      delivery: vatBreakdown.deliverySubtotal,
-      foodVAT: vatBreakdown.foodVAT,
-      deliveryVAT: vatBreakdown.deliveryVAT,
-      vat: vatBreakdown.totalVAT,
-      total: vatBreakdown.totalWithVAT,
+      subtotal: vatBreakdown.subtotal || 0,
+      delivery: vatBreakdown.deliverySubtotal || 0,
+      foodVAT: vatBreakdown.foodVAT || 0,
+      deliveryVAT: vatBreakdown.deliveryVAT || 0,
+      vat: vatBreakdown.totalVAT || 0,
+      total: vatBreakdown.totalWithVAT || 0,
     };
   })();
 
@@ -692,14 +694,14 @@ const InvoicePDF = ({
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal:</Text>
             <Text style={styles.totalValue}>
-              €{amountData.subtotal.toFixed(2)}
+              €{(amountData.subtotal || 0).toFixed(2)}
             </Text>
           </View>
-          {amountData.delivery > 0 ? (
+          {(amountData.delivery || 0) > 0 ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Delivery:</Text>
               <Text style={styles.totalValue}>
-                €{amountData.delivery.toFixed(2)}
+                €{(amountData.delivery || 0).toFixed(2)}
               </Text>
             </View>
           ) : (
@@ -710,22 +712,22 @@ const InvoicePDF = ({
           )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>VAT Food (6%):</Text>
-            <Text style={styles.totalValue}>€{amountData.foodVAT.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>€{(amountData.foodVAT || 0).toFixed(2)}</Text>
           </View>
-          {amountData.deliveryVAT > 0 && (
+          {(amountData.deliveryVAT || 0) > 0 && (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>VAT Delivery (21%):</Text>
-              <Text style={styles.totalValue}>€{amountData.deliveryVAT.toFixed(2)}</Text>
+              <Text style={styles.totalValue}>€{(amountData.deliveryVAT || 0).toFixed(2)}</Text>
             </View>
           )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total VAT:</Text>
-            <Text style={styles.totalValue}>€{amountData.vat.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>€{(amountData.vat || 0).toFixed(2)}</Text>
           </View>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total:</Text>
             <Text style={[styles.totalValue, { fontWeight: 600 }]}>
-              €{amountData.total.toFixed(2)}
+              €{(amountData.total || 0).toFixed(2)}
             </Text>
           </View>
         </View>
