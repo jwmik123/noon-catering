@@ -63,8 +63,7 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
             <div className="w-full">
               <div className="space-y-6">
                 <div className="p-4 text-sm text-green-500 bg-green-50 rounded-md bg-beige-50">
-                  <p>* We provide 1 sandwich per person</p>
-                  <p>* Minimum 15 people</p>
+                  <p className="mt-2">Sandwiches cut in half, festively packaged on a platter. We recommend 1 sandwich per person. Because they are cut in half, everyone can taste two different sandwiches.</p>
                 </div>
               </div>
             </div>

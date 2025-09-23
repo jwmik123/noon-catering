@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Catering - The Sandwichbar",
+  title: "Catering - Noon Sandwicherie & Koffie",
   description:
-    "The Sandwichbar is a catering company that provides a wide range of sandwiches to businesses.",
+    "Noon Sandwicherie & Koffie is a catering company that provides a wide range of sandwiches to businesses.",
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
