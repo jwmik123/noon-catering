@@ -150,9 +150,11 @@ export const product = defineType({
           name: "toppingOption",
           fields: [
             {
-              name: "name",
-              title: "Topping Name",
-              type: "string",
+              name: "topping",
+              title: "Topping",
+              type: "reference",
+              to: [{ type: "toppingType" }],
+              validation: (rule) => rule.required(),
             },
             {
               name: "price",
@@ -169,6 +171,19 @@ export const product = defineType({
               initialValue: false,
             },
           ],
+          preview: {
+            select: {
+              toppingName: "topping.name",
+              price: "price",
+              isDefault: "isDefault",
+            },
+            prepare({ toppingName, price, isDefault }) {
+              return {
+                title: toppingName || "Unnamed topping",
+                subtitle: `${price > 0 ? `+€${price.toFixed(2)}` : "Free"}${isDefault ? " (Default)" : ""}`,
+              };
+            },
+          },
         },
       ],
       hidden: ({ document }) => !document?.hasToppings,

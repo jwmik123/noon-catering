@@ -2,83 +2,130 @@ import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, ChevronDown, ChevronRight } from "lucide-react";
 
 const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
-  const [selectedTypes, setSelectedTypes] = useState({
-    meat: false,
-    chicken: false,
-    fish: false,
-    veggie: false,
-    vegan: false,
-  });
+  // Main categories from Sanity
+  const mainCategories = [
+    { value: "sandwiches", label: "Sandwiches" },
+    { value: "salads", label: "Salads" },
+    { value: "bowls", label: "Bowls" }
+  ];
 
-  const [suggestedDistribution, setSuggestedDistribution] = useState({
-    meat: 0,
-    chicken: 0,
-    fish: 0,
-    veggie: 0,
-    vegan: 0,
-  });
+  // Sub categories from Sanity
+  const subCategories = [
+    { value: "meat", label: "Meat" },
+    { value: "chicken", label: "Chicken" },
+    { value: "fish", label: "Fish" },
+    { value: "veggie", label: "Veggie" },
+    { value: "vegan", label: "Vegan" }
+  ];
 
-  // Calculate suggested distributions when selections change
+  const [selectedMainCategories, setSelectedMainCategories] = useState({});
+  const [selectedCombinations, setSelectedCombinations] = useState({});
+  const [expandedCategories, setExpandedCategories] = useState({});
+
+  // Initialize from existing form data
   useEffect(() => {
-    const selectedCount = Object.values(selectedTypes).filter(Boolean).length;
-    if (selectedCount === 0) {
-      setSuggestedDistribution({
-        nonVega: 0,
-        vega: 0,
-        vegan: 0,
-      });
-      return;
-    }
+    if (formData.varietySelection) {
+      // Convert old format to new hierarchical format
+      const newCombinations = {};
+      const newMainCategories = {};
 
-    const portionSize = Math.floor(totalSandwiches / selectedCount);
-    const remainder = totalSandwiches % selectedCount;
-
-    const newDistribution = {
-      meat: selectedTypes.meat ? portionSize : 0,
-      chicken: selectedTypes.chicken ? portionSize : 0,
-      fish: selectedTypes.fish ? portionSize : 0,
-      veggie: selectedTypes.veggie ? portionSize : 0,
-      vegan: selectedTypes.vegan ? portionSize : 0,
-    };
-
-    // Distribute remainder if any
-    if (remainder > 0) {
-      Object.keys(selectedTypes).forEach((type, index) => {
-        if (selectedTypes[type] && index < remainder) {
-          newDistribution[type] += 1;
+      Object.entries(formData.varietySelection).forEach(([key, value]) => {
+        if (value > 0) {
+          // Default to sandwiches for backward compatibility
+          const combinationKey = `sandwiches-${key}`;
+          newCombinations[combinationKey] = value;
+          newMainCategories.sandwiches = true;
         }
       });
+
+      setSelectedCombinations(newCombinations);
+      setSelectedMainCategories(newMainCategories);
+    }
+  }, []);
+
+  // Handle main category selection
+  const handleMainCategoryChange = (category, checked) => {
+    const newSelectedMain = {
+      ...selectedMainCategories,
+      [category]: checked,
+    };
+    setSelectedMainCategories(newSelectedMain);
+
+    if (checked) {
+      setExpandedCategories(prev => ({ ...prev, [category]: true }));
+    } else {
+      // Remove all combinations for this main category
+      const newCombinations = { ...selectedCombinations };
+      Object.keys(newCombinations).forEach(key => {
+        if (key.startsWith(`${category}-`)) {
+          delete newCombinations[key];
+        }
+      });
+      setSelectedCombinations(newCombinations);
+      updateFormData("varietySelection", newCombinations);
+    }
+  };
+
+  // Handle subcategory selection
+  const handleSubCategoryChange = (mainCategory, subCategory, checked) => {
+    const combinationKey = `${mainCategory}-${subCategory}`;
+    const newCombinations = { ...selectedCombinations };
+
+    if (checked) {
+      newCombinations[combinationKey] = 0; // Start with 0, user will set quantity
+    } else {
+      delete newCombinations[combinationKey];
     }
 
-    setSuggestedDistribution(newDistribution);
-
-    // Update the actual form values with the suggested distribution
-    updateFormData("varietySelection", newDistribution);
-  }, [selectedTypes, totalSandwiches]);
-
-  const handleCheckChange = (type, checked) => {
-    const newSelectedTypes = {
-      ...selectedTypes,
-      [type]: checked,
-    };
-    setSelectedTypes(newSelectedTypes);
+    setSelectedCombinations(newCombinations);
+    updateFormData("varietySelection", newCombinations);
   };
 
-  const handleInputChange = (field, value) => {
+  // Handle quantity input
+  const handleQuantityChange = (combinationKey, value) => {
     const numValue = value === "" ? 0 : Math.max(0, parseInt(value) || 0);
-    updateFormData("varietySelection", {
-      ...formData.varietySelection,
-      [field]: numValue,
-    });
+    const newCombinations = {
+      ...selectedCombinations,
+      [combinationKey]: numValue,
+    };
+    setSelectedCombinations(newCombinations);
+    updateFormData("varietySelection", newCombinations);
   };
 
-  const currentTotal = Object.values(formData.varietySelection).reduce(
+  // Toggle category expansion
+  const toggleCategoryExpansion = (category) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
+  const currentTotal = Object.values(selectedCombinations).reduce(
     (sum, val) => sum + (val || 0),
     0
   );
+
+  // Generate suggestions
+  const generateSuggestion = (mainCategory) => {
+    const selectedSubs = Object.keys(selectedCombinations).filter(key =>
+      key.startsWith(`${mainCategory}-`)
+    );
+
+    if (selectedSubs.length === 0) return {};
+
+    const portionSize = Math.floor(totalSandwiches / selectedSubs.length);
+    const remainder = totalSandwiches % selectedSubs.length;
+
+    const suggestion = {};
+    selectedSubs.forEach((key, index) => {
+      suggestion[key] = portionSize + (index < remainder ? 1 : 0);
+    });
+
+    return suggestion;
+  };
 
   return (
     <div className="space-y-6">
@@ -88,222 +135,109 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
         </div>
         <div className="absolute right-0 z-10 invisible w-64 p-4 mt-2 transition-all duration-200 bg-white rounded-lg shadow-lg opacity-0 top-full group-hover:opacity-100 group-hover:visible">
           <p className="text-sm text-gray-700">
-            Our variety offer lets you choose the distribution of sandwich
-            types. We'll select the best sandwiches from each category to create
-            a balanced and delicious selection for you.
+            Our variety offer lets you choose different types of products and their subcategories.
+            First select the main categories (Sandwiches, Salads, Bowls), then choose the specific
+            types within each category.
           </p>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-6">
-          <div className="flex flex-col">
-            <Label htmlFor="meat" className="text-base font-bold">
-              Meat
-            </Label>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="meat"
-                checked={selectedTypes.meat}
-                onCheckedChange={(checked) =>
-                  handleCheckChange("meat", checked)
-                }
-              />
-              <div className="flex-1">
-                <div className="flex items-center mt-2">
-                  <Input
-                    type="number"
-                    value={formData.varietySelection.meat || ""}
-                    onChange={(e) =>
-                      handleInputChange("meat", e.target.value)
-                    }
-                    className="w-24"
-                    min="0"
-                    max={totalSandwiches}
-                  />
-                  <span className="ml-2 text-sm text-custom-gray">
-                    sandwiches
-                  </span>
-                  {selectedTypes.meat &&
-                    suggestedDistribution.meat > 0 && (
-                      <span className="ml-2 text-sm text-blue-600">
-                        (Suggested: {suggestedDistribution.meat})
-                      </span>
-                    )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col">
-            <Label htmlFor="chicken" className="text-base font-bold">
-              Chicken
-            </Label>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="chicken"
-                checked={selectedTypes.chicken}
-                onCheckedChange={(checked) =>
-                  handleCheckChange("chicken", checked)
-                }
-              />
-              <div className="flex-1">
-                <div className="flex items-center mt-2">
-                  <Input
-                    type="number"
-                    value={formData.varietySelection.chicken || ""}
-                    onChange={(e) => handleInputChange("chicken", e.target.value)}
-                    className="w-24"
-                    min="0"
-                    max={totalSandwiches}
-                  />
-                  <span className="ml-2 text-sm text-custom-gray">
-                    sandwiches
-                  </span>
-                  {selectedTypes.chicken && suggestedDistribution.chicken > 0 && (
-                    <span className="ml-2 text-sm text-blue-600">
-                      (Suggested: {suggestedDistribution.chicken})
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col">
-            <Label htmlFor="fish" className="text-base font-bold">
-              Fish
-            </Label>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="fish"
-                checked={selectedTypes.fish}
-                onCheckedChange={(checked) =>
-                  handleCheckChange("fish", checked)
-                }
-              />
-              <div className="flex-1">
-                <div className="flex items-center mt-2">
-                  <Input
-                    type="number"
-                    value={formData.varietySelection.fish || ""}
-                    onChange={(e) => handleInputChange("fish", e.target.value)}
-                    className="w-24"
-                    min="0"
-                    max={totalSandwiches}
-                  />
-                  <span className="ml-2 text-sm text-custom-gray">
-                    sandwiches
-                  </span>
-                  {selectedTypes.fish && suggestedDistribution.fish > 0 && (
-                    <span className="ml-2 text-sm text-blue-600">
-                      (Suggested: {suggestedDistribution.fish})
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col">
-            <Label htmlFor="veggie" className="text-base font-bold">
-              Veggie
-            </Label>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="veggie"
-                checked={selectedTypes.veggie}
-                onCheckedChange={(checked) =>
-                  handleCheckChange("veggie", checked)
-                }
-              />
-              <div className="flex-1">
-                <div className="flex items-center mt-2">
-                  <Input
-                    type="number"
-                    value={formData.varietySelection.veggie || ""}
-                    onChange={(e) => handleInputChange("veggie", e.target.value)}
-                    className="w-24"
-                    min="0"
-                    max={totalSandwiches}
-                  />
-                  <span className="ml-2 text-sm text-custom-gray">
-                    sandwiches
-                  </span>
-                  {selectedTypes.veggie && suggestedDistribution.veggie > 0 && (
-                    <span className="ml-2 text-sm text-blue-600">
-                      (Suggested: {suggestedDistribution.veggie})
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col">
-            <Label htmlFor="vegan" className="text-base font-bold">
-              Vegan
-            </Label>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="vegan"
-                checked={selectedTypes.vegan}
-                onCheckedChange={(checked) =>
-                  handleCheckChange("vegan", checked)
-                }
-              />
-              <div className="flex-1">
-                <div className="flex items-center mt-2">
-                  <Input
-                    type="number"
-                    value={formData.varietySelection.vegan || ""}
-                    onChange={(e) => handleInputChange("vegan", e.target.value)}
-                    className="w-24"
-                    min="0"
-                    max={totalSandwiches}
-                  />
-                  <span className="ml-2 text-sm text-custom-gray">
-                    sandwiches
-                  </span>
-                  {selectedTypes.vegan && suggestedDistribution.vegan > 0 && (
-                    <span className="ml-2 text-sm text-blue-600">
-                      (Suggested: {suggestedDistribution.vegan})
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="space-y-6">
+        <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md">
+          Step 1: Choose your main categories, then select subcategories within each.
         </div>
+
+        {mainCategories.map((mainCategory) => (
+          <div key={mainCategory.value} className="border rounded-lg p-4">
+            {/* Main Category Header */}
+            <div className="flex items-center space-x-3 mb-4">
+              <Checkbox
+                id={mainCategory.value}
+                checked={selectedMainCategories[mainCategory.value] || false}
+                onCheckedChange={(checked) =>
+                  handleMainCategoryChange(mainCategory.value, checked)
+                }
+              />
+              <button
+                type="button"
+                onClick={() => toggleCategoryExpansion(mainCategory.value)}
+                className="flex items-center space-x-2 text-lg font-semibold text-gray-800 hover:text-blue-600"
+              >
+                {expandedCategories[mainCategory.value] ? (
+                  <ChevronDown className="w-5 h-5" />
+                ) : (
+                  <ChevronRight className="w-5 h-5" />
+                )}
+                <span>{mainCategory.label}</span>
+              </button>
+            </div>
+
+            {/* Subcategories - Show when main category is selected and expanded */}
+            {selectedMainCategories[mainCategory.value] && expandedCategories[mainCategory.value] && (
+              <div className="ml-6 space-y-4 border-l-2 border-gray-200 pl-4">
+                {subCategories.map((subCategory) => {
+                  const combinationKey = `${mainCategory.value}-${subCategory.value}`;
+                  const isSelected = combinationKey in selectedCombinations;
+                  const quantity = selectedCombinations[combinationKey] || 0;
+
+                  return (
+                    <div key={subCategory.value} className="flex items-center space-x-4">
+                      <Checkbox
+                        id={combinationKey}
+                        checked={isSelected}
+                        onCheckedChange={(checked) =>
+                          handleSubCategoryChange(mainCategory.value, subCategory.value, checked)
+                        }
+                      />
+                      <Label htmlFor={combinationKey} className="font-medium min-w-[80px]">
+                        {subCategory.label}
+                      </Label>
+
+                      {isSelected && (
+                        <div className="flex items-center space-x-2">
+                          <Input
+                            type="number"
+                            value={quantity || ""}
+                            onChange={(e) => handleQuantityChange(combinationKey, e.target.value)}
+                            className="w-20"
+                            min="0"
+                            max={totalSandwiches}
+                            placeholder="0"
+                          />
+                          <span className="text-sm text-gray-500">items</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
+      {/* Summary */}
       <div
         className={`p-4 rounded-md ${
           currentTotal === totalSandwiches
             ? "bg-green-50"
-            : currentTotal > totalSandwiches
-              ? "bg-red-50"
-              : "bg-blue-50"
+            : "bg-blue-50"
         }`}
       >
         {currentTotal === totalSandwiches ? (
           <p className="text-green-700">
-            Perfect! All {totalSandwiches} sandwiches are distributed
+            Perfect! All {totalSandwiches} items are distributed
           </p>
-        ) : currentTotal > totalSandwiches ? (
-          <p className="text-red-700">
-            You have {currentTotal - totalSandwiches} sandwiches too many.
-            Please adjust the numbers.
+        ) : currentTotal < totalSandwiches ? (
+          <p className="text-blue-700">
+            You still have {totalSandwiches - currentTotal} items to distribute
           </p>
         ) : (
           <p className="text-blue-700">
-            You still have {totalSandwiches - currentTotal} sandwiches to
-            distribute
+            Current selection: {currentTotal} items
           </p>
         )}
       </div>
-
-
     </div>
   );
 };

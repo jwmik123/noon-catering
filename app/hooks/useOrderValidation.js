@@ -1,5 +1,16 @@
 "use client";
 
+// Helper function to calculate total from variety selection (supports both old and new formats)
+const calculateVarietyTotal = (varietySelection) => {
+  if (!varietySelection || Object.keys(varietySelection).length === 0) {
+    return 0;
+  }
+
+  return Object.values(varietySelection).reduce((total, quantity) => {
+    return total + (quantity || 0);
+  }, 0);
+};
+
 export const useOrderValidation = (formData, deliveryError) => {
   const isStepValid = (step) => {
     switch (step) {
@@ -12,15 +23,11 @@ export const useOrderValidation = (formData, deliveryError) => {
             .reduce((total, selection) => total + selection.quantity, 0);
           return totalSelected >= formData.numberOfPeople;
         }
-        return (
-          formData.selectionType === "variety" &&
-          (formData.varietySelection.meat +
-            formData.varietySelection.chicken +
-            formData.varietySelection.fish +
-            formData.varietySelection.veggie +
-            formData.varietySelection.vegan) >=
-            formData.numberOfPeople
-        );
+        if (formData.selectionType === "variety") {
+          const varietyTotal = calculateVarietyTotal(formData.varietySelection);
+          return varietyTotal >= formData.numberOfPeople;
+        }
+        return false;
       case 3:
         return true; // Overview step is always valid
       case 4:
@@ -77,15 +84,10 @@ export const useOrderValidation = (formData, deliveryError) => {
           }
         }
         if (formData.selectionType === "variety") {
-          const total =
-            formData.varietySelection.meat +
-            formData.varietySelection.chicken +
-            formData.varietySelection.fish +
-            formData.varietySelection.veggie +
-            formData.varietySelection.vegan;
+          const total = calculateVarietyTotal(formData.varietySelection);
 
           if (Number(total) !== Number(formData.numberOfPeople)) {
-            return `The total must be ${formData.numberOfPeople} sandwiches for ${formData.numberOfPeople} people`;
+            return `The total must be ${formData.numberOfPeople} items for ${formData.numberOfPeople} people`;
           }
         }
         return "";

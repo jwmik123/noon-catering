@@ -6,6 +6,91 @@ import { Textarea } from "@/components/ui/textarea";
 import QuoteButton from "@/app/components/QuoteButton";
 import { isDrink } from "@/lib/product-helpers";
 
+// Helper function to render variety selection for both old and new formats
+const renderVarietySelection = (varietySelection) => {
+  if (!varietySelection || Object.keys(varietySelection).length === 0) {
+    return null;
+  }
+
+  const categoryLabels = {
+    sandwiches: "Sandwiches",
+    salads: "Salads",
+    bowls: "Bowls"
+  };
+
+  const subCategoryLabels = {
+    meat: "Meat",
+    chicken: "Chicken",
+    fish: "Fish",
+    veggie: "Vegetarian",
+    vegan: "Vegan"
+  };
+
+  // Check if it's the new hierarchical format (contains hyphens)
+  const hasHierarchicalFormat = Object.keys(varietySelection).some(key => key.includes('-'));
+
+  if (hasHierarchicalFormat) {
+    // New format: group by main category
+    const categoryGroups = {};
+
+    Object.entries(varietySelection).forEach(([key, quantity]) => {
+      if (quantity > 0) {
+        if (key.includes('-')) {
+          const [mainCategory, subCategory] = key.split('-');
+          if (!categoryGroups[mainCategory]) {
+            categoryGroups[mainCategory] = [];
+          }
+          categoryGroups[mainCategory].push({
+            subCategory,
+            quantity
+          });
+        } else {
+          // Backward compatibility: treat as sandwiches
+          if (!categoryGroups.sandwiches) {
+            categoryGroups.sandwiches = [];
+          }
+          categoryGroups.sandwiches.push({
+            subCategory: key,
+            quantity
+          });
+        }
+      }
+    });
+
+    return Object.entries(categoryGroups).map(([mainCategory, items]) => {
+      const categoryLabel = categoryLabels[mainCategory] || mainCategory;
+
+      return (
+        <div key={mainCategory} className="space-y-2">
+          <div className="font-medium text-gray-700 text-sm">{categoryLabel}:</div>
+          {items.map(({ subCategory, quantity }) => {
+            const subLabel = subCategoryLabels[subCategory] || subCategory;
+            return (
+              <div key={`${mainCategory}-${subCategory}`} className="flex justify-between pl-4">
+                <span className="text-gray-600">{subLabel}</span>
+                <span>{quantity} items</span>
+              </div>
+            );
+          })}
+        </div>
+      );
+    });
+  } else {
+    // Old format: direct subcategory mapping (backward compatibility)
+    return Object.entries(varietySelection)
+      .filter(([_, quantity]) => quantity > 0)
+      .map(([key, quantity]) => {
+        const label = subCategoryLabels[key] || key;
+        return (
+          <div key={key} className="flex justify-between">
+            <span>{label}</span>
+            <span>{quantity} sandwiches</span>
+          </div>
+        );
+      });
+  }
+};
+
 const OrderSummaryStep = ({
   formData,
   updateFormData,
@@ -29,7 +114,7 @@ const OrderSummaryStep = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">
-                Total number of sandwiches
+                Total number of items
               </p>
               <p className="text-lg font-medium">{formData.totalSandwiches}</p>
             </div>
@@ -93,51 +178,22 @@ const OrderSummaryStep = ({
                   <span>€{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
-                  <span>Total number of sandwiches</span>
-                  <span>{formData.totalSandwiches} sandwiches</span>
+                  <span>Total number of items</span>
+                  <span>{formData.totalSandwiches} items</span>
                 </div>
               </div>
             </div>
           ) : (
             <div className="pt-4 mt-4 border-t">
               <p className="mb-2 text-sm text-gray-500">
-                Distribution of sandwiches
+                Distribution of items
               </p>
               <div className="space-y-3">
-                {formData.varietySelection?.meat > 0 && (
-                  <div className="flex justify-between">
-                    <span>Meat</span>
-                    <span>{formData.varietySelection.meat} sandwiches</span>
-                  </div>
-                )}
-                {formData.varietySelection?.chicken > 0 && (
-                  <div className="flex justify-between">
-                    <span>Chicken</span>
-                    <span>{formData.varietySelection.chicken} sandwiches</span>
-                  </div>
-                )}
-                {formData.varietySelection?.fish > 0 && (
-                  <div className="flex justify-between">
-                    <span>Fish</span>
-                    <span>{formData.varietySelection.fish} sandwiches</span>
-                  </div>
-                )}
-                {formData.varietySelection?.veggie > 0 && (
-                  <div className="flex justify-between">
-                    <span>Vegetarian</span>
-                    <span>{formData.varietySelection.veggie} sandwiches</span>
-                  </div>
-                )}
-                {formData.varietySelection?.vegan > 0 && (
-                  <div className="flex justify-between">
-                    <span>Vegan</span>
-                    <span>{formData.varietySelection.vegan} sandwiches</span>
-                  </div>
-                )}
+                {renderVarietySelection(formData.varietySelection)}
                 <div className="pt-3 border-t">
                   <div className="flex justify-between font-medium">
                     <span>Total</span>
-                    <span>{formData.totalSandwiches} sandwiches</span>
+                    <span>{formData.totalSandwiches} items</span>
                   </div>
                 </div>
               </div>
@@ -173,8 +229,8 @@ const OrderSummaryStep = ({
                   <span>€{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
-                  <span>Total number of sandwiches</span>
-                  <span>{formData.totalSandwiches} sandwiches</span>
+                  <span>Total number of items</span>
+                  <span>{formData.totalSandwiches} items</span>
                 </div>
               </div>
             </div>

@@ -10,6 +10,81 @@ import {
 import { isDrink } from "@/lib/product-helpers";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
+// Helper function to format variety selection for both old and new structures
+const formatVarietySelection = (varietySelection) => {
+  if (!varietySelection || Object.keys(varietySelection).length === 0) {
+    return "No variety selection specified";
+  }
+
+  const categoryLabels = {
+    sandwiches: "Sandwiches",
+    salads: "Salads",
+    bowls: "Bowls"
+  };
+
+  const subCategoryLabels = {
+    meat: "Meat",
+    chicken: "Chicken",
+    fish: "Fish",
+    veggie: "Vegetarian",
+    vegan: "Vegan"
+  };
+
+  let output = [];
+
+  // Check if it's the new hierarchical format (contains hyphens)
+  const hasHierarchicalFormat = Object.keys(varietySelection).some(key => key.includes('-'));
+
+  if (hasHierarchicalFormat) {
+    // New format: group by main category
+    const categoryGroups = {};
+
+    Object.entries(varietySelection).forEach(([key, quantity]) => {
+      if (quantity > 0) {
+        if (key.includes('-')) {
+          const [mainCategory, subCategory] = key.split('-');
+          if (!categoryGroups[mainCategory]) {
+            categoryGroups[mainCategory] = [];
+          }
+          categoryGroups[mainCategory].push({
+            subCategory,
+            quantity
+          });
+        } else {
+          // Backward compatibility: treat as sandwiches
+          if (!categoryGroups.sandwiches) {
+            categoryGroups.sandwiches = [];
+          }
+          categoryGroups.sandwiches.push({
+            subCategory: key,
+            quantity
+          });
+        }
+      }
+    });
+
+    Object.entries(categoryGroups).forEach(([mainCategory, items]) => {
+      const categoryLabel = categoryLabels[mainCategory] || mainCategory;
+      output.push(`${categoryLabel}:`);
+
+      items.forEach(({ subCategory, quantity }) => {
+        const subLabel = subCategoryLabels[subCategory] || subCategory;
+        output.push(`  • ${subLabel}: ${quantity} items`);
+      });
+    });
+  } else {
+    // Old format: direct subcategory mapping (backward compatibility)
+    Object.entries(varietySelection).forEach(([key, quantity]) => {
+      if (quantity > 0) {
+        const label = subCategoryLabels[key] || key;
+        output.push(`${label}: ${quantity} sandwiches`);
+      }
+    });
+  }
+
+  return output.join('\n');
+};
+
 export default function OrderConfirmation({
   quoteId,
   orderDetails,
@@ -116,36 +191,7 @@ export default function OrderConfirmation({
             ) : (
               <>
                 <Text style={detailText}>
-                  {orderDetails.varietySelection?.meat > 0 && (
-                    <>
-                      Meat: {orderDetails.varietySelection.meat} sandwiches
-                      <br />
-                    </>
-                  )}
-                  {orderDetails.varietySelection?.chicken > 0 && (
-                    <>
-                      Chicken: {orderDetails.varietySelection.chicken} sandwiches
-                      <br />
-                    </>
-                  )}
-                  {orderDetails.varietySelection?.fish > 0 && (
-                    <>
-                      Fish: {orderDetails.varietySelection.fish} sandwiches
-                      <br />
-                    </>
-                  )}
-                  {orderDetails.varietySelection?.veggie > 0 && (
-                    <>
-                      Vegetarian: {orderDetails.varietySelection.veggie} sandwiches
-                      <br />
-                    </>
-                  )}
-                  {orderDetails.varietySelection?.vegan > 0 && (
-                    <>
-                      Vegan: {orderDetails.varietySelection.vegan} sandwiches
-                      <br />
-                    </>
-                  )}
+                  {formatVarietySelection(orderDetails.varietySelection)}
                 </Text>
               </>
             )}

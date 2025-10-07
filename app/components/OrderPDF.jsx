@@ -171,6 +171,107 @@ const styles = StyleSheet.create({
   },
 });
 
+// Helper function to render variety selection for both old and new structures
+const renderVarietySelection = (varietySelection) => {
+  if (!varietySelection || Object.keys(varietySelection).length === 0) {
+    return null;
+  }
+
+  const categoryLabels = {
+    sandwiches: "Sandwiches",
+    salads: "Salads",
+    bowls: "Bowls"
+  };
+
+  const subCategoryLabels = {
+    meat: "Meat",
+    chicken: "Chicken",
+    fish: "Fish",
+    veggie: "Vegetarian",
+    vegan: "Vegan"
+  };
+
+  const rows = [];
+
+  // Check if it's the new hierarchical format (contains hyphens)
+  const hasHierarchicalFormat = Object.keys(varietySelection).some(key => key.includes('-'));
+
+  if (hasHierarchicalFormat) {
+    // New format: group by main category
+    const categoryGroups = {};
+
+    Object.entries(varietySelection).forEach(([key, quantity]) => {
+      if (quantity > 0) {
+        if (key.includes('-')) {
+          const [mainCategory, subCategory] = key.split('-');
+          if (!categoryGroups[mainCategory]) {
+            categoryGroups[mainCategory] = [];
+          }
+          categoryGroups[mainCategory].push({
+            subCategory,
+            quantity,
+            key
+          });
+        } else {
+          // Backward compatibility: treat as sandwiches
+          if (!categoryGroups.sandwiches) {
+            categoryGroups.sandwiches = [];
+          }
+          categoryGroups.sandwiches.push({
+            subCategory: key,
+            quantity,
+            key: `sandwiches-${key}`
+          });
+        }
+      }
+    });
+
+    Object.entries(categoryGroups).forEach(([mainCategory, items]) => {
+      const categoryLabel = categoryLabels[mainCategory] || mainCategory;
+
+      items.forEach(({ subCategory, quantity, key }) => {
+        const subLabel = subCategoryLabels[subCategory] || subCategory;
+        const displayName = `${categoryLabel} - ${subLabel}`;
+
+        rows.push(
+          <View key={key} style={styles.tableRow}>
+            <Text style={styles.tableCellName}>{displayName}</Text>
+            <Text style={styles.tableCell}>{quantity}x</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>
+              €{(quantity * 6.83).toFixed(2)}
+            </Text>
+          </View>
+        );
+      });
+    });
+  } else {
+    // Old format: direct subcategory mapping (backward compatibility)
+    Object.entries(varietySelection).forEach(([key, quantity]) => {
+      if (quantity > 0) {
+        const label = subCategoryLabels[key] || key;
+
+        rows.push(
+          <View key={key} style={styles.tableRow}>
+            <Text style={styles.tableCellName}>{label}</Text>
+            <Text style={styles.tableCell}>{quantity}x</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>
+              €{(quantity * 6.83).toFixed(2)}
+            </Text>
+          </View>
+        );
+      }
+    });
+  }
+
+  return rows;
+};
+
 export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
   // Safely get nested values
   const companyName =
@@ -366,76 +467,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [] }) => {
                 )
               ) : (
                 <>
-                  {orderData.varietySelection?.meat > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Meat</Text>
-                      <Text style={styles.tableCell}>
-                        {orderData.varietySelection.meat}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(orderData.varietySelection.meat * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {orderData.varietySelection?.chicken > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Chicken</Text>
-                      <Text style={styles.tableCell}>
-                        {orderData.varietySelection.chicken}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(orderData.varietySelection.chicken * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {orderData.varietySelection?.fish > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Fish</Text>
-                      <Text style={styles.tableCell}>
-                        {orderData.varietySelection.fish}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(orderData.varietySelection.fish * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {orderData.varietySelection?.veggie > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Vegetarian</Text>
-                      <Text style={styles.tableCell}>
-                        {orderData.varietySelection.veggie}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(orderData.varietySelection.veggie * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {orderData.varietySelection?.vegan > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Vegan</Text>
-                      <Text style={styles.tableCell}>
-                        {orderData.varietySelection.vegan}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(orderData.varietySelection.vegan * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
+                  {renderVarietySelection(orderData.varietySelection)}
                 </>
               )}
             </View>

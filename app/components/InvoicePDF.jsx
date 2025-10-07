@@ -145,6 +145,118 @@ const styles = StyleSheet.create({
 // Fallback image URL in case the environment variable is missing
 const DEFAULT_IMAGE_URL = "https://catering.thesandwichbar.nl/tsb.png";
 
+// Helper function to calculate total from variety selection (supports both old and new formats)
+const calculateVarietyTotal = (varietySelection) => {
+  if (!varietySelection || Object.keys(varietySelection).length === 0) {
+    return 0;
+  }
+
+  return Object.values(varietySelection).reduce((total, quantity) => {
+    return total + (quantity || 0);
+  }, 0);
+};
+
+// Helper function to render variety selection for both old and new formats
+const renderVarietySelection = (varietySelection) => {
+  if (!varietySelection || Object.keys(varietySelection).length === 0) {
+    return null;
+  }
+
+  const categoryLabels = {
+    sandwiches: "Sandwiches",
+    salads: "Salads",
+    bowls: "Bowls"
+  };
+
+  const subCategoryLabels = {
+    meat: "Meat",
+    chicken: "Chicken",
+    fish: "Fish",
+    veggie: "Vegetarian",
+    vegan: "Vegan"
+  };
+
+  const rows = [];
+
+  // Check if it's the new hierarchical format (contains hyphens)
+  const hasHierarchicalFormat = Object.keys(varietySelection).some(key => key.includes('-'));
+
+  if (hasHierarchicalFormat) {
+    // New format: group by main category
+    const categoryGroups = {};
+
+    Object.entries(varietySelection).forEach(([key, quantity]) => {
+      if (quantity > 0) {
+        if (key.includes('-')) {
+          const [mainCategory, subCategory] = key.split('-');
+          if (!categoryGroups[mainCategory]) {
+            categoryGroups[mainCategory] = [];
+          }
+          categoryGroups[mainCategory].push({
+            subCategory,
+            quantity,
+            key
+          });
+        } else {
+          // Backward compatibility: treat as sandwiches
+          if (!categoryGroups.sandwiches) {
+            categoryGroups.sandwiches = [];
+          }
+          categoryGroups.sandwiches.push({
+            subCategory: key,
+            quantity,
+            key: `sandwiches-${key}`
+          });
+        }
+      }
+    });
+
+    Object.entries(categoryGroups).forEach(([mainCategory, items]) => {
+      const categoryLabel = categoryLabels[mainCategory] || mainCategory;
+
+      items.forEach(({ subCategory, quantity, key }) => {
+        const subLabel = subCategoryLabels[subCategory] || subCategory;
+        const displayName = `${categoryLabel} - ${subLabel}`;
+
+        rows.push(
+          <View key={key} style={styles.tableRow}>
+            <Text style={styles.tableCellName}>{displayName}</Text>
+            <Text style={styles.tableCell}>{quantity}x</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>
+              €{(quantity * 6.83).toFixed(2)}
+            </Text>
+          </View>
+        );
+      });
+    });
+  } else {
+    // Old format: direct subcategory mapping (backward compatibility)
+    Object.entries(varietySelection).forEach(([key, quantity]) => {
+      if (quantity > 0) {
+        const label = subCategoryLabels[key] || key;
+
+        rows.push(
+          <View key={key} style={styles.tableRow}>
+            <Text style={styles.tableCellName}>{label}</Text>
+            <Text style={styles.tableCell}>{quantity}x</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>-</Text>
+            <Text style={styles.tableCell}>
+              €{(quantity * 6.83).toFixed(2)}
+            </Text>
+          </View>
+        );
+      }
+    });
+  }
+
+  return rows;
+};
+
 const InvoicePDF = ({
   quoteId = "UNKNOWN",
   orderDetails = {},
@@ -190,13 +302,8 @@ const InvoicePDF = ({
         .flat()
         .reduce((total, selection) => total + (selection.subTotal || 0), 0);
     } else {
-      const totalSandwiches =
-        (orderDetails.varietySelection?.meat || 0) +
-        (orderDetails.varietySelection?.chicken || 0) +
-        (orderDetails.varietySelection?.fish || 0) +
-        (orderDetails.varietySelection?.veggie || 0) +
-        (orderDetails.varietySelection?.vegan || 0);
-      subtotalAmount = totalSandwiches * 6.83; // VAT-exclusive
+      const totalItems = calculateVarietyTotal(orderDetails.varietySelection);
+      subtotalAmount = totalItems * 6.83; // VAT-exclusive
     }
 
     // Add drinks pricing if drinks are selected
@@ -557,76 +664,7 @@ const InvoicePDF = ({
                 </>
               ) : (
                 <>
-                  {varietySelection.meat > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Meat</Text>
-                      <Text style={styles.tableCell}>
-                        {varietySelection.meat}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(varietySelection.meat * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {varietySelection.chicken > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Chicken</Text>
-                      <Text style={styles.tableCell}>
-                        {varietySelection.chicken}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(varietySelection.chicken * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {varietySelection.fish > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Fish</Text>
-                      <Text style={styles.tableCell}>
-                        {varietySelection.fish}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(varietySelection.fish * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {varietySelection.veggie > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Vegetarian</Text>
-                      <Text style={styles.tableCell}>
-                        {varietySelection.veggie}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(varietySelection.veggie * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
-                  {varietySelection.vegan > 0 && (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Vegan</Text>
-                      <Text style={styles.tableCell}>
-                        {varietySelection.vegan}x
-                      </Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>-</Text>
-                      <Text style={styles.tableCell}>
-                        €{(varietySelection.vegan * 6.83).toFixed(2)}
-                      </Text>
-                    </View>
-                  )}
+                  {renderVarietySelection(varietySelection)}
                   {orderDetails?.deliveryCost &&
                     orderDetails.deliveryCost > 0 && (
                       <View style={styles.tableRow}>
