@@ -157,13 +157,6 @@ export const product = defineType({
               validation: (rule) => rule.required(),
             },
             {
-              name: "price",
-              title: "Additional Price",
-              type: "number",
-              description: "Extra cost for this topping (0 if no extra charge)",
-              initialValue: 0,
-            },
-            {
               name: "isDefault",
               title: "Default Selection",
               type: "boolean",
@@ -174,13 +167,13 @@ export const product = defineType({
           preview: {
             select: {
               toppingName: "topping.name",
-              price: "price",
+              toppingPrice: "topping.price",
               isDefault: "isDefault",
             },
-            prepare({ toppingName, price, isDefault }) {
+            prepare({ toppingName, toppingPrice, isDefault }) {
               return {
                 title: toppingName || "Unnamed topping",
-                subtitle: `${price > 0 ? `+€${price.toFixed(2)}` : "Free"}${isDefault ? " (Default)" : ""}`,
+                subtitle: `${toppingPrice > 0 ? `+€${toppingPrice.toFixed(2)}` : "Free"}${isDefault ? " (Default)" : ""}`,
               };
             },
           },

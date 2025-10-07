@@ -32,6 +32,14 @@ export const toppingType = defineType({
       initialValue: true,
     }),
     defineField({
+      name: "price",
+      title: "Additional Price",
+      type: "number",
+      description: "Extra cost for this topping (0 if no extra charge)",
+      initialValue: 0,
+      validation: (rule) => rule.required().min(0),
+    }),
+    defineField({
       name: "sortOrder",
       title: "Sort Order",
       type: "number",
