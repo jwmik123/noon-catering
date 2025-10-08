@@ -56,14 +56,14 @@ export const useOrderForm = () => {
 
   const calculateTotal = (formData) => {
     let subtotal = 0;
-    
+
     if (formData.selectionType === "custom") {
       subtotal = Object.values(formData.customSelection)
         .flat()
         .reduce((total, selection) => total + selection.subTotal, 0);
     } else {
-      // For variety selection
-      subtotal = formData.numberOfPeople * 6.83; // €6.83 per person (1 sandwich each)
+      // For variety selection - use totalSandwiches instead of numberOfPeople
+      subtotal = formData.totalSandwiches * 6.83; // €6.83 per sandwich
     }
     
     // Add drinks pricing if drinks are selected

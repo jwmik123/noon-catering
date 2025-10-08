@@ -92,7 +92,13 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
       [combinationKey]: numValue,
     };
     setSelectedCombinations(newCombinations);
+
+    // Calculate total sandwiches from all combinations
+    const newTotal = Object.values(newCombinations).reduce((sum, val) => sum + (val || 0), 0);
+
+    // Update both varietySelection and totalSandwiches
     updateFormData("varietySelection", newCombinations);
+    updateFormData("totalSandwiches", newTotal);
   };
 
   // Toggle category expansion
@@ -201,7 +207,6 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
                             onChange={(e) => handleQuantityChange(combinationKey, e.target.value)}
                             className="w-20"
                             min="0"
-                            max={totalSandwiches}
                             placeholder="0"
                           />
                           <span className="text-sm text-gray-500">items</span>
@@ -217,26 +222,13 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData }) => {
       </div>
 
       {/* Summary */}
-      <div
-        className={`p-4 rounded-md ${
-          currentTotal === totalSandwiches
-            ? "bg-green-50"
-            : "bg-blue-50"
-        }`}
-      >
-        {currentTotal === totalSandwiches ? (
-          <p className="text-green-700">
-            Perfect! All {totalSandwiches} items are distributed
-          </p>
-        ) : currentTotal < totalSandwiches ? (
-          <p className="text-blue-700">
-            You still have {totalSandwiches - currentTotal} items to distribute
-          </p>
-        ) : (
-          <p className="text-blue-700">
-            Current selection: {currentTotal} items
-          </p>
-        )}
+      <div className="p-4 rounded-md bg-blue-50">
+        <p className="text-blue-700">
+          Current selection: <span className="font-semibold">{currentTotal} items</span>
+        </p>
+        <p className="text-sm text-blue-600 mt-1">
+          You can select any quantity you want
+        </p>
       </div>
     </div>
   );

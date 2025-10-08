@@ -91,7 +91,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                 Choose a distribution
               </h3>
               <VarietySelector
-                totalSandwiches={formData.numberOfPeople}
+                totalSandwiches={formData.totalSandwiches}
                 formData={formData}
                 updateFormData={updateFormData}
               />
@@ -268,8 +268,8 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                 <span>€6,83</span>
               </div>
               <div className="flex justify-between text-sm text-custom-gray">
-                <span>Number of people</span>
-                <span>{formData.numberOfPeople}</span>
+                <span>Number of sandwiches</span>
+                <span>{formData.totalSandwiches}</span>
               </div>
               {formData.addDrinks && (formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
                 <>
@@ -289,11 +289,11 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                 <span>Total amount</span>
                 <span>
                   €{(
-                    formData.numberOfPeople * 6.83 + 
-                    (formData.addDrinks && formData.drinks ? 
+                    formData.totalSandwiches * 6.83 +
+                    (formData.addDrinks && formData.drinks ?
                       (formData.drinks.verseJus || 0) * 3.62 +
                       (formData.drinks.sodas || 0) * 2.71 +
-                      (formData.drinks.smoothies || 0) * 3.62 
+                      (formData.drinks.smoothies || 0) * 3.62
                       : 0)
                   ).toFixed(2)} excl. VAT
                 </span>
