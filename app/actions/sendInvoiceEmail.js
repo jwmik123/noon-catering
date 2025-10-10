@@ -2,7 +2,7 @@
 
 import { client } from "@/sanity/lib/client";
 import { sendOrderConfirmation } from "@/lib/email";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 
 
 export async function sendInvoiceEmail(quoteId) {
@@ -37,8 +37,11 @@ export async function sendInvoiceEmail(quoteId) {
       invoice.orderDetails.customSelection = customSelectionObject;
     }
 
-    // Fetch sandwich options for the email
-    const sandwichOptions = await client.fetch(PRODUCT_QUERY);
+    // Fetch sandwich options and pricing for the email
+    const [sandwichOptions, pricing] = await Promise.all([
+      client.fetch(PRODUCT_QUERY),
+      client.fetch(PRICING_QUERY)
+    ]);
 
     // Prepare email data
     const emailData = {
@@ -74,7 +77,7 @@ export async function sendInvoiceEmail(quoteId) {
     };
 
     // Send the invoice email
-    const emailSent = await sendOrderConfirmation(emailData, true);
+    const emailSent = await sendOrderConfirmation(emailData, true, pricing);
 
     if (emailSent) {
 

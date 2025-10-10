@@ -9,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 import { isDrink } from "@/lib/product-helpers";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
+import { calculateOrderTotal, getVarietyPrice } from "@/lib/pricing-utils";
 
 const styles = StyleSheet.create({
   page: {
@@ -157,7 +158,7 @@ const calculateVarietyTotal = (varietySelection) => {
 };
 
 // Helper function to render variety selection for both old and new formats
-const renderVarietySelection = (varietySelection) => {
+const renderVarietySelection = (varietySelection, pricing) => {
   if (!varietySelection || Object.keys(varietySelection).length === 0) {
     return null;
   }
@@ -226,7 +227,7 @@ const renderVarietySelection = (varietySelection) => {
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>
-              €{(quantity * 6.83).toFixed(2)}
+              €{(quantity * getVarietyPrice(key, pricing)).toFixed(2)}
             </Text>
           </View>
         );
@@ -246,7 +247,7 @@ const renderVarietySelection = (varietySelection) => {
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>
-              €{(quantity * 6.83).toFixed(2)}
+              €{(quantity * getVarietyPrice(`sandwiches-${key}`, pricing)).toFixed(2)}
             </Text>
           </View>
         );
@@ -268,6 +269,7 @@ const InvoicePDF = ({
   sandwichOptions = [], // Add sandwichOptions parameter
   referenceNumber = null, // Add reference number parameter
   fullName = null, // Add fullName parameter for non-business orders
+  pricing = null, // Add pricing parameter
 }) => {
   // Defensive coding: ensure all objects exist to prevent null references
   orderDetails = orderDetails || {};
@@ -295,25 +297,8 @@ const InvoicePDF = ({
       };
     }
 
-    // Otherwise, calculate from order details using PaymentStep pattern
-    let subtotalAmount = 0; // Items only, VAT-exclusive
-    if (orderDetails.selectionType === "custom") {
-      subtotalAmount = Object.values(orderDetails.customSelection || {})
-        .flat()
-        .reduce((total, selection) => total + (selection.subTotal || 0), 0);
-    } else {
-      const totalItems = calculateVarietyTotal(orderDetails.varietySelection);
-      subtotalAmount = totalItems * 6.83; // VAT-exclusive
-    }
-
-    // Add drinks pricing if drinks are selected
-    if (orderDetails.addDrinks && orderDetails.drinks) {
-      const drinksTotal =
-        (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62 VAT-exclusive
-        (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71 VAT-exclusive
-        (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62 VAT-exclusive
-      subtotalAmount += drinksTotal;
-    }
+    // Otherwise, calculate from order details using dynamic pricing
+    const subtotalAmount = calculateOrderTotal(orderDetails, pricing);
 
     // Delivery cost (VAT-exclusive)
     const deliveryCost = orderDetails.deliveryCost || 0;
@@ -625,15 +610,15 @@ const InvoicePDF = ({
                       </View>
                     )}
                   {/* Drinks for custom selection */}
-                  {orderDetails?.addDrinks && orderDetails.drinks?.verseJus > 0 && (
+                  {orderDetails?.addDrinks && orderDetails.drinks?.freshOrangeJuice > 0 && (
                     <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Fresh Juice</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.verseJus}x</Text>
+                      <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.freshOrangeJuice}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                        €{(orderDetails.drinks.freshOrangeJuice * 3.35).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -645,26 +630,39 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
+                        €{(orderDetails.drinks.sodas * 2.35).toFixed(2)}
                       </Text>
                     </View>
                   )}
-                  {orderDetails?.addDrinks && orderDetails.drinks?.smoothies > 0 && (
+                  {/* Desserts for custom selection */}
+                  {orderDetails?.addDesserts && orderDetails.desserts?.desserts > 0 && (
                     <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Smoothies</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.smoothies}x</Text>
+                      <Text style={styles.tableCellName}>Desserts</Text>
+                      <Text style={styles.tableCell}>{orderDetails.desserts.desserts}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                        €{(orderDetails.desserts.desserts * 3.50).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addDesserts && orderDetails.desserts?.cookies > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Cookies</Text>
+                      <Text style={styles.tableCell}>{orderDetails.desserts.cookies}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.desserts.cookies * 2.50).toFixed(2)}
                       </Text>
                     </View>
                   )}
                 </>
               ) : (
                 <>
-                  {renderVarietySelection(varietySelection)}
+                  {renderVarietySelection(varietySelection, pricing)}
                   {orderDetails?.deliveryCost &&
                     orderDetails.deliveryCost > 0 && (
                       <View style={styles.tableRow}>
@@ -679,15 +677,15 @@ const InvoicePDF = ({
                       </View>
                     )}
                   {/* Drinks for variety selection */}
-                  {orderDetails?.addDrinks && orderDetails.drinks?.verseJus > 0 && (
+                  {orderDetails?.addDrinks && orderDetails.drinks?.freshOrangeJuice > 0 && (
                     <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Fresh Juice</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.verseJus}x</Text>
+                      <Text style={styles.tableCellName}>Fresh Orange Juice</Text>
+                      <Text style={styles.tableCell}>{orderDetails.drinks.freshOrangeJuice}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                        €{(orderDetails.drinks.freshOrangeJuice * 3.35).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -699,19 +697,32 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
+                        €{(orderDetails.drinks.sodas * 2.35).toFixed(2)}
                       </Text>
                     </View>
                   )}
-                  {orderDetails?.addDrinks && orderDetails.drinks?.smoothies > 0 && (
+                  {/* Desserts for variety selection */}
+                  {orderDetails?.addDesserts && orderDetails.desserts?.desserts > 0 && (
                     <View style={styles.tableRow}>
-                      <Text style={styles.tableCellName}>Smoothies</Text>
-                      <Text style={styles.tableCell}>{orderDetails.drinks.smoothies}x</Text>
+                      <Text style={styles.tableCellName}>Desserts</Text>
+                      <Text style={styles.tableCell}>{orderDetails.desserts.desserts}x</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                        €{(orderDetails.desserts.desserts * 3.50).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addDesserts && orderDetails.desserts?.cookies > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Cookies</Text>
+                      <Text style={styles.tableCell}>{orderDetails.desserts.cookies}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.desserts.cookies * 2.50).toFixed(2)}
                       </Text>
                     </View>
                   )}

@@ -1,10 +1,20 @@
 import { defineField, defineType } from "sanity";
+import { orderRankField, orderRankOrdering } from "@sanity/orderable-document-list";
 
 export const product = defineType({
   name: "product",
   title: "Product",
   type: "document",
+  orderings: [orderRankOrdering],
   fields: [
+    orderRankField({ type: "product" }),
+    defineField({
+      name: "active",
+      title: "Active",
+      type: "boolean",
+      description: "Uncheck to hide this product from the menu (keeps it in old orders)",
+      initialValue: true,
+    }),
     defineField({
       name: "name",
       title: "Name",
@@ -33,7 +43,7 @@ export const product = defineType({
         list: [
           { title: "Sandwiches", value: "sandwiches" },
           { title: "Salads", value: "salads" },
-          { title: "Bowls", value: "bowls" },
+          { title: "Lunchboxes", value: "lunchboxes" },
           { title: "Desserts", value: "desserts" },
         ],
       },

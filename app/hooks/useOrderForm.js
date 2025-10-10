@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-export const useOrderForm = () => {
+export const useOrderForm = (pricing = null) => {
   const [formData, setFormData] = useState({
     // Stap 1
     numberOfPeople: 15,
@@ -54,6 +54,54 @@ export const useOrderForm = () => {
 
   // Old calculateDeliveryCost function removed - now using Google Maps validation
 
+  // Helper function to get price for a variety selection item
+  const getVarietyPrice = (key) => {
+    if (!pricing) {
+      console.error('No pricing data available in useOrderForm for key:', key);
+      return 0; // Return 0 to make missing pricing obvious
+    }
+
+    const parts = key.split('-');
+
+    // Handle old format (single word like "meat", "veggie", "vegan")
+    if (parts.length === 1) {
+      console.warn('Old variety selection format detected:', key, '- assuming sandwiches category');
+      // Assume it's a sandwich subcategory for backward compatibility
+      const sandwichCategory = pricing.categoryPricing?.find(cat => cat.typeCategory === 'sandwiches');
+      const subCatData = sandwichCategory?.subCategoryPricing?.find(sc => sc.subCategory === key);
+      if (!subCatData?.price) {
+        console.error(`No price found for old format key "${key}" in sandwiches category`);
+        return 0;
+      }
+      return subCatData.price;
+    }
+
+    if (parts[0] === 'lunchboxes' && parts.length === 3) {
+      // Lunchbox: price by box type
+      const boxType = parts[1];
+      const lunchboxCategory = pricing.categoryPricing?.find(cat => cat.typeCategory === 'lunchboxes');
+      const boxTypeData = lunchboxCategory?.boxTypes?.find(bt => bt.boxType === boxType);
+      if (!boxTypeData?.price) {
+        console.error(`No price found for lunchbox ${boxType} in useOrderForm`);
+        return 0;
+      }
+      return boxTypeData.price;
+    } else if (parts.length === 2) {
+      // Sandwiches/Salads: price by subcategory
+      const [typeCategory, subCategory] = parts;
+      const categoryData = pricing.categoryPricing?.find(cat => cat.typeCategory === typeCategory);
+      const subCatData = categoryData?.subCategoryPricing?.find(sc => sc.subCategory === subCategory);
+      if (!subCatData?.price) {
+        console.error(`No price found for ${typeCategory}-${subCategory} in useOrderForm`);
+        return 0;
+      }
+      return subCatData.price;
+    }
+
+    console.error('Invalid key format in useOrderForm:', key);
+    return 0; // Return 0 instead of hardcoded price
+  };
+
   const calculateTotal = (formData) => {
     let subtotal = 0;
 
@@ -61,20 +109,33 @@ export const useOrderForm = () => {
       subtotal = Object.values(formData.customSelection)
         .flat()
         .reduce((total, selection) => total + selection.subTotal, 0);
-    } else {
-      // For variety selection - use totalSandwiches instead of numberOfPeople
-      subtotal = formData.totalSandwiches * 6.83; // €6.83 per sandwich
+    } else if (formData.selectionType === "variety") {
+      // Calculate variety selection total using dynamic pricing
+      if (formData.varietySelection) {
+        subtotal = Object.entries(formData.varietySelection)
+          .reduce((sum, [key, quantity]) => {
+            const price = getVarietyPrice(key);
+            return sum + (price * quantity);
+          }, 0);
+      }
     }
-    
+
     // Add drinks pricing if drinks are selected
     if (formData.addDrinks && formData.drinks) {
-      const drinksTotal = 
-        (formData.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-        (formData.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
-        (formData.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
+      const drinksTotal =
+        (formData.drinks.freshOrangeJuice || 0) * (pricing?.drinks?.freshOrangeJuice || 3.35) +
+        (formData.drinks.sodas || 0) * (pricing?.drinks?.sodas || 2.35);
       subtotal += drinksTotal;
     }
-    
+
+    // Add desserts pricing if desserts are selected
+    if (formData.addDesserts && formData.desserts) {
+      const dessertsTotal =
+        (formData.desserts.desserts || 0) * (pricing?.desserts?.desserts || 3.50) +
+        (formData.desserts.cookies || 0) * (pricing?.desserts?.cookies || 2.50);
+      subtotal += dessertsTotal;
+    }
+
     return subtotal; // excluding VAT
   };
 

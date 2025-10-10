@@ -1,6 +1,6 @@
 import { defineQuery } from "next-sanity";
 
-export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] {
+export const PRODUCT_QUERY = defineQuery(`*[_type == "product" && active == true] | order(orderRank asc) {
   _id,
   _createdAt,
   name,
@@ -11,6 +11,8 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] {
   price,
   typeCategory,
   subCategory,
+  orderRank,
+  active,
   hasSauceOptions,
   sauceOptions[] {
     name,
@@ -19,8 +21,13 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product"] {
   },
   hasToppings,
   toppingOptions[] {
-    name,
-    price,
+    topping->{
+      _id,
+      name,
+      price,
+      description,
+      allergyInfo
+    },
     isDefault
   }
 }`);
@@ -50,4 +57,31 @@ export const TOPPING_TYPES_QUERY = defineQuery(`*[_type == "toppingType" && isAv
   description,
   allergyInfo,
   sortOrder
+}`);
+
+export const PRICING_QUERY = defineQuery(`*[_type == "pricing" && active == true][0] {
+  _id,
+  name,
+  categoryPricing[] {
+    typeCategory,
+    description,
+    subCategoryPricing[] {
+      subCategory,
+      price
+    },
+    boxTypes[] {
+      boxType,
+      displayName,
+      price,
+      description
+    }
+  },
+  drinks {
+    freshOrangeJuice,
+    sodas
+  },
+  desserts {
+    desserts,
+    cookies
+  }
 }`);

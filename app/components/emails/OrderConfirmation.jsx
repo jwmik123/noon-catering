@@ -8,6 +8,7 @@ import {
   Section,
 } from "@react-email/components";
 import { isDrink } from "@/lib/product-helpers";
+import { calculateOrderTotal } from "@/lib/pricing-utils";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 // Helper function to format variety selection for both old and new structures
@@ -95,6 +96,7 @@ export default function OrderConfirmation({
   sandwichOptions = [],
   referenceNumber = null,
   amount = null, // New: prefer amount object if provided
+  pricing = null, // Add pricing parameter
 }) {
   // Helper function to check if bread type should be shown
   const shouldShowBreadType = (sandwichId, breadType) => {
@@ -102,31 +104,9 @@ export default function OrderConfirmation({
     return sandwich && !isDrink(sandwich) && breadType;
   };
 
-  // This function calculates the subtotal (VAT-exclusive) for the order.
-  // It expects an orderDetails object as used in this component.
+  // This function calculates the subtotal (VAT-exclusive) for the order using dynamic pricing.
   const calculateSubtotal = (orderDetails) => {
-    let subtotal = 0;
-
-    if (!orderDetails) return 0;
-
-    if (orderDetails.selectionType === "custom") {
-      subtotal = Object.values(orderDetails.customSelection || {})
-        .flat()
-        .reduce((total, selection) => total + (selection.subTotal || 0), 0);
-    } else {
-      subtotal = (orderDetails.totalSandwiches || 0) * 6.83; // €6.83 per sandwich
-    }
-
-    // Add drinks pricing if drinks are selected
-    if (orderDetails.addDrinks && orderDetails.drinks) {
-      const drinksTotal =
-        (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-        (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
-        (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
-      subtotal += drinksTotal;
-    }
-
-    return subtotal;
+    return calculateOrderTotal(orderDetails, pricing);
   };
 
   return (
@@ -197,25 +177,40 @@ export default function OrderConfirmation({
             )}
 
             {/* Drinks section */}
-            {orderDetails.addDrinks && (orderDetails.drinks?.verseJus > 0 || orderDetails.drinks?.sodas > 0 || orderDetails.drinks?.smoothies > 0) && (
+            {orderDetails.addDrinks && (orderDetails.drinks?.freshOrangeJuice > 0 || orderDetails.drinks?.sodas > 0) && (
               <>
                 <Text style={subtitle}>Drinks</Text>
                 <Text style={detailText}>
-                  {orderDetails.drinks?.verseJus > 0 && (
+                  {orderDetails.drinks?.freshOrangeJuice > 0 && (
                     <>
-                      Fresh Juice: {orderDetails.drinks.verseJus}x - €{(orderDetails.drinks.verseJus * 3.62).toFixed(2)}
+                      Fresh Orange Juice: {orderDetails.drinks.freshOrangeJuice}x - €{(orderDetails.drinks.freshOrangeJuice * 3.35).toFixed(2)}
                       <br />
                     </>
                   )}
                   {orderDetails.drinks?.sodas > 0 && (
                     <>
-                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * 2.71).toFixed(2)}
+                      Sodas: {orderDetails.drinks.sodas}x - €{(orderDetails.drinks.sodas * 2.35).toFixed(2)}
                       <br />
                     </>
                   )}
-                  {orderDetails.drinks?.smoothies > 0 && (
+                </Text>
+              </>
+            )}
+
+            {/* Desserts section */}
+            {orderDetails.addDesserts && (orderDetails.desserts?.desserts > 0 || orderDetails.desserts?.cookies > 0) && (
+              <>
+                <Text style={subtitle}>Desserts</Text>
+                <Text style={detailText}>
+                  {orderDetails.desserts?.desserts > 0 && (
                     <>
-                      Smoothies: {orderDetails.drinks.smoothies}x - €{(orderDetails.drinks.smoothies * 3.62).toFixed(2)}
+                      Desserts: {orderDetails.desserts.desserts}x - €{(orderDetails.desserts.desserts * 3.50).toFixed(2)}
+                      <br />
+                    </>
+                  )}
+                  {orderDetails.desserts?.cookies > 0 && (
+                    <>
+                      Cookies: {orderDetails.desserts.cookies}x - €{(orderDetails.desserts.cookies * 2.50).toFixed(2)}
                       <br />
                     </>
                   )}

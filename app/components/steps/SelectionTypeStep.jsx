@@ -4,7 +4,7 @@ import { Utensils } from "lucide-react";
 import MenuCategories from "@/app/components/MenuCategories";
 import VarietySelector from "@/app/components/VarietySelector";
 
-const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTypes, sauceTypes, toppingTypes }) => {
+const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTypes, sauceTypes, toppingTypes, pricing }) => {
   return (
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-custom-gray">
@@ -94,6 +94,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                 totalSandwiches={formData.totalSandwiches}
                 formData={formData}
                 updateFormData={updateFormData}
+                pricing={pricing}
               />
             </div>
             
@@ -110,43 +111,45 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   Want to add some drinks?
                 </label>
               </div>
-              
+
               {formData.addDrinks && (
                 <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
                   <h4 className="text-md font-medium text-gray-800">Select Drinks</h4>
-                  
-                  {/* Verse Jus */}
+
+                  {/* Fresh Orange Juice */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Verse Jus</label>
-                      <div className="text-xs text-gray-500">€3.62 each</div>
+                      <label className="text-sm font-medium text-gray-700">Fresh Orange Juice</label>
+                      <div className="text-xs text-gray-500">
+                        €{pricing?.drinks?.freshOrangeJuice?.toFixed(2) || '3.35'} each
+                      </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
                         type="button"
                         onClick={() => {
-                          const current = formData.drinks?.verseJus || 0;
+                          const current = formData.drinks?.freshOrangeJuice || 0;
                           const newAmount = Math.max(0, current - 1);
                           updateFormData("drinks", {
                             ...formData.drinks,
-                            verseJus: newAmount
+                            freshOrangeJuice: newAmount
                           });
                         }}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-                        disabled={!formData.drinks?.verseJus || formData.drinks?.verseJus <= 0}
+                        disabled={!formData.drinks?.freshOrangeJuice || formData.drinks?.freshOrangeJuice <= 0}
                       >
                         -
                       </button>
                       <span className="w-8 text-center text-sm">
-                        {formData.drinks?.verseJus || 0}
+                        {formData.drinks?.freshOrangeJuice || 0}
                       </span>
                       <button
                         type="button"
                         onClick={() => {
-                          const current = formData.drinks?.verseJus || 0;
+                          const current = formData.drinks?.freshOrangeJuice || 0;
                           updateFormData("drinks", {
                             ...formData.drinks,
-                            verseJus: current + 1
+                            freshOrangeJuice: current + 1
                           });
                         }}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
@@ -160,7 +163,9 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-sm font-medium text-gray-700">Sodas</label>
-                      <div className="text-xs text-gray-500">€2.71 each</div>
+                      <div className="text-xs text-gray-500">
+                        €{pricing?.drinks?.sodas?.toFixed(2) || '2.35'} each
+                      </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -197,38 +202,76 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                     </div>
                   </div>
 
-                  {/* Smoothies */}
+                  {/* Total drinks summary */}
+                  {(formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
+                    <div className="mt-4 pt-3 border-t border-gray-200">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">
+                          Total drinks: {(formData.drinks?.freshOrangeJuice || 0) + (formData.drinks?.sodas || 0)}
+                        </span>
+                        <span className="font-medium text-gray-800">
+                          €{(
+                            (formData.drinks?.freshOrangeJuice || 0) * (pricing?.drinks?.freshOrangeJuice || 3.35) +
+                            (formData.drinks?.sodas || 0) * (pricing?.drinks?.sodas || 2.35)
+                          ).toFixed(2)} excl. VAT
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="addDesserts"
+                  checked={formData.addDesserts || false}
+                  onChange={(e) => updateFormData("addDesserts", e.target.checked)}
+                  className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-black focus:ring-2"
+                />
+                <label htmlFor="addDesserts" className="text-lg font-medium text-gray-900 cursor-pointer">
+                  Want to add desserts?
+                </label>
+              </div>
+
+              {formData.addDesserts && (
+                <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="text-md font-medium text-gray-800">Select Desserts</h4>
+
+                  {/* Desserts */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Smoothies</label>
-                      <div className="text-xs text-gray-500">€3.62 each</div>
+                      <label className="text-sm font-medium text-gray-700">Desserts</label>
+                      <div className="text-xs text-gray-500">
+                        €{pricing?.desserts?.desserts?.toFixed(2) || '3.50'} each
+                      </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
                         type="button"
                         onClick={() => {
-                          const current = formData.drinks?.smoothies || 0;
+                          const current = formData.desserts?.desserts || 0;
                           const newAmount = Math.max(0, current - 1);
-                          updateFormData("drinks", {
-                            ...formData.drinks,
-                            smoothies: newAmount
+                          updateFormData("desserts", {
+                            ...formData.desserts,
+                            desserts: newAmount
                           });
                         }}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
-                        disabled={!formData.drinks?.smoothies || formData.drinks?.smoothies <= 0}
+                        disabled={!formData.desserts?.desserts || formData.desserts?.desserts <= 0}
                       >
                         -
                       </button>
                       <span className="w-8 text-center text-sm">
-                        {formData.drinks?.smoothies || 0}
+                        {formData.desserts?.desserts || 0}
                       </span>
                       <button
                         type="button"
                         onClick={() => {
-                          const current = formData.drinks?.smoothies || 0;
-                          updateFormData("drinks", {
-                            ...formData.drinks,
-                            smoothies: current + 1
+                          const current = formData.desserts?.desserts || 0;
+                          updateFormData("desserts", {
+                            ...formData.desserts,
+                            desserts: current + 1
                           });
                         }}
                         className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
@@ -237,19 +280,61 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                       </button>
                     </div>
                   </div>
-                  
-                  {/* Total drinks summary */}
-                  {(formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+
+                  {/* Cookies */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Cookies</label>
+                      <div className="text-xs text-gray-500">
+                        €{pricing?.desserts?.cookies?.toFixed(2) || '2.50'} each
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.desserts?.cookies || 0;
+                          const newAmount = Math.max(0, current - 1);
+                          updateFormData("desserts", {
+                            ...formData.desserts,
+                            cookies: newAmount
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                        disabled={!formData.desserts?.cookies || formData.desserts?.cookies <= 0}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-sm">
+                        {formData.desserts?.cookies || 0}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.desserts?.cookies || 0;
+                          updateFormData("desserts", {
+                            ...formData.desserts,
+                            cookies: current + 1
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Total desserts summary */}
+                  {(formData.desserts?.desserts > 0 || formData.desserts?.cookies > 0) && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">
-                          Total drinks: {(formData.drinks?.verseJus || 0) + (formData.drinks?.sodas || 0) + (formData.drinks?.smoothies || 0)}
+                          Total desserts: {(formData.desserts?.desserts || 0) + (formData.desserts?.cookies || 0)}
                         </span>
                         <span className="font-medium text-gray-800">
                           €{(
-                            (formData.drinks?.verseJus || 0) * 3.62 +
-                            (formData.drinks?.sodas || 0) * 2.71 +
-                            (formData.drinks?.smoothies || 0) * 3.62
+                            (formData.desserts?.desserts || 0) * (pricing?.desserts?.desserts || 3.50) +
+                            (formData.desserts?.cookies || 0) * (pricing?.desserts?.cookies || 2.50)
                           ).toFixed(2)} excl. VAT
                         </span>
                       </div>
@@ -259,43 +344,44 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
               )}
             </div>
           </div>
-          
+
           {/* Total amount calculation - full width */}
           <div className="pt-4 mt-6 border-t">
             <div className="p-4 space-y-2 rounded-md bg-custom-gray/10">
               <div className="flex justify-between text-sm text-custom-gray">
-                <span>Price per sandwich</span>
-                <span>€6,83</span>
+                <span>Variety items</span>
+                <span>{formData.totalSandwiches} items</span>
               </div>
-              <div className="flex justify-between text-sm text-custom-gray">
-                <span>Number of sandwiches</span>
-                <span>{formData.totalSandwiches}</span>
-              </div>
-              {formData.addDrinks && (formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+              {formData.addDrinks && (formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
                 <>
                   <div className="flex justify-between text-sm text-custom-gray">
                     <span>Drinks total</span>
                     <span>
                       €{(
-                        (formData.drinks?.verseJus || 0) * 3.62 +
-                        (formData.drinks?.sodas || 0) * 2.71 +
-                        (formData.drinks?.smoothies || 0) * 3.62
+                        (formData.drinks?.freshOrangeJuice || 0) * (pricing?.drinks?.freshOrangeJuice || 3.35) +
+                        (formData.drinks?.sodas || 0) * (pricing?.drinks?.sodas || 2.35)
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+                </>
+              )}
+              {formData.addDesserts && (formData.desserts?.desserts > 0 || formData.desserts?.cookies > 0) && (
+                <>
+                  <div className="flex justify-between text-sm text-custom-gray">
+                    <span>Desserts total</span>
+                    <span>
+                      €{(
+                        (formData.desserts?.desserts || 0) * (pricing?.desserts?.desserts || 3.50) +
+                        (formData.desserts?.cookies || 0) * (pricing?.desserts?.cookies || 2.50)
                       ).toFixed(2)}
                     </span>
                   </div>
                 </>
               )}
               <div className="flex justify-between pt-2 font-medium border-t text-custom-gray">
-                <span>Total amount</span>
-                <span>
-                  €{(
-                    formData.totalSandwiches * 6.83 +
-                    (formData.addDrinks && formData.drinks ?
-                      (formData.drinks.verseJus || 0) * 3.62 +
-                      (formData.drinks.sodas || 0) * 2.71 +
-                      (formData.drinks.smoothies || 0) * 3.62
-                      : 0)
-                  ).toFixed(2)} excl. VAT
+                <span>Estimated total</span>
+                <span className="text-xs text-gray-500">
+                  (Calculated in order summary)
                 </span>
               </div>
             </div>

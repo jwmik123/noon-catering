@@ -4,8 +4,9 @@ import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { sendOrderSmsNotification } from "@/lib/sms";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
+import { calculateOrderTotal } from "@/lib/pricing-utils";
 
 
 const mollieClient = createMollieClient({
@@ -159,21 +160,25 @@ async function handlePaidStatus(quoteId) {
       JSON.stringify(order, null, 2)
     );
 
-    // Fetch sandwich options to include in the email
-    console.log("Fetching sandwich options for order confirmation...");
+    // Fetch sandwich options and pricing data to include in the email
+    console.log("Fetching sandwich options and pricing for order confirmation...");
     let sandwichOptions = [];
+    let pricing = null;
     try {
-      sandwichOptions = await client.fetch(PRODUCT_QUERY);
+      [sandwichOptions, pricing] = await Promise.all([
+        client.fetch(PRODUCT_QUERY),
+        client.fetch(PRICING_QUERY)
+      ]);
       console.log(
-        `Retrieved ${sandwichOptions.length} sandwich options from Sanity`
+        `Retrieved ${sandwichOptions.length} sandwich options and pricing from Sanity`
       );
     } catch (fetchError) {
-      console.error("Error fetching sandwich options:", fetchError);
-      console.log("Will continue with empty sandwich options array");
+      console.error("Error fetching data from Sanity:", fetchError);
+      console.log("Will continue with empty data arrays");
     }
 
-    // Calculate amounts using correct Belgian VAT rates
-    const subtotalAmount = calculateOrderTotal(order.orderDetails); // Items only, VAT-exclusive
+    // Calculate amounts using correct Belgian VAT rates with dynamic pricing
+    const subtotalAmount = calculateOrderTotal(order.orderDetails, pricing); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
     const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
 
@@ -326,7 +331,7 @@ async function handlePaidStatus(quoteId) {
       JSON.stringify(formattedOrder.companyDetails, null, 2)
     );
 
-    await sendOrderConfirmation(formattedOrder, false);
+    await sendOrderConfirmation(formattedOrder, false, pricing);
     console.log(`Order confirmation sent for quote ${quoteId}`);
 
     // Send SMS notification directly
@@ -354,41 +359,7 @@ async function handleCanceledPayment(quoteId) {
   console.log(`Handling canceled payment for quote ${quoteId}`);
 }
 
-// Helper function to calculate total from order data
-function calculateOrderTotal(orderDetails) {
-  if (!orderDetails) return 0;
-  let total = 0;
-
-  if (orderDetails.selectionType === "custom") {
-    if (Array.isArray(orderDetails.customSelection)) {
-      // Custom selection from Sanity is an array of objects
-      total = orderDetails.customSelection
-        .flatMap(item => item.selections || [])
-        .reduce((sum, selection) => sum + (selection.subTotal || 0), 0);
-    } else if (orderDetails.customSelection) {
-      // If it's already an object (converted format)
-      total = Object.values(orderDetails.customSelection || {})
-        .flat()
-        .reduce((sum, selection) => sum + (selection.subTotal || 0), 0);
-    }
-  } else {
-    if (orderDetails.varietySelection) {
-      const totalSandwiches =
-        (orderDetails.varietySelection?.vega || 0) +
-        (orderDetails.varietySelection?.nonVega || 0) +
-        (orderDetails.varietySelection?.vegan || 0);
-      total = totalSandwiches * 6.83;
-    }
-  }
-
-  // Add drinks pricing if drinks are selected
-  if (orderDetails.addDrinks && orderDetails.drinks) {
-    const drinksTotal = 
-      (orderDetails.drinks.verseJus || 0) * 3.62 +  // Fresh juice €3.62
-      (orderDetails.drinks.sodas || 0) * 2.71 +     // Sodas €2.71
-      (orderDetails.drinks.smoothies || 0) * 3.62;  // Smoothies €3.62
-    total += drinksTotal;
-  }
-
-  return total;
+// Helper function to calculate total from order data using dynamic pricing
+function calculateOrderTotalWithPricing(orderDetails, pricing = null) {
+  return calculateOrderTotal(orderDetails, pricing);
 }

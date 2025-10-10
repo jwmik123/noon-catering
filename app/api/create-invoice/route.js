@@ -2,7 +2,7 @@
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
-import { PRODUCT_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 
@@ -155,17 +155,21 @@ export async function POST(request) {
 
 
 
-    // Fetch sandwich options to include in the email
-    console.log("Fetching sandwich options for email...");
+    // Fetch sandwich options and pricing to include in the email
+    console.log("Fetching sandwich options and pricing for email...");
     let sandwichOptions = [];
+    let pricing = null;
     try {
-      sandwichOptions = await client.fetch(PRODUCT_QUERY);
+      [sandwichOptions, pricing] = await Promise.all([
+        client.fetch(PRODUCT_QUERY),
+        client.fetch(PRICING_QUERY)
+      ]);
       console.log(
-        `Retrieved ${sandwichOptions.length} sandwich options from Sanity`
+        `Retrieved ${sandwichOptions.length} sandwich options and pricing from Sanity`
       );
     } catch (fetchError) {
-      console.error("Error fetching sandwich options:", fetchError);
-      console.log("Will continue with empty sandwich options");
+      console.error("Error fetching data from Sanity:", fetchError);
+      console.log("Will continue with empty data");
     }
 
     // Send order confirmation email without invoice
@@ -211,7 +215,7 @@ export async function POST(request) {
         };
 
         console.log("Sending order confirmation email...");
-        const emailSent = await sendOrderConfirmation(emailData, false);
+        const emailSent = await sendOrderConfirmation(emailData, false, pricing);
 
         if (emailSent) {
           console.log("Order confirmation email sent successfully");

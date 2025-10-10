@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 const SandwichAmountStep = ({ formData, updateFormData }) => {
   const handlePeopleChange = (people) => {
     const numPeople = parseInt(people) || 0;
-    const totalSandwiches = Math.max(numPeople, 15); // 1 per person, minimum 15
+    const totalSandwiches = Math.max(numPeople, 3); // 1 per person, minimum 3
     updateFormData("numberOfPeople", numPeople);
     updateFormData("totalSandwiches", totalSandwiches.toString());
   };
@@ -37,7 +37,7 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
                     <SelectValue placeholder="Select number of people" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[15, 20, 25, 30, 50, 75, 100, 150, 200, 300].map((num) => (
+                    {[3, 5, 10, 15, 20, 25, 30, 50, 75, 100, 150, 200, 300].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
                         {num} people
                       </SelectItem>
@@ -51,7 +51,7 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
                 <Input
                   id="peopleInput"
                   type="number"
-                  min="15"
+                  min="3"
                   value={formData.numberOfPeople || ""}
                   onChange={(e) => handlePeopleChange(e.target.value)}
                   className="mt-1"
@@ -78,10 +78,10 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
               <div>
                 <p className="text-sm text-custom-gray">Number of people</p>
                 <p className="text-lg font-medium">{formData.numberOfPeople || 0}</p>
-                {formData.numberOfPeople < 15 && formData.numberOfPeople > 0 && (
-                  <p className="mt-1 text-sm text-red-600">* Minimum 15 people required</p>
+                {formData.numberOfPeople < 3 && formData.numberOfPeople > 0 && (
+                  <p className="mt-1 text-sm text-red-600">* Minimum 3 people required</p>
                 )}
-                {formData.numberOfPeople >= 15 && (
+                {formData.numberOfPeople >= 3 && (
                   <p className="mt-1 text-sm text-green-600">
                     = {formData.numberOfPeople} sandwiches (1 per person)
                   </p>

@@ -12,22 +12,13 @@ const ContactStep = ({
   updateFormData,
   sandwichOptions,
   deliveryCost,
-  // totalAmount,
+  totalAmount,
 }) => {
   const handleDownloadInvoice = async () => {
     try {
       // Calculate total amount including delivery costs
-      let calculatedAmount = 0;
-      if (formData.selectionType === "custom") {
-        calculatedAmount = Object.values(formData.customSelection)
-          .flat()
-          .reduce((total, selection) => total + selection.subTotal, 0);
-      } else {
-        calculatedAmount = formData.totalSandwiches * 6.83;
-      }
-
-      // Add delivery cost if present
-      const finalAmount = calculatedAmount + (deliveryCost || 0);
+      // Use the totalAmount prop which already includes dynamic pricing
+      const finalAmount = totalAmount + (deliveryCost || 0);
 
       // Call the API to generate PDF
       const response = await fetch("/api/generate-pdf", {

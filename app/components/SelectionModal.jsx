@@ -97,10 +97,10 @@ const SelectionModal = ({
     if (sandwich?.hasToppings && selectedToppings.length > 0) {
       selectedToppings.forEach((toppingName) => {
         const toppingOption = sandwich.toppingOptions?.find(
-          (t) => t.name === toppingName
+          (t) => t.topping?.name === toppingName
         );
-        if (toppingOption?.price) {
-          toppingCost += toppingOption.price;
+        if (toppingOption?.topping?.price) {
+          toppingCost += toppingOption.topping.price;
         }
       });
     }
@@ -134,10 +134,10 @@ const SelectionModal = ({
     if (sandwich?.hasToppings && selectedToppings.length > 0) {
       selectedToppings.forEach((toppingName) => {
         const toppingOption = sandwich.toppingOptions?.find(
-          (t) => t.name === toppingName
+          (t) => t.topping?.name === toppingName
         );
-        if (toppingOption?.price) {
-          additionalCost += toppingOption.price;
+        if (toppingOption?.topping?.price) {
+          additionalCost += toppingOption.topping.price;
         }
       });
     }
@@ -264,31 +264,35 @@ const SelectionModal = ({
               <div className="space-y-2">
                 <Label>Toppings</Label>
                 <div className="overflow-y-auto p-3 space-y-2 max-h-32 rounded-md border">
-                  {sandwich?.toppingOptions?.map((toppingOption) => (
-                    <div
-                      key={toppingOption.name}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={toppingOption.name}
-                        checked={selectedToppings.includes(toppingOption.name)}
-                        onCheckedChange={(checked) =>
-                          handleToppingChange(toppingOption.name, checked)
-                        }
-                      />
-                      <Label
-                        htmlFor={toppingOption.name}
-                        className="flex-1 text-sm font-normal cursor-pointer"
+                  {sandwich?.toppingOptions?.map((toppingOption) => {
+                    const topping = toppingOption.topping;
+                    if (!topping) return null;
+                    return (
+                      <div
+                        key={topping._id}
+                        className="flex items-center space-x-2"
                       >
-                        {toppingOption.name}
-                        {toppingOption.price > 0 && (
-                          <span className="ml-1 text-gray-500">
-                            (+€{Number(toppingOption.price || 0).toFixed(2)})
-                          </span>
-                        )}
-                      </Label>
-                    </div>
-                  ))}
+                        <Checkbox
+                          id={topping._id}
+                          checked={selectedToppings.includes(topping.name)}
+                          onCheckedChange={(checked) =>
+                            handleToppingChange(topping.name, checked)
+                          }
+                        />
+                        <Label
+                          htmlFor={topping._id}
+                          className="flex-1 text-sm font-normal cursor-pointer"
+                        >
+                          {topping.name}
+                          {topping.price > 0 && (
+                            <span className="ml-1 text-gray-500">
+                              (+€{Number(topping.price || 0).toFixed(2)})
+                            </span>
+                          )}
+                        </Label>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -331,9 +335,9 @@ const SelectionModal = ({
                       {selectedToppings
                         .reduce((total, toppingName) => {
                           const toppingOption = sandwich.toppingOptions?.find(
-                            (t) => t.name === toppingName
+                            (t) => t.topping?.name === toppingName
                           );
-                          return total + (toppingOption?.price || 0);
+                          return total + (toppingOption?.topping?.price || 0);
                         }, 0)
                         .toFixed(2)}
                     </span>

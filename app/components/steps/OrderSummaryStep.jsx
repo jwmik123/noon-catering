@@ -101,7 +101,29 @@ const OrderSummaryStep = ({
   toppingTypes,
   secondaryButtonClasses,
   totalAmount,
+  pricing,
 }) => {
+  // Helper function to get price for a variety selection item
+  const getVarietyPrice = (key) => {
+    const parts = key.split('-');
+
+    if (parts[0] === 'lunchboxes' && parts.length === 3) {
+      // Lunchbox: price by box type
+      const boxType = parts[1];
+      const lunchboxCategory = pricing?.categoryPricing?.find(cat => cat.typeCategory === 'lunchboxes');
+      const boxTypeData = lunchboxCategory?.boxTypes?.find(bt => bt.boxType === boxType);
+      return boxTypeData?.price || 0;
+    } else if (parts.length === 2) {
+      // Sandwiches/Salads: price by subcategory
+      const [typeCategory, subCategory] = parts;
+      const categoryData = pricing?.categoryPricing?.find(cat => cat.typeCategory === typeCategory);
+      const subCatData = categoryData?.subCategoryPricing?.find(sc => sc.subCategory === subCategory);
+      return subCatData?.price || 0;
+    }
+
+    return 0;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
@@ -190,34 +212,76 @@ const OrderSummaryStep = ({
               </p>
               <div className="space-y-3">
                 {renderVarietySelection(formData.varietySelection)}
+
+                {/* Detailed pricing breakdown */}
+                {formData.varietySelection && Object.keys(formData.varietySelection).length > 0 && (
+                  <div className="pt-3 mt-3 border-t">
+                    <p className="mb-2 text-xs font-medium text-gray-600">Price Breakdown:</p>
+                    {Object.entries(formData.varietySelection)
+                      .filter(([_, quantity]) => quantity > 0)
+                      .map(([key, quantity]) => {
+                        const price = getVarietyPrice(key);
+                        const total = price * quantity;
+                        return (
+                          <div key={key} className="flex justify-between text-xs text-gray-600">
+                            <span>{key}</span>
+                            <span>{quantity} × €{price.toFixed(2)} = €{total.toFixed(2)}</span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+
                 <div className="pt-3 border-t">
                   <div className="flex justify-between font-medium">
-                    <span>Total</span>
+                    <span>Total items</span>
                     <span>{formData.totalSandwiches} items</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600 mt-1">
+                    <span>Variety subtotal</span>
+                    <span>
+                      €{Object.entries(formData.varietySelection || {})
+                        .reduce((sum, [key, quantity]) => sum + (getVarietyPrice(key) * quantity), 0)
+                        .toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </div>
               {/* Drinks section for variety selection */}
-              {formData.addDrinks && (formData.drinks?.verseJus > 0 || formData.drinks?.sodas > 0 || formData.drinks?.smoothies > 0) && (
+              {formData.addDrinks && (formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
                 <div className="pt-4 mt-4 border-t">
                   <p className="mb-2 text-sm text-gray-500">Drinks</p>
                   <div className="space-y-2">
-                    {formData.drinks?.verseJus > 0 && (
+                    {formData.drinks?.freshOrangeJuice > 0 && (
                       <div className="flex justify-between">
-                        <span>Fresh Juice</span>
-                        <span>{formData.drinks.verseJus}x €{(formData.drinks.verseJus * 3.62).toFixed(2)}</span>
+                        <span>Fresh Orange Juice</span>
+                        <span>{formData.drinks.freshOrangeJuice}x €{(formData.drinks.freshOrangeJuice * (pricing?.drinks?.freshOrangeJuice || 3.35)).toFixed(2)}</span>
                       </div>
                     )}
                     {formData.drinks?.sodas > 0 && (
                       <div className="flex justify-between">
                         <span>Sodas</span>
-                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * 2.71).toFixed(2)}</span>
+                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * (pricing?.drinks?.sodas || 2.35)).toFixed(2)}</span>
                       </div>
                     )}
-                    {formData.drinks?.smoothies > 0 && (
+                  </div>
+                </div>
+              )}
+              {/* Desserts section for variety selection */}
+              {formData.addDesserts && (formData.desserts?.desserts > 0 || formData.desserts?.cookies > 0) && (
+                <div className="pt-4 mt-4 border-t">
+                  <p className="mb-2 text-sm text-gray-500">Desserts</p>
+                  <div className="space-y-2">
+                    {formData.desserts?.desserts > 0 && (
                       <div className="flex justify-between">
-                        <span>Smoothies</span>
-                        <span>{formData.drinks.smoothies}x €{(formData.drinks.smoothies * 3.62).toFixed(2)}</span>
+                        <span>Desserts</span>
+                        <span>{formData.desserts.desserts}x €{(formData.desserts.desserts * (pricing?.desserts?.desserts || 3.50)).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {formData.desserts?.cookies > 0 && (
+                      <div className="flex justify-between">
+                        <span>Cookies</span>
+                        <span>{formData.desserts.cookies}x €{(formData.desserts.cookies * (pricing?.desserts?.cookies || 2.50)).toFixed(2)}</span>
                       </div>
                     )}
                   </div>

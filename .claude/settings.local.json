@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(rm:*)",
+      "Bash(npm run dev:*)",
+      "Read(//Users/joelmik/Code/sandwich-catering/sanity/**)",
+      "Read(//Users/joelmik/Code/sandwich-catering/sanity/schemaTypes/**)",
+      "Read(//Users/joelmik/Code/sandwich-catering/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

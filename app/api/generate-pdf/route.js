@@ -1,10 +1,21 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import InvoicePDF from "@/app/components/InvoicePDF";
 import { NextResponse } from "next/server";
+import { client } from "@/sanity/lib/client";
+import { PRICING_QUERY } from "@/sanity/lib/queries";
 
 export async function POST(request) {
   try {
     const data = await request.json();
+
+    // Fetch pricing data from Sanity
+    let pricing = null;
+    try {
+      pricing = await client.fetch(PRICING_QUERY);
+    } catch (pricingError) {
+      console.error("Error fetching pricing data:", pricingError);
+      // Continue without pricing - components will use fallback prices
+    }
 
     // Calculate due date if not provided (14 days after delivery date)
     let dueDate = data.dueDate ? new Date(data.dueDate) : null;
@@ -32,6 +43,7 @@ export async function POST(request) {
         dueDate={dueDate}
         sandwichOptions={data.sandwichOptions}
         referenceNumber={data.companyDetails?.referenceNumber || null}
+        pricing={pricing}
       />
     );
 

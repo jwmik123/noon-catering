@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
-import { PRODUCT_QUERY, BREAD_TYPES_QUERY, SAUCE_TYPES_QUERY, TOPPING_TYPES_QUERY } from "@/sanity/lib/queries";
+import { PRODUCT_QUERY, BREAD_TYPES_QUERY, SAUCE_TYPES_QUERY, TOPPING_TYPES_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import Wizard from "@/app/components/wizard/Wizard";
 import SandwichAmountStep from "@/app/components/steps/SandwichAmountStep";
 import SelectionTypeStep from "@/app/components/steps/SelectionTypeStep";
@@ -27,6 +27,7 @@ const Home = () => {
   const [breadTypes, setBreadTypes] = useState([]);
   const [sauceTypes, setSauceTypes] = useState([]);
   const [toppingTypes, setToppingTypes] = useState([]);
+  const [pricing, setPricing] = useState(null);
   const [date, setDate] = useState(null);
   const {
     formData,
@@ -37,29 +38,31 @@ const Home = () => {
     setDeliveryError,
     totalAmount,
     restoreQuote,
-  } = useOrderForm();
+  } = useOrderForm(pricing);
 
   const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [products, breads, sauces, toppings] = await Promise.all([
+        const [products, breads, sauces, toppings, pricingData] = await Promise.all([
           client.fetch(PRODUCT_QUERY),
           client.fetch(BREAD_TYPES_QUERY),
           client.fetch(SAUCE_TYPES_QUERY),
           client.fetch(TOPPING_TYPES_QUERY),
+          client.fetch(PRICING_QUERY),
         ]);
-        
+
         setSandwichOptions(products);
         setBreadTypes(breads);
         setSauceTypes(sauces);
         setToppingTypes(toppings);
+        setPricing(pricingData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-    
+
     fetchData();
   }, []);
 
@@ -117,6 +120,7 @@ const Home = () => {
             breadTypes={breadTypes}
             sauceTypes={sauceTypes}
             toppingTypes={toppingTypes}
+            pricing={pricing}
           />
         );
       case 3:
@@ -131,6 +135,7 @@ const Home = () => {
             toppingTypes={toppingTypes}
             secondaryButtonClasses={secondaryButtonClasses}
             totalAmount={totalAmount}
+            pricing={pricing}
           />
         );
       case 4:

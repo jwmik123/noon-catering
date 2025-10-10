@@ -26,27 +26,33 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
   // Get categories using new category structure: typeCategory + subCategory combinations
   const uniqueCategories = useMemo(() => {
     const categoryMap = new Map();
-    
+
     sandwichOptions.forEach(item => {
       if (item.typeCategory && item.subCategory) {
         const key = `${item.typeCategory}-${item.subCategory}`;
         const name = `${item.typeCategory} - ${item.subCategory}`;
-        categoryMap.set(key, { 
-          id: key, 
-          name, 
-          value: key, 
-          typeCategory: item.typeCategory, 
-          subCategory: item.subCategory 
+        categoryMap.set(key, {
+          id: key,
+          name,
+          value: key,
+          typeCategory: item.typeCategory,
+          subCategory: item.subCategory
         });
       }
     });
-    
-    // Sort by type category then sub category
+
+    // Define subcategory order
+    const subCategoryOrder = ['meat', 'chicken', 'fish', 'veggie', 'vegan'];
+
+    // Sort by type category then sub category (using predefined order)
     return Array.from(categoryMap.values()).sort((a, b) => {
       if (a.typeCategory !== b.typeCategory) {
         return a.typeCategory.localeCompare(b.typeCategory);
       }
-      return a.subCategory.localeCompare(b.subCategory);
+      // Sort by predefined subcategory order
+      const indexA = subCategoryOrder.indexOf(a.subCategory);
+      const indexB = subCategoryOrder.indexOf(b.subCategory);
+      return indexA - indexB;
     });
   }, [sandwichOptions]);
 
@@ -82,8 +88,8 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
       if (element) {
         const trigger = ScrollTrigger.create({
           trigger: element,
-          start: "top 60%",
-          end: "bottom 40%",
+          start: "top 50%",
+          end: "bottom 50%",
           onEnter: () => {
             if (!isManualScrolling) {
               setActiveCategory(category.value);
@@ -95,7 +101,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
             }
           },
         });
-        
+
         scrollTriggersRef.current.push(trigger);
       }
     });
@@ -105,7 +111,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
       scrollTriggersRef.current.forEach(trigger => trigger.kill());
       scrollTriggersRef.current = [];
     };
-  }, [uniqueCategories]);
+  }, [uniqueCategories, isManualScrolling]);
 
   // Cleanup GSAP animations on unmount
   useEffect(() => {
@@ -117,54 +123,27 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
 
 
 
-  // Update indicator position when active category changes or window resizes
+  // Update indicator position when active category changes
   useEffect(() => {
     const updateIndicatorPosition = () => {
       const activeButton = buttonRefs.current[activeCategory];
-      if (activeButton) {
-        try {
-          const container = activeButton.parentElement;
-          const containerRect = container.getBoundingClientRect();
-          const buttonRect = activeButton.getBoundingClientRect();
-          
-          setIndicatorStyle({
-            left: buttonRect.left - containerRect.left,
-            width: buttonRect.width,
-            height: buttonRect.height,
-            top: buttonRect.top - containerRect.top,
-          });
-        } catch (error) {
-          // Silently handle position calculation errors on older browsers
-          console.warn('Position calculation failed:', error);
-        }
-      }
-    };
+      if (!activeButton) return;
 
-    if (activeCategory) {
-      // Use requestAnimationFrame for smoother updates
-      requestAnimationFrame(() => {
-        setTimeout(updateIndicatorPosition, 50);
+      // Get the index of active category
+      const activeIndex = uniqueCategories.findIndex(cat => cat.value === activeCategory);
+      if (activeIndex === -1) return;
+
+      setIndicatorStyle({
+        transform: `translateX(${activeIndex * 100}%)`,
+        width: `${100 / uniqueCategories.length}%`,
       });
+    };
+
+    if (activeCategory && uniqueCategories.length > 0) {
+      // Small delay to ensure DOM is ready
+      requestAnimationFrame(updateIndicatorPosition);
     }
-
-    // Throttled resize handler for better performance
-    let resizeTimeout;
-    const handleResize = () => {
-      if (activeCategory) {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          requestAnimationFrame(updateIndicatorPosition);
-        }, 150);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimeout);
-    };
-  }, [activeCategory]);
+  }, [activeCategory, uniqueCategories]);
 
   const handleRemoveSelection = (sandwichId, indexToRemove) => {
     const currentSelections = formData.customSelection[sandwichId] || [];
@@ -181,7 +160,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
     // Immediately set the active category and disable automatic tracking
     setActiveCategory(categoryValue);
     setIsManualScrolling(true);
-    
+
     // Use native browser scrolling with ID
     const element = document.getElementById(`category-${categoryValue}`);
     if (element) {
@@ -190,33 +169,34 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
         block: 'start'
       });
     }
-    
+
     // Re-enable automatic tracking after scroll completes
+    // Longer delay to ensure smooth scroll finishes before ScrollTrigger takes over
     setTimeout(() => {
       setIsManualScrolling(false);
-    }, 1000); // Longer delay for smooth scroll to complete
+      // Force ScrollTrigger refresh after manual scroll
+      ScrollTrigger.refresh();
+    }, 1500);
   };
 
   return (
     <div className="w-full">
       {/* Navigation tabs */}
       <div className="sticky top-32 z-10 bg-primary rounded-md text-white">
-        <div className="relative grid w-full grid-cols-5 gap-1 sm:gap-2 md:gap-4 px-2 py-3 sm:px-3 sm:py-2 md:px-4 md:py-2">
-          {/* Sliding indicator - optimized for older devices */}
-          <div 
-            className={`absolute bg-white rounded-md ${
-              prefersReducedMotion 
-                ? '' 
+        <div className="relative grid w-full px-2 py-3 sm:px-3 sm:py-2 md:px-4 md:py-2" style={{ gridTemplateColumns: `repeat(${uniqueCategories.length}, 1fr)` }}>
+          {/* Sliding indicator - simplified approach */}
+          <div
+            className={`absolute inset-y-3 sm:inset-y-2 md:inset-y-2 bg-white rounded-md ${
+              prefersReducedMotion
+                ? ''
                 : 'transition-transform duration-300 ease-out'
             }`}
             style={{
-              ...indicatorStyle,
+              width: indicatorStyle.width || `${100 / uniqueCategories.length}%`,
+              transform: indicatorStyle.transform || 'translateX(0)',
+              left: '0.5rem',
+              right: '0.5rem',
               willChange: !prefersReducedMotion && activeCategory ? 'transform' : 'auto',
-              transform: `translateX(${indicatorStyle.left || 0}px)`,
-              width: indicatorStyle.width,
-              height: indicatorStyle.height,
-              top: indicatorStyle.top,
-              left: 0, // Reset left since we're using translateX
             }}
           />
           {uniqueCategories.map((category) => (
@@ -284,7 +264,7 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
 
                       <div className="relative w-1/2 -m-4 overflow-hidden">
                         <div
-                          className="absolute inset-0 bg-center bg-cover md:scale-125"
+                          className="absolute inset-0 bg-center bg-cover"
                           style={{
                             backgroundImage: `url(${urlFor(item.image).url()})`,
                           }}
