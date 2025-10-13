@@ -142,7 +142,7 @@ const ContactStep = ({
               type="tel"
               value={formData.phoneNumber}
               onChange={(e) => updateFormData("phoneNumber", e.target.value)}
-              placeholder="06 12345678"
+              placeholder="04 12345678"
               required
             />
           </div>

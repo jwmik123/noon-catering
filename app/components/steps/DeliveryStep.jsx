@@ -51,22 +51,45 @@ const DeliveryStep = ({
       />
 
       <div className="space-y-6">
-        <div>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-700">
-              Delivery Address
-            </h3>
-            <div className="flex gap-2 items-center">
-              <Checkbox
-                id="useGoogleMaps"
-                checked={useGoogleMaps}
-                onCheckedChange={handleGoogleMapsToggle}
-              />
-              <Label htmlFor="useGoogleMaps" className="text-sm">
-                Smart address lookup
-              </Label>
-            </div>
+        {/* Pickup Option */}
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+          <div className="flex gap-2 items-center">
+            <Checkbox
+              id="isPickup"
+              checked={formData.isPickup}
+              onCheckedChange={(checked) => {
+                updateFormData("isPickup", checked);
+                if (checked) {
+                  // Clear delivery address and cost when pickup is selected
+                  setDeliveryCost(0);
+                  setDeliveryError(null);
+                }
+              }}
+            />
+            <Label htmlFor="isPickup" className="text-sm font-medium">
+              Pick up order at NOON Sandwicherie (5% discount)
+            </Label>
           </div>
+        </div>
+
+        {/* Only show delivery address fields if not pickup */}
+        {!formData.isPickup && (
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-700">
+                Delivery Address
+              </h3>
+              <div className="flex gap-2 items-center">
+                <Checkbox
+                  id="useGoogleMaps"
+                  checked={useGoogleMaps}
+                  onCheckedChange={handleGoogleMapsToggle}
+                />
+                <Label htmlFor="useGoogleMaps" className="text-sm">
+                  Smart address lookup
+                </Label>
+              </div>
+            </div>
 
           {useGoogleMaps ? (
             <div className="space-y-4">
@@ -183,7 +206,8 @@ const DeliveryStep = ({
               </div>
             </div>
           )}
-        </div>
+          </div>
+        )}
 
         <div className="pt-6 border-t">
           <div className="flex gap-2 items-center">

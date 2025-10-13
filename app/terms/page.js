@@ -13,80 +13,107 @@ export default function TermsPage() {
           </a>
         </div>
       </div>
-      <h1 className="mb-8 text-3xl font-bold">Terms and Conditions</h1>
+      <h1 className="mb-8 text-3xl font-bold">Terms and Conditions - NOON Sandwicherie & Koffie</h1>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">1. Company Information</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 1 - Definitions</h2>
         <p className="mb-4">
-          This website is operated by NOON Sandwicherie & Koffie,
-          registered with the Belgian Chamber of Commerce under number 81264782,
-          with VAT ID BTW BE 0795406037.
+          NOON Sandwicherie: provider of catering services. <br />
+          Client: contracting party of NOON Sandwicherie.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">2. Services</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 2 - Applicability</h2>
         <p className="mb-4">
-          We provide catering services to businesses, including but not limited
-          to lunches, buffets, and event catering.
+          These terms and conditions apply to all offers, quotations, and agreements.
+          Deviations are only valid if agreed upon in writing.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">3. Orders and Payment</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 3 - Quotations and Orders</h2>
         <p className="mb-4">
-          Orders must be placed at least 24 hours in advance. Payments can be
-          made via bank transfer (IBAN: NL05 INGB 0006 8499 73). All prices are
-          listed in EUR, excluding VAT unless otherwise stated.
+          Quotations are non-binding and valid for 14 days unless otherwise stated.
+          Acceptance must be confirmed in writing within this period.
+          <br />
+          Catering orders must be confirmed in writing at least two working days in advance,
+          specifying the correct number of participants. Prices are based on this number,
+          with additional consumption invoiced afterward.
+          <br />
+          If no updated number is provided, the most recent known number will be used.
+          <br />
+          NOON Sandwicherie reserves the right to reject orders that have not been confirmed
+          in writing at least two working days prior. Naturally, we are happy to discuss this if needed.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">4. Delivery</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 4 - Delivery & Courier Services</h2>
         <p className="mb-4">
-          Deliveries are made within Amsterdam and surrounding areas. Free
-          delivery is available for orders above €100,- (some areas excluded:
-          1026-1028, 1035, 1101-1109). Specific delivery times are agreed upon
-          when ordering. We reserve the right to cancel or delay orders due to
-          unforeseen circumstances.
+          NOON Sandwicherie is not responsible for delays caused by external delivery services.
+          We strive to deliver all orders at the agreed time but cannot guarantee this.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">
-          5. Cancellation and Refunds
-        </h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 5 - Timely Presence</h2>
         <p className="mb-4">
-          Due to the perishable nature of our products, cancellations must be
-          made at least 24 hours in advance. Refunds are subject to approval and
-          depend on the timing of cancellation.
+          We ask clients to ensure that agreed-upon times are respected to allow smooth execution.
+          In case of delay, NOON Sandwicherie may provide adjusted service,
+          and any additional costs will be invoiced after consultation.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">6. Liability</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 6 - Payment</h2>
         <p className="mb-4">
-          We are not liable for any damages resulting from allergies or misuse
-          of our products. Customers are responsible for providing accurate
-          dietary information.
+          Invoices must be paid within 30 days of the invoice date.
+          Late payment incurs an interest rate of 2% per month on the total amount.
+          <br />
+          For amounts from €500 and above, a 50% deposit is required upon confirmation, payable electronically.
+          The remaining balance must be paid after the service, electronically as well.
+          <br />
+          Failure to meet payment obligations allows NOON Sandwicherie to cancel the agreement
+          without compensation.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">7. Complaints</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 7 - Cancellation</h2>
         <p className="mb-4">
-          Complaints must be reported within 24 hours after delivery via
-          bestel@noonsandwicherie.be. We aim to respond within 2 business days.
+          In case of cancellation, the client is charged as follows:
+        </p>
+        <ul className="list-disc list-inside mt-2 mb-4">
+          <li>Within 24 hours before delivery: 50% of the total amount + €25 administrative fee</li>
+          <li>24 hours to 3 days before delivery: 25% of the total amount + €25 administrative fee</li>
+          <li>Up to 3 days before delivery: €25 administrative fee</li>
+        </ul>
+        <p className="mb-4">
+          Cancellations must be made via email, preferably preceded by a phone call.
+          The date of the email counts as the official cancellation date.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">8. Applicable Law</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Article 8 - Change in Number of Participants</h2>
         <p className="mb-4">
-          Dutch law applies. Any disputes will be handled by the competent court
-          in Amsterdam.
+          Changes to the number of participants must be communicated in writing at least 24 hours in advance,
+          preferably preceded by a phone call. Changes within this period can no longer be processed;
+          the full amount remains due.
         </p>
       </section>
+
+      <section className="mb-8">
+        <h2 className="mb-4 text-2xl font-semibold">Article 9 - Complaints</h2>
+        <p className="mb-4">
+          Complaints must be reported in writing on the day of delivery.
+          Liability is limited to the invoice amount.
+        </p>
+      </section>
+
     </div>
   );
 }
+
+

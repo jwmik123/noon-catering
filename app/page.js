@@ -187,6 +187,7 @@ const Home = () => {
         getValidationMessage={getValidationMessage}
         secondaryButtonClasses={secondaryButtonClasses}
         primaryButtonClasses={primaryButtonClasses}
+        formData={formData}
       >
         {renderStepContent()}
       </Wizard>

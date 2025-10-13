@@ -283,6 +283,9 @@ const InvoicePDF = ({
     return sandwich ? sandwich.name : "Unknown Sandwich";
   };
 
+  // Check if this is a pickup order
+  const isPickup = orderDetails?.isPickup || false;
+
   // Calculate amounts using PaymentStep.jsx pattern
   const amountData = (() => {
     // If amount is passed as an object with the correct structure, use it
@@ -290,6 +293,7 @@ const InvoicePDF = ({
       return {
         subtotal: amount.subtotal || 0,
         delivery: amount.delivery || 0,
+        pickupDiscount: amount.pickupDiscount || 0,
         foodVAT: amount.foodVAT || 0,
         deliveryVAT: amount.deliveryVAT || 0,
         vat: amount.vat || 0,
@@ -300,14 +304,16 @@ const InvoicePDF = ({
     // Otherwise, calculate from order details using dynamic pricing
     const subtotalAmount = calculateOrderTotal(orderDetails, pricing);
 
-    // Delivery cost (VAT-exclusive)
-    const deliveryCost = orderDetails.deliveryCost || 0;
+    // Delivery cost (VAT-exclusive) - 0 for pickup orders
+    const deliveryCost = isPickup ? 0 : (orderDetails.deliveryCost || 0);
 
-    // Calculate VAT and total using correct Belgian VAT rates
-    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
+    // Calculate VAT and total using correct Belgian VAT rates with pickup discount
+    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost, isPickup);
 
     return {
       subtotal: vatBreakdown.subtotal || 0,
+      originalSubtotal: vatBreakdown.originalFoodSubtotal || subtotalAmount,
+      pickupDiscount: vatBreakdown.pickupDiscount || 0,
       delivery: vatBreakdown.deliverySubtotal || 0,
       foodVAT: vatBreakdown.foodVAT || 0,
       deliveryVAT: vatBreakdown.deliveryVAT || 0,
@@ -470,7 +476,7 @@ const InvoicePDF = ({
           <View style={styles.detailsColumn}>
             {deliveryDetails.deliveryDate && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Delivery</Text>
+                <Text style={styles.sectionTitle}>{isPickup ? "Pick Up" : "Delivery"}</Text>
                 <View style={styles.row}>
                   <Text style={styles.label}>Company:</Text>
                   <Text style={styles.value}>{companyName}</Text>
@@ -482,7 +488,7 @@ const InvoicePDF = ({
                   </Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>Delivery Date:</Text>
+                  <Text style={styles.label}>{isPickup ? "Pick Up Date:" : "Delivery Date:"}</Text>
                   <Text style={styles.value}>
                     {deliveryDate.toLocaleDateString("nl-NL", {
                       timeZone: "Europe/Amsterdam",
@@ -493,15 +499,27 @@ const InvoicePDF = ({
                   <Text style={styles.label}>Time:</Text>
                   <Text style={styles.value}>{deliveryTime}</Text>
                 </View>
-                <View style={styles.row}>
-                  <Text style={styles.label}>Address:</Text>
-                  <Text style={styles.value}>
-                    {deliveryStreet} {deliveryHouseNumber}
-                    {deliveryHouseNumberAddition}
-                    {"\n"}
-                    {deliveryPostalCode} {deliveryCity}
-                  </Text>
-                </View>
+                {!isPickup && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Address:</Text>
+                    <Text style={styles.value}>
+                      {deliveryStreet} {deliveryHouseNumber}
+                      {deliveryHouseNumberAddition}
+                      {"\n"}
+                      {deliveryPostalCode} {deliveryCity}
+                    </Text>
+                  </View>
+                )}
+                {isPickup && (
+                  <View style={styles.row}>
+                    <Text style={styles.label}>Pick Up Location:</Text>
+                    <Text style={styles.value}>
+                      NOON Sandwicherie & Koffie{"\n"}
+                      Keizer Leopoldstraat 1{"\n"}
+                      9000 Gent, België
+                    </Text>
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -536,7 +554,7 @@ const InvoicePDF = ({
               <Text style={styles.sectionTitle}>Payment Information</Text>
               <View style={styles.row}>
                 <Text style={styles.label}>IBAN:</Text>
-                <Text style={styles.value}>NL05 INGB 0006 8499 73</Text>
+                <Text style={styles.value}>BE02 3631 5506 4240</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>BIC:</Text>
@@ -743,9 +761,17 @@ const InvoicePDF = ({
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal:</Text>
             <Text style={styles.totalValue}>
-              €{(amountData.subtotal || 0).toFixed(2)}
+              €{(amountData.originalSubtotal || amountData.subtotal || 0).toFixed(2)}
             </Text>
           </View>
+          {isPickup && (amountData.pickupDiscount || 0) > 0 && (
+            <View style={styles.totalRow}>
+              <Text style={[styles.totalLabel, { color: '#16a34a' }]}>Pickup Discount (5%):</Text>
+              <Text style={[styles.totalValue, { color: '#16a34a' }]}>
+                -€{(amountData.pickupDiscount || 0).toFixed(2)}
+              </Text>
+            </View>
+          )}
           {(amountData.delivery || 0) > 0 ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Delivery:</Text>
@@ -756,7 +782,7 @@ const InvoicePDF = ({
           ) : (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Delivery:</Text>
-              <Text style={styles.totalValue}>Free</Text>
+              <Text style={styles.totalValue}>{isPickup ? "Pick Up" : "Free"}</Text>
             </View>
           )}
           <View style={styles.totalRow}>
@@ -786,6 +812,101 @@ const InvoicePDF = ({
           <Text>Keizer Leopoldstraat 1</Text>
           <Text>9000 Gent, België</Text>
           <Text>bestel@noonsandwicherie.be</Text>
+        </View>
+      </Page>
+
+      {/* Terms and Conditions Page */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Terms and Conditions - NOON Sandwicherie & Koffie</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 1 - Definitions</Text>
+          <Text style={styles.value}>
+            NOON Sandwicherie: provider of catering services.{"\n"}
+            Client: contracting party of NOON Sandwicherie.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 2 - Applicability</Text>
+          <Text style={styles.value}>
+            These terms and conditions apply to all offers, quotations, and agreements.
+            Deviations are only valid if agreed upon in writing.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 3 - Quotations and Orders</Text>
+          <Text style={styles.value}>
+            Quotations are non-binding and valid for 14 days unless otherwise stated.
+            Acceptance must be confirmed in writing within this period.{"\n\n"}
+            Catering orders must be confirmed in writing at least two working days in advance,
+            specifying the correct number of participants. Prices are based on this number,
+            with additional consumption invoiced afterward.{"\n\n"}
+            If no updated number is provided, the most recent known number will be used.{"\n\n"}
+            NOON Sandwicherie reserves the right to reject orders that have not been confirmed
+            in writing at least two working days prior. Naturally, we are happy to discuss this if needed.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 4 - Delivery & Courier Services</Text>
+          <Text style={styles.value}>
+            NOON Sandwicherie is not responsible for delays caused by external delivery services.
+            We strive to deliver all orders at the agreed time but cannot guarantee this.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 5 - Timely Presence</Text>
+          <Text style={styles.value}>
+            We ask clients to ensure that agreed-upon times are respected to allow smooth execution.
+            In case of delay, NOON Sandwicherie may provide adjusted service,
+            and any additional costs will be invoiced after consultation.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 6 - Payment</Text>
+          <Text style={styles.value}>
+            Invoices must be paid within 30 days of the invoice date.
+            Late payment incurs an interest rate of 2% per month on the total amount.{"\n\n"}
+            For amounts from €500 and above, a 50% deposit is required upon confirmation, payable electronically.
+            The remaining balance must be paid after the service, electronically as well.{"\n\n"}
+            Failure to meet payment obligations allows NOON Sandwicherie to cancel the agreement
+            without compensation.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 7 - Cancellation</Text>
+          <Text style={styles.value}>
+            In case of cancellation, the client is charged as follows:{"\n\n"}
+            • Within 24 hours before delivery: 50% of the total amount + €25 administrative fee{"\n"}
+            • 24 hours to 3 days before delivery: 25% of the total amount + €25 administrative fee{"\n"}
+            • Up to 3 days before delivery: €25 administrative fee{"\n\n"}
+            Cancellations must be made via email, preferably preceded by a phone call.
+            The date of the email counts as the official cancellation date.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 8 - Change in Number of Participants</Text>
+          <Text style={styles.value}>
+            Changes to the number of participants must be communicated in writing at least 24 hours in advance,
+            preferably preceded by a phone call. Changes within this period can no longer be processed;
+            the full amount remains due.
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Article 9 - Complaints</Text>
+          <Text style={styles.value}>
+            Complaints must be reported in writing on the day of delivery.
+            Liability is limited to the invoice amount.
+          </Text>
         </View>
       </Page>
     </Document>

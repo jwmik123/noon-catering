@@ -19,6 +19,7 @@ export const useOrderForm = (pricing = null) => {
     // Stap 5
     deliveryDate: "",
     deliveryTime: "",
+    isPickup: false, // Pickup option
     street: "",
     houseNumber: "",
     houseNumberAddition: "",

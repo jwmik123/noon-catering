@@ -13,6 +13,7 @@ const Wizard = ({
   getValidationMessage,
   secondaryButtonClasses,
   primaryButtonClasses,
+  formData, // Add formData prop
 }) => {
   const handleNextStep = () => {
     const validationMessage = getValidationMessage(currentStep);
@@ -32,7 +33,8 @@ const Wizard = ({
       <div className="sticky top-0 z-10 border-b bg-background">
         <div className="flex justify-center items-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
           <span className="font-bold">
-            Free delivery for orders above 350,-
+     
+            5% discount on pick up & Free delivery for orders above 350,-
           </span>
         </div>
         <div className="container px-4 py-1 mx-auto">

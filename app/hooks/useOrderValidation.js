@@ -34,7 +34,12 @@ export const useOrderValidation = (formData, deliveryError) => {
         // Validate delivery details
         const hasBasicDeliveryInfo = formData.deliveryDate && formData.deliveryTime;
 
-        // Check if address is filled (either through Google Maps or manual entry)
+        // If pickup is selected, only require date and time
+        if (formData.isPickup) {
+          return hasBasicDeliveryInfo;
+        }
+
+        // For delivery orders, check if address is filled (either through Google Maps or manual entry)
         const hasAddressInfo = (
           // Google Maps autocomplete provides fullAddress
           formData.fullAddress ||
@@ -93,21 +98,24 @@ export const useOrderValidation = (formData, deliveryError) => {
         return "";
       case 4:
         if (!formData.deliveryDate) {
-          return "Please select a delivery date";
+          return formData.isPickup ? "Please select a pick up date" : "Please select a delivery date";
         }
         if (!formData.deliveryTime) {
-          return "Please select a delivery time";
+          return formData.isPickup ? "Please select a pick up time" : "Please select a delivery time";
         }
-        if (!formData.fullAddress && (!formData.street || !formData.houseNumber || !formData.postalCode || !formData.city)) {
-          return "Please provide a complete delivery address";
-        }
-        if (deliveryError && (
-          deliveryError === "We do not deliver to this postal code." ||
-          deliveryError.includes("delivery area") ||
-          deliveryError.includes("within our delivery") ||
-          deliveryError.includes("10km")
-        )) {
-          return "Please select an address within our delivery area";
+        // Skip address validation for pickup orders
+        if (!formData.isPickup) {
+          if (!formData.fullAddress && (!formData.street || !formData.houseNumber || !formData.postalCode || !formData.city)) {
+            return "Please provide a complete delivery address";
+          }
+          if (deliveryError && (
+            deliveryError === "We do not deliver to this postal code." ||
+            deliveryError.includes("delivery area") ||
+            deliveryError.includes("within our delivery") ||
+            deliveryError.includes("10km")
+          )) {
+            return "Please select an address within our delivery area";
+          }
         }
         return "";
       default:
