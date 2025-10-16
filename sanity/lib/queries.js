@@ -9,8 +9,18 @@ export const PRODUCT_QUERY = defineQuery(`*[_type == "product" && active == true
   allergyInfo,
   allergyNotes,
   price,
-  typeCategory,
-  subCategory,
+  typeCategory->{
+    _id,
+    name,
+    "value": value.current,
+    orderRank
+  },
+  subCategory->{
+    _id,
+    name,
+    "value": value.current,
+    orderRank
+  },
   orderRank,
   active,
   hasSauceOptions,
@@ -84,4 +94,20 @@ export const PRICING_QUERY = defineQuery(`*[_type == "pricing" && active == true
     desserts,
     cookies
   }
+}`);
+
+export const TYPE_CATEGORY_QUERY = defineQuery(`*[_type == "typeCategory" && active == true] | order(orderRank asc) {
+  _id,
+  name,
+  "value": value.current,
+  description,
+  orderRank
+}`);
+
+export const SUB_CATEGORY_QUERY = defineQuery(`*[_type == "subCategory" && active == true] | order(orderRank asc) {
+  _id,
+  name,
+  "value": value.current,
+  description,
+  orderRank
 }`);

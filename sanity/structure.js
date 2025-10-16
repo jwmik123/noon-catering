@@ -9,33 +9,36 @@ export const structure = (S, context) =>
       S.listItem()
         .title('Products')
         .child(async () => {
-          // Fetch unique category combinations
+          // Fetch unique category combinations with references
           const products = await context.getClient({ apiVersion: '2024-01-01' }).fetch(
-            `*[_type == "product" && defined(typeCategory) && defined(subCategory)]{"typeCategory": typeCategory, "subCategory": subCategory}`
+            `*[_type == "product" && defined(typeCategory) && defined(subCategory)]{
+              "typeCategoryId": typeCategory._ref,
+              "typeCategoryValue": typeCategory->value.current,
+              "typeCategoryName": typeCategory->name,
+              "subCategoryId": subCategory._ref,
+              "subCategoryValue": subCategory->value.current,
+              "subCategoryName": subCategory->name
+            }`
           )
 
           // Create unique combinations using a Map
           const categoryMap = new Map()
           products.forEach(p => {
-            const key = `${p.typeCategory}-${p.subCategory}`
-            if (!categoryMap.has(key)) {
-              categoryMap.set(key, p)
+            if (p.typeCategoryId && p.subCategoryId) {
+              const key = `${p.typeCategoryId}-${p.subCategoryId}`
+              if (!categoryMap.has(key)) {
+                categoryMap.set(key, p)
+              }
             }
           })
 
-          // Define subcategory order
-          const subCategoryOrder = ['meat', 'chicken', 'fish', 'veggie', 'vegan']
-
-          // Convert to array and sort
+          // Convert to array and sort by names
           const validCategories = Array.from(categoryMap.values())
             .sort((a, b) => {
-              if (a.typeCategory !== b.typeCategory) {
-                return a.typeCategory.localeCompare(b.typeCategory)
+              if (a.typeCategoryName !== b.typeCategoryName) {
+                return a.typeCategoryName.localeCompare(b.typeCategoryName)
               }
-              // Sort by predefined subcategory order
-              const indexA = subCategoryOrder.indexOf(a.subCategory)
-              const indexB = subCategoryOrder.indexOf(b.subCategory)
-              return indexA - indexB
+              return a.subCategoryName.localeCompare(b.subCategoryName)
             })
 
           return S.list()
@@ -54,17 +57,17 @@ export const structure = (S, context) =>
 
               // Dynamically create category/subcategory items
               ...validCategories.map((cat) => {
-                const title = `${cat.typeCategory} - ${cat.subCategory}`
-                const id = `orderable-products-${cat.typeCategory}-${cat.subCategory}`
+                const title = `${cat.typeCategoryName} - ${cat.subCategoryName}`
+                const id = `orderable-products-${cat.typeCategoryValue}-${cat.subCategoryValue}`
 
                 return orderableDocumentListDeskItem({
                   type: 'product',
                   title: title,
                   id: id,
-                  filter: `typeCategory == $typeCategory && subCategory == $subCategory`,
+                  filter: `typeCategory._ref == $typeCategoryId && subCategory._ref == $subCategoryId`,
                   params: {
-                    typeCategory: cat.typeCategory,
-                    subCategory: cat.subCategory
+                    typeCategoryId: cat.typeCategoryId,
+                    subCategoryId: cat.subCategoryId
                   },
                   S,
                   context,
@@ -75,8 +78,34 @@ export const structure = (S, context) =>
 
       S.divider(),
 
+      // Category Management section
+      S.listItem()
+        .title('Category Management')
+        .child(
+          S.list()
+            .title('Categories')
+            .items([
+              orderableDocumentListDeskItem({
+                type: 'typeCategory',
+                title: 'Type Categories',
+                id: 'orderable-type-categories',
+                S,
+                context,
+              }),
+              orderableDocumentListDeskItem({
+                type: 'subCategory',
+                title: 'Sub Categories',
+                id: 'orderable-sub-categories',
+                S,
+                context,
+              }),
+            ])
+        ),
+
+      S.divider(),
+
       // All other document types
       ...S.documentTypeListItems().filter(
-        (listItem) => listItem.getId() !== 'product'
+        (listItem) => !['product', 'typeCategory', 'subCategory'].includes(listItem.getId())
       ),
     ])

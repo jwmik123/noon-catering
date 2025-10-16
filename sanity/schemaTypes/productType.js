@@ -38,29 +38,15 @@ export const product = defineType({
     defineField({
       name: "typeCategory",
       title: "Type Category",
-      type: "string",
-      options: {
-        list: [
-          { title: "Sandwiches", value: "sandwiches" },
-          { title: "Salads", value: "salads" },
-          { title: "Lunchboxes", value: "lunchboxes" },
-          { title: "Desserts", value: "desserts" },
-        ],
-      },
+      type: "reference",
+      to: [{ type: "typeCategory" }],
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "subCategory",
       title: "Sub Category",
-      type: "string",
-      options: {
-        list: [
-          { title: "Meat", value: "meat" },
-          { title: "Chicken", value: "chicken" },
-          { title: "Fish", value: "fish" },
-          { title: "Veggie", value: "veggie" },
-          { title: "Vegan", value: "vegan" },
-        ],
-      },
+      type: "reference",
+      to: [{ type: "subCategory" }],
     }),
     defineField({
       name: "allergyInfo",

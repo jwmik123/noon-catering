@@ -22,7 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { isDrink } from "@/lib/product-helpers";
+import { isDrink, isSandwich } from "@/lib/product-helpers";
 import { Info, X } from "lucide-react";
 import { urlFor } from "@/sanity/lib/image";
 
@@ -58,12 +58,12 @@ const SelectionModal = ({
     onAdd({
       sandwichId: sandwich.id,
       quantity: parseInt(quantity),
-      breadType: isDrink(sandwich) ? null : breadType,
+      breadType: isSandwich(sandwich) ? breadType : null,
       sauce,
       toppings: selectedToppings,
       subTotal: calculateSubTotal(
         sandwich.price,
-        isDrink(sandwich) ? null : breadType,
+        isSandwich(sandwich) ? breadType : null,
         parseInt(quantity),
         sauce,
         selectedToppings
@@ -110,7 +110,7 @@ const SelectionModal = ({
 
   const currentSubTotal = calculateSubTotal(
     sandwich?.price || 0,
-    isDrink(sandwich) ? null : breadType,
+    isSandwich(sandwich) ? breadType : null,
     parseInt(quantity),
     sauce,
     selectedToppings
@@ -215,8 +215,8 @@ const SelectionModal = ({
               </Select>
             </div>
 
-            {/* Only show bread type selection for non-drinks */}
-            {!isDrink(sandwich) && (
+            {/* Only show bread type selection for sandwiches */}
+            {isSandwich(sandwich) && (
               <div className="space-y-2">
                 <Label>Bread type</Label>
                 <Select value={breadType} onValueChange={setBreadType}>
