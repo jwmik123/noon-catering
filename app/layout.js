@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import Footer from "@/app/components/Footer";
+import ComingSoonOverlay from "@/app/components/ComingSoonOverlay";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +69,7 @@ export default function RootLayout({ children }) {
             style={{ display: 'none', visibility: 'hidden' }}
           />
         </noscript>
+        <ComingSoonOverlay />
         <main className="flex-grow">{children}</main>
         <Footer />
         <ToastContainer />
