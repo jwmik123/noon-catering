@@ -317,6 +317,7 @@ const OrderSummaryStep = ({
               formData={formData}
               sandwichOptions={sandwichOptions}
               buttonClasses={secondaryButtonClasses}
+              pricing={pricing}
             />
           </div>
           <div className="pt-4 mt-4 w-full">

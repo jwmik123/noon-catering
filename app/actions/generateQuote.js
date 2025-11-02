@@ -9,7 +9,7 @@ import OrderPDF from "@/app/components/OrderPDF";
 
 const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 8);
 
-export async function generateQuote(formData, sandwichOptions) {
+export async function generateQuote(formData, sandwichOptions, pricing) {
   try {
     const quoteId = `Q${nanoid()}`;
 
@@ -25,6 +25,7 @@ export async function generateQuote(formData, sandwichOptions) {
         orderData={formData}
         quoteId={quoteId}
         sandwichOptions={sandwichOptions} // Pass sandwich options to the PDF
+        pricing={pricing} // Pass pricing data to the PDF
       />
     );
 

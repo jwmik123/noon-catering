@@ -32,12 +32,13 @@ const SelectionModal = ({
   sandwich,
   onAdd,
   breadTypes = [],
-  sauceTypes = [],
   toppingTypes = [],
 }) => {
   const [quantity, setQuantity] = React.useState("1");
   const [breadType, setBreadType] = React.useState(breadTypes[0]?.slug || "");
-  const [sauce, setSauce] = React.useState(sauceTypes[0]?.slug || "");
+  const [sauce, setSauce] = React.useState(
+    sandwich?.sauceOptions?.[0]?.name || "geen"
+  );
   const [selectedToppings, setSelectedToppings] = React.useState([]);
   const [showAllergyInfo, setShowAllergyInfo] = useState(false);
 
@@ -116,9 +117,15 @@ const SelectionModal = ({
     selectedToppings
   );
 
-  // Calculate additional costs from sauce and toppings
+  // Calculate additional costs from bread, sauce and toppings
   const getAdditionalCosts = () => {
     let additionalCost = 0;
+
+    // Add bread surcharge if applicable
+    if (isSandwich(sandwich) && breadType) {
+      const breadSurcharge = breadTypes.find((b) => b.slug === breadType)?.surcharge || 0;
+      additionalCost += breadSurcharge;
+    }
 
     // Add sauce cost if applicable
     if (sandwich?.hasSauceOptions && sauce !== "geen") {
@@ -175,7 +182,7 @@ const SelectionModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] p-0">
+      <DialogContent className="sm:max-w-[425px] p-0 rounded-t-lg">
         <div className="overflow-hidden relative w-full h-40 rounded-t-lg">
           <div
             className="absolute inset-0 bg-center bg-cover scale-150"
@@ -187,7 +194,7 @@ const SelectionModal = ({
             variant="link"
             size="icon"
             onClick={onClose}
-            className="absolute top-2 right-2 w-8 h-8 text-black rounded-full"
+            className="absolute top-2 right-2 w-8 h-8 text-white rounded-full"
           >
             <X className="w-4 h-4" />
           </Button>

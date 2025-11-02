@@ -7,6 +7,7 @@ export default function QuoteButton({
   formData,
   buttonClasses,
   sandwichOptions,
+  pricing,
 }) {
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -14,7 +15,7 @@ export default function QuoteButton({
     try {
       setIsGenerating(true);
 
-      const result = await generateQuote(formData, sandwichOptions);
+      const result = await generateQuote(formData, sandwichOptions, pricing);
 
       if (result.success) {
         // Download the PDF

@@ -568,10 +568,32 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], pricing = n
           {(() => {
             const foodSubtotal = calculateSubtotal(orderData, pricing);
             const deliveryCost = orderData.deliveryCost || 0;
-            const vatBreakdown = calculateVATBreakdown(foodSubtotal, deliveryCost);
+            const isPickup = orderData.isPickup || false;
+            const vatBreakdown = calculateVATBreakdown(foodSubtotal, deliveryCost, isPickup);
 
             return (
               <>
+                {isPickup && (vatBreakdown.pickupDiscount || 0) > 0 && (
+                  <View style={styles.totalRow}>
+                    <Text style={[styles.totalLabel, { color: '#16a34a' }]}>Pickup Discount (5%):</Text>
+                    <Text style={[styles.totalValue, { color: '#16a34a' }]}>
+                      -€{(vatBreakdown.pickupDiscount || 0).toFixed(2)}
+                    </Text>
+                  </View>
+                )}
+                {deliveryCost > 0 ? (
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>Delivery:</Text>
+                    <Text style={styles.totalValue}>
+                      €{deliveryCost.toFixed(2)}
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>Delivery:</Text>
+                    <Text style={styles.totalValue}>{isPickup ? "Pick Up" : "TBD"}</Text>
+                  </View>
+                )}
                 <View style={styles.totalRow}>
                   <Text style={styles.totalLabel}>VAT Food (6%):</Text>
                   <Text style={styles.totalValue}>
