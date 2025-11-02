@@ -67,7 +67,7 @@ const DeliveryStep = ({
               }}
             />
             <Label htmlFor="isPickup" className="text-sm font-medium">
-              Pick up order at NOON Sandwicherie (5% discount)
+              Bestelling ophalen bij NOON Sandwicherie (5% korting)
             </Label>
           </div>
         </div>
@@ -77,7 +77,7 @@ const DeliveryStep = ({
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-700">
-                Delivery Address
+                Bezorgadres
               </h3>
               <div className="flex gap-2 items-center">
                 <Checkbox
@@ -86,7 +86,7 @@ const DeliveryStep = ({
                   onCheckedChange={handleGoogleMapsToggle}
                 />
                 <Label htmlFor="useGoogleMaps" className="text-sm">
-                  Smart address lookup
+                  Slimme adres zoeker
                 </Label>
               </div>
             </div>
@@ -98,19 +98,19 @@ const DeliveryStep = ({
                 updateFormData={updateFormData}
                 onDeliveryCostUpdate={handleDeliveryCostUpdate}
                 totalAmount={totalAmount}
-                label="Delivery Address"
-                placeholder="Start typing your address in Gent..."
+                label="Bezorgadres"
+                placeholder="Begin met typen van je adres in Gent..."
               />
 
               {/* Show current address components if filled */}
               {(formData.street || formData.houseNumber || formData.postalCode || formData.city) && (
                 <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Address Details:</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Adresgegevens:</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                    <div>Street: {formData.street}</div>
-                    <div>Number: {formData.houseNumber}{formData.houseNumberAddition}</div>
-                    <div>Postal Code: {formData.postalCode}</div>
-                    <div>City: {formData.city}</div>
+                    <div>Straat: {formData.street}</div>
+                    <div>Nummer: {formData.houseNumber}{formData.houseNumberAddition}</div>
+                    <div>Postcode: {formData.postalCode}</div>
+                    <div>Stad: {formData.city}</div>
                   </div>
                 </div>
               )}
@@ -119,11 +119,11 @@ const DeliveryStep = ({
               {googleMapsDeliveryInfo && (
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
                   <p className="text-sm text-blue-800">
-                    📍 Distance: {googleMapsDeliveryInfo.distance}km
+                    📍 Afstand: {googleMapsDeliveryInfo.distance}km
                   </p>
                   <p className="text-sm text-blue-800">
-                    🚚 Delivery: {googleMapsDeliveryInfo.cost === 0
-                      ? "Free delivery!"
+                    🚚 Bezorging: {googleMapsDeliveryInfo.cost === 0
+                      ? "Gratis bezorging!"
                       : `€${googleMapsDeliveryInfo.cost}`}
                   </p>
                 </div>
@@ -133,7 +133,7 @@ const DeliveryStep = ({
             <div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="street">Street</Label>
+                  <Label htmlFor="street">Straat</Label>
                   <Input
                     id="street"
                     type="text"
@@ -145,7 +145,7 @@ const DeliveryStep = ({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="houseNumber">House number</Label>
+                    <Label htmlFor="houseNumber">Huisnummer</Label>
                     <Input
                       id="houseNumber"
                       type="text"
@@ -157,7 +157,7 @@ const DeliveryStep = ({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="houseNumberAddition">Addition</Label>
+                    <Label htmlFor="houseNumberAddition">Toevoeging</Label>
                     <Input
                       id="houseNumberAddition"
                       type="text"
@@ -184,17 +184,17 @@ const DeliveryStep = ({
                     <p className="mt-1 text-sm text-red-500">{deliveryError}</p>
                   )}
                   {deliveryCost === 0 && (
-                    <p className="mt-1 text-sm text-green-500">Free delivery!</p>
+                    <p className="mt-1 text-sm text-green-500">Gratis bezorging!</p>
                   )}
                   {deliveryCost > 0 && (
                     <p className="mt-1 text-sm text-gray-600">
-                      Delivery cost: €{deliveryCost.toFixed(2)}
+                      Bezorgkosten: €{deliveryCost.toFixed(2)}
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
+                  <Label htmlFor="city">Stad</Label>
                   <Input
                     id="city"
                     type="text"
@@ -233,18 +233,18 @@ const DeliveryStep = ({
               htmlFor="sameAsDelivery"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Invoice and delivery address are the same
+              Factuur- en bezorgadres zijn hetzelfde
             </Label>
           </div>
 
           {!formData.sameAsDelivery && (
             <div className="mt-6 space-y-6">
               <h3 className="text-lg font-medium text-gray-700">
-                Invoice Address
+                Factuuradres
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="invoiceStreet">Street</Label>
+                  <Label htmlFor="invoiceStreet">Straat</Label>
                   <Input
                     id="invoiceStreet"
                     type="text"
@@ -258,7 +258,7 @@ const DeliveryStep = ({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="invoiceHouseNumber">House number</Label>
+                    <Label htmlFor="invoiceHouseNumber">Huisnummer</Label>
                     <Input
                       id="invoiceHouseNumber"
                       type="text"
@@ -270,7 +270,7 @@ const DeliveryStep = ({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="invoiceHouseNumberAddition">Addition</Label>
+                    <Label htmlFor="invoiceHouseNumberAddition">Toevoeging</Label>
                     <Input
                       id="invoiceHouseNumberAddition"
                       type="text"
@@ -301,7 +301,7 @@ const DeliveryStep = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="invoiceCity">City</Label>
+                  <Label htmlFor="invoiceCity">Stad</Label>
                   <Input
                     id="invoiceCity"
                     type="text"

@@ -9,7 +9,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-custom-gray">
         <Utensils className="w-5 h-5" />
-        <h2 className="text-gray-700">Choose your Selection</h2>
+        <h2 className="text-gray-700">Kies je selectie</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -22,9 +22,9 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
           onClick={() => updateFormData("selectionType", "custom")}
         >
           <h3 className="mb-2 text-lg font-medium">
-            Create your own selection
+            Stel je eigen selectie samen
           </h3>
-          <p className="text-sm text-custom-gray">Choose your sandwiches</p>
+          <p className="text-sm text-custom-gray">Kies je broodjes</p>
         </div>
 
         <div
@@ -35,8 +35,8 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
           }`}
           onClick={() => updateFormData("selectionType", "variety")}
         >
-          <h3 className="mb-2 text-lg font-medium">Variety Offer</h3>
-          <p className="text-sm text-custom-gray">Let us surprise you! :)</p>
+          <h3 className="mb-2 text-lg font-medium">Verrassing aanbod</h3>
+          <p className="text-sm text-custom-gray">Laat ons je verrassen! :)</p>
         </div>
       </div>
 
@@ -54,7 +54,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
           <div className="p-4 mt-6 rounded-lg bg-custom-gray/10">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-sm text-custom-gray">Selected items</p>
+                <p className="text-sm text-custom-gray">Geselecteerde items</p>
                 <p className="text-lg font-medium">
                   {Object.values(formData.customSelection)
                     .flat()
@@ -65,7 +65,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                 </p>
               </div>
               <div>
-                <p className="text-sm text-custom-gray">Total amount</p>
+                <p className="text-sm text-custom-gray">Totaal bedrag</p>
                 <p className="text-lg font-medium">
                   €
                   {Object.values(formData.customSelection)
@@ -75,7 +75,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                       0
                     )
                     .toFixed(2)}{" "}
-                  excl. VAT
+                  excl. BTW
                 </p>
               </div>
             </div>
@@ -88,7 +88,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-gray-900">
-                Choose a distribution
+                Kies een verdeling
               </h3>
               <VarietySelector
                 totalSandwiches={formData.totalSandwiches}
@@ -108,20 +108,20 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-black focus:ring-2"
                 />
                 <label htmlFor="addDrinks" className="text-lg font-medium text-gray-900 cursor-pointer">
-                  Want to add some drinks?
+                  Wil je dranken toevoegen?
                 </label>
               </div>
 
               {formData.addDrinks && (
                 <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="text-md font-medium text-gray-800">Select Drinks</h4>
+                  <h4 className="text-md font-medium text-gray-800">Selecteer dranken</h4>
 
                   {/* Fresh Orange Juice */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Fresh Orange Juice</label>
+                      <label className="text-sm font-medium text-gray-700">Vers sinaasappelsap</label>
                       <div className="text-xs text-gray-500">
-                        €{pricing?.drinks?.freshOrangeJuice?.toFixed(2) || '3.35'} each
+                        €{pricing?.drinks?.freshOrangeJuice?.toFixed(2) || '3.35'} per stuk
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -162,9 +162,9 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   {/* Sodas */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Sodas</label>
+                      <label className="text-sm font-medium text-gray-700">Frisdranken</label>
                       <div className="text-xs text-gray-500">
-                        €{pricing?.drinks?.sodas?.toFixed(2) || '2.35'} each
+                        €{pricing?.drinks?.sodas?.toFixed(2) || '2.35'} per stuk
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -207,13 +207,13 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">
-                          Total drinks: {(formData.drinks?.freshOrangeJuice || 0) + (formData.drinks?.sodas || 0)}
+                          Totaal dranken: {(formData.drinks?.freshOrangeJuice || 0) + (formData.drinks?.sodas || 0)}
                         </span>
                         <span className="font-medium text-gray-800">
                           €{(
                             (formData.drinks?.freshOrangeJuice || 0) * (pricing?.drinks?.freshOrangeJuice || 3.35) +
                             (formData.drinks?.sodas || 0) * (pricing?.drinks?.sodas || 2.35)
-                          ).toFixed(2)} excl. VAT
+                          ).toFixed(2)} excl. BTW
                         </span>
                       </div>
                     </div>
@@ -230,20 +230,20 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-black focus:ring-2"
                 />
                 <label htmlFor="addDesserts" className="text-lg font-medium text-gray-900 cursor-pointer">
-                  Want to add desserts?
+                  Wil je desserts toevoegen?
                 </label>
               </div>
 
               {formData.addDesserts && (
                 <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="text-md font-medium text-gray-800">Select Desserts</h4>
+                  <h4 className="text-md font-medium text-gray-800">Selecteer desserts</h4>
 
                   {/* Desserts */}
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-sm font-medium text-gray-700">Desserts</label>
                       <div className="text-xs text-gray-500">
-                        €{pricing?.desserts?.desserts?.toFixed(2) || '3.50'} each
+                        €{pricing?.desserts?.desserts?.toFixed(2) || '3.50'} per stuk
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -284,9 +284,9 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   {/* Cookies */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Cookies</label>
+                      <label className="text-sm font-medium text-gray-700">Koekjes</label>
                       <div className="text-xs text-gray-500">
-                        €{pricing?.desserts?.cookies?.toFixed(2) || '2.50'} each
+                        €{pricing?.desserts?.cookies?.toFixed(2) || '2.50'} per stuk
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -329,13 +329,13 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">
-                          Total desserts: {(formData.desserts?.desserts || 0) + (formData.desserts?.cookies || 0)}
+                          Totaal desserts: {(formData.desserts?.desserts || 0) + (formData.desserts?.cookies || 0)}
                         </span>
                         <span className="font-medium text-gray-800">
                           €{(
                             (formData.desserts?.desserts || 0) * (pricing?.desserts?.desserts || 3.50) +
                             (formData.desserts?.cookies || 0) * (pricing?.desserts?.cookies || 2.50)
-                          ).toFixed(2)} excl. VAT
+                          ).toFixed(2)} excl. BTW
                         </span>
                       </div>
                     </div>
@@ -349,13 +349,13 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
           <div className="pt-4 mt-6 border-t">
             <div className="p-4 space-y-2 rounded-md bg-custom-gray/10">
               <div className="flex justify-between text-sm text-custom-gray">
-                <span>Variety items</span>
+                <span>Verrassing items</span>
                 <span>{formData.totalSandwiches} items</span>
               </div>
               {formData.addDrinks && (formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
                 <>
                   <div className="flex justify-between text-sm text-custom-gray">
-                    <span>Drinks total</span>
+                    <span>Totaal dranken</span>
                     <span>
                       €{(
                         (formData.drinks?.freshOrangeJuice || 0) * (pricing?.drinks?.freshOrangeJuice || 3.35) +
@@ -368,7 +368,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
               {formData.addDesserts && (formData.desserts?.desserts > 0 || formData.desserts?.cookies > 0) && (
                 <>
                   <div className="flex justify-between text-sm text-custom-gray">
-                    <span>Desserts total</span>
+                    <span>Totaal desserts</span>
                     <span>
                       €{(
                         (formData.desserts?.desserts || 0) * (pricing?.desserts?.desserts || 3.50) +
@@ -379,9 +379,9 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                 </>
               )}
               <div className="flex justify-between pt-2 font-medium border-t text-custom-gray">
-                <span>Estimated total</span>
+                <span>Geschat totaal</span>
                 <span className="text-xs text-gray-500">
-                  (Calculated in order summary)
+                  (Berekend in bestelsamenvatting)
                 </span>
               </div>
             </div>

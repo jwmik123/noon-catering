@@ -101,41 +101,41 @@ const ContactStep = ({
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
         <Building2 className="w-5 h-5" />
-        <h2 className="text-gray-700">Contact and Company details</h2>
+        <h2 className="text-gray-700">Contact- en bedrijfsgegevens</h2>
       </div>
 
       <div className="space-y-4">
         {/* Contact Details */}
         <div className="space-y-4">
-          <h3 className="font-medium text-gray-700 text-md">Contact details</h3>
+          <h3 className="font-medium text-gray-700 text-md">Contactgegevens</h3>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Full name*</Label>
+            <Label htmlFor="name">Volledige naam*</Label>
             <Input
               id="name"
               type="text"
               value={formData.name}
               onChange={(e) => updateFormData("name", e.target.value)}
-              placeholder="Your full name"
+              placeholder="Je volledige naam"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail address*</Label>
+            <Label htmlFor="email">E-mailadres*</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => updateFormData("email", e.target.value)}
-              placeholder="your@email.com"
+              placeholder="jouw@email.com"
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="phone">
-              Phone number* (Contact person at location during delivery)
+              Telefoonnummer* (Contactpersoon op locatie tijdens bezorging)
             </Label>
             <Input
               id="phone"
@@ -162,14 +162,14 @@ const ContactStep = ({
               htmlFor="isCompany"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              This is NOT a business order
+              Dit is GEEN zakelijke bestelling
             </Label>
           </div>
 
           {!formData.isCompany && (
             <div className="mt-4 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company name*</Label>
+                <Label htmlFor="companyName">Bedrijfsnaam*</Label>
                 <Input
                   id="companyName"
                   type="text"
@@ -182,7 +182,7 @@ const ContactStep = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="btwNumber">BTW number*</Label>
+                <Label htmlFor="btwNumber">BTW-nummer*</Label>
                 <Input
                   id="btwNumber"
                   type="text"
@@ -197,7 +197,7 @@ const ContactStep = ({
 
               <div className="space-y-2">
                 <Label htmlFor="referenceNumber">
-                  Reference number (optional)
+                  Referentienummer (optioneel)
                 </Label>
                 <Input
                   id="referenceNumber"
@@ -206,7 +206,7 @@ const ContactStep = ({
                   onChange={(e) =>
                     updateFormData("referenceNumber", e.target.value)
                   }
-                  placeholder="Your internal reference number"
+                  placeholder="Je interne referentienummer"
                 />
               </div>
 
@@ -216,7 +216,7 @@ const ContactStep = ({
                   onClick={handleDownloadInvoice}
                   className="px-4 py-2 w-full text-sm font-medium text-white rounded-md transition-colors bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 >
-                  Download Invoice Preview
+                  Factuurvoorbeeld downloaden
                 </button>
               </div>
             </div>

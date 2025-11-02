@@ -13,17 +13,17 @@ const renderVarietySelection = (varietySelection) => {
   }
 
   const categoryLabels = {
-    sandwiches: "Sandwiches",
-    salads: "Salads",
+    sandwiches: "Broodjes",
+    salads: "Salades",
     bowls: "Bowls"
   };
 
   const subCategoryLabels = {
-    meat: "Meat",
-    chicken: "Chicken",
-    fish: "Fish",
-    veggie: "Vegetarian",
-    vegan: "Vegan"
+    meat: "Vlees",
+    chicken: "Kip",
+    fish: "Vis",
+    veggie: "Vegetarisch",
+    vegan: "Veganistisch"
   };
 
   // Check if it's the new hierarchical format (contains hyphens)
@@ -84,7 +84,7 @@ const renderVarietySelection = (varietySelection) => {
         return (
           <div key={key} className="flex justify-between">
             <span>{label}</span>
-            <span>{quantity} sandwiches</span>
+            <span>{quantity} broodjes</span>
           </div>
         );
       });
@@ -128,7 +128,7 @@ const OrderSummaryStep = ({
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
         <FileText className="w-5 h-5" />
-        <h2 className="text-gray-700">Order summary</h2>
+        <h2 className="text-gray-700">Bestelsamenvatting</h2>
       </div>
 
       <div className="space-y-4">
@@ -136,23 +136,23 @@ const OrderSummaryStep = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">
-                Total number of items
+                Totaal aantal items
               </p>
               <p className="text-lg font-medium">{formData.totalSandwiches}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Type of order</p>
+              <p className="text-sm text-gray-500">Type bestelling</p>
               <p className="text-lg font-medium">
                 {formData.selectionType === "custom"
-                  ? "Create your own selection"
-                  : "Variety offer"}
+                  ? "Eigen selectie"
+                  : "Verrassing aanbod"}
               </p>
             </div>
           </div>
 
           {formData.selectionType === "custom" ? (
             <div className="pt-4 mt-4 border-t">
-              <p className="mb-2 text-sm text-gray-500">Selected sandwiches</p>
+              <p className="mb-2 text-sm text-gray-500">Geselecteerde broodjes</p>
               <div className="space-y-4">
                 {Object.entries(formData.customSelection)
                   .filter(([_, selections]) => selections?.length > 0)
@@ -179,10 +179,10 @@ const OrderSummaryStep = ({
                                   breadType &&
                                   ` - ${breadType}`}
                                 {selection.sauce !== "geen" &&
-                                  ` with ${selection.sauce}`}
+                                  ` met ${selection.sauce}`}
                                 {selection.toppings &&
                                   selection.toppings.length > 0 &&
-                                  ` with ${selection.toppings.join(", ")}`}
+                                  ` met ${selection.toppings.join(", ")}`}
                               </span>
                               <span className="font-medium text-gray-900">
                                 €{selection.subTotal.toFixed(2)}
@@ -196,11 +196,11 @@ const OrderSummaryStep = ({
               </div>
               <div className="pt-4 mt-4 border-t">
                 <div className="flex justify-between text-lg font-medium">
-                  <span>Total amount</span>
+                  <span>Totaal bedrag</span>
                   <span>€{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
-                  <span>Total number of items</span>
+                  <span>Totaal aantal items</span>
                   <span>{formData.totalSandwiches} items</span>
                 </div>
               </div>
@@ -208,7 +208,7 @@ const OrderSummaryStep = ({
           ) : (
             <div className="pt-4 mt-4 border-t">
               <p className="mb-2 text-sm text-gray-500">
-                Distribution of items
+                Verdeling van items
               </p>
               <div className="space-y-3">
                 {renderVarietySelection(formData.varietySelection)}
@@ -216,7 +216,7 @@ const OrderSummaryStep = ({
                 {/* Detailed pricing breakdown */}
                 {formData.varietySelection && Object.keys(formData.varietySelection).length > 0 && (
                   <div className="pt-3 mt-3 border-t">
-                    <p className="mb-2 text-xs font-medium text-gray-600">Price Breakdown:</p>
+                    <p className="mb-2 text-xs font-medium text-gray-600">Prijs overzicht:</p>
                     {Object.entries(formData.varietySelection)
                       .filter(([_, quantity]) => quantity > 0)
                       .map(([key, quantity]) => {
@@ -234,11 +234,11 @@ const OrderSummaryStep = ({
 
                 <div className="pt-3 border-t">
                   <div className="flex justify-between font-medium">
-                    <span>Total items</span>
+                    <span>Totaal items</span>
                     <span>{formData.totalSandwiches} items</span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600 mt-1">
-                    <span>Variety subtotal</span>
+                    <span>Verrassing subtotaal</span>
                     <span>
                       €{Object.entries(formData.varietySelection || {})
                         .reduce((sum, [key, quantity]) => sum + (getVarietyPrice(key) * quantity), 0)
@@ -250,17 +250,17 @@ const OrderSummaryStep = ({
               {/* Drinks section for variety selection */}
               {formData.addDrinks && (formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
                 <div className="pt-4 mt-4 border-t">
-                  <p className="mb-2 text-sm text-gray-500">Drinks</p>
+                  <p className="mb-2 text-sm text-gray-500">Dranken</p>
                   <div className="space-y-2">
                     {formData.drinks?.freshOrangeJuice > 0 && (
                       <div className="flex justify-between">
-                        <span>Fresh Orange Juice</span>
+                        <span>Vers sinaasappelsap</span>
                         <span>{formData.drinks.freshOrangeJuice}x €{(formData.drinks.freshOrangeJuice * (pricing?.drinks?.freshOrangeJuice || 3.35)).toFixed(2)}</span>
                       </div>
                     )}
                     {formData.drinks?.sodas > 0 && (
                       <div className="flex justify-between">
-                        <span>Sodas</span>
+                        <span>Frisdranken</span>
                         <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * (pricing?.drinks?.sodas || 2.35)).toFixed(2)}</span>
                       </div>
                     )}
@@ -280,7 +280,7 @@ const OrderSummaryStep = ({
                     )}
                     {formData.desserts?.cookies > 0 && (
                       <div className="flex justify-between">
-                        <span>Cookies</span>
+                        <span>Koekjes</span>
                         <span>{formData.desserts.cookies}x €{(formData.desserts.cookies * (pricing?.desserts?.cookies || 2.50)).toFixed(2)}</span>
                       </div>
                     )}
@@ -289,11 +289,11 @@ const OrderSummaryStep = ({
               )}
               <div className="pt-4 mt-4 border-t">
                 <div className="flex justify-between text-lg font-medium">
-                  <span>Total amount</span>
+                  <span>Totaal bedrag</span>
                   <span>€{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
-                  <span>Total number of items</span>
+                  <span>Totaal aantal items</span>
                   <span>{formData.totalSandwiches} items</span>
                 </div>
               </div>
@@ -302,10 +302,10 @@ const OrderSummaryStep = ({
         </div>
         <div>
           <Label htmlFor="allergies" className="text-base">
-            Allergies or comments?
+            Allergieën of opmerkingen?
           </Label>
           <Textarea
-            placeholder="Add allergies or comments"
+            placeholder="Voeg allergieën of opmerkingen toe"
             className="mt-2"
             value={formData.allergies}
             onChange={(e) => updateFormData("allergies", e.target.value)}
@@ -325,7 +325,7 @@ const OrderSummaryStep = ({
               onClick={() => setCurrentStep(2)}
               className="px-2 py-2 w-full font-medium text-gray-700 rounded-md bg-custom-gray/10 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
-              Update order
+              Bestelling bijwerken
             </button>
           </div>
         </div>

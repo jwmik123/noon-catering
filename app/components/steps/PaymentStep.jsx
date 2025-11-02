@@ -81,51 +81,51 @@ const PaymentStep = ({
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
         <CreditCard className="w-5 h-5" />
-        <h2 className="text-gray-700">Payment</h2>
+        <h2 className="text-gray-700">Betaling</h2>
       </div>
 
       <div className="p-6 rounded-lg border border-gray-200 bg-custom-gray/10">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Subtotal:</span>
+            <span className="text-gray-600">Subtotaal:</span>
             <span className="font-medium">€{totalAmount.toFixed(2)}</span>
           </div>
           {formData.isPickup && vatBreakdown.pickupDiscount && (
             <div className="flex justify-between items-center">
-              <span className="text-green-600">Pickup Discount (5%):</span>
+              <span className="text-green-600">Ophaalkorting (5%):</span>
               <span className="font-medium text-green-600">-{vatBreakdown.pickupDiscount}</span>
             </div>
           )}
           {deliveryCost !== null ? (
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Delivery:</span>
+              <span className="text-gray-600">Bezorging:</span>
               <span className="font-medium">
-                {deliveryCost === 0 ? "Free" : `€${deliveryCost.toFixed(2)}`}
+                {deliveryCost === 0 ? "Gratis" : `€${deliveryCost.toFixed(2)}`}
               </span>
             </div>
           ) : (
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Delivery:</span>
-              <span className="font-medium text-green-600">Free</span>
+              <span className="text-gray-600">Bezorging:</span>
+              <span className="font-medium text-green-600">Gratis</span>
             </div>
           )}
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">VAT Food (6%):</span>
+            <span className="text-gray-600">BTW Eten (6%):</span>
             <span className="font-medium">{vatBreakdown.foodVAT}</span>
           </div>
           {deliveryCost > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">VAT Delivery (21%):</span>
+              <span className="text-gray-600">BTW Bezorging (21%):</span>
               <span className="font-medium">{vatBreakdown.deliveryVAT}</span>
             </div>
           )}
           <div className="flex justify-between items-center border-t pt-2">
-            <span className="text-gray-600">Total VAT:</span>
+            <span className="text-gray-600">Totaal BTW:</span>
             <span className="font-medium">{vatBreakdown.totalVAT}</span>
           </div>
           <div className="pt-4 border-t">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-bold">Total:</span>
+              <span className="text-lg font-bold">Totaal:</span>
               <span className="text-lg font-bold">{vatBreakdown.total}</span>
             </div>
           </div>
@@ -140,7 +140,7 @@ const PaymentStep = ({
       {/* Payment Method Selection - Only show for business orders */}
       {!formData.isCompany && (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">Choose your payment method:</p>
+          <p className="text-sm text-gray-600">Kies je betaalmethode:</p>
 
           <div className="space-y-3">
             <div
@@ -159,7 +159,7 @@ const PaymentStep = ({
                   className="text-green-600 focus:ring-green-500"
                 />
                 <div>
-                  <p className="font-medium">Pay directly online</p>
+                  <p className="font-medium">Betaal direct online</p>
                   <p className="text-sm text-gray-500">
                     iDEAL, creditcard, etc.
                   </p>
@@ -183,9 +183,9 @@ const PaymentStep = ({
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <p className="font-medium">Pay via invoice</p>
+                  <p className="font-medium">Betaal via factuur</p>
                   <p className="text-sm text-gray-500">
-                    Within 14 days of invoice date
+                    Binnen 14 dagen na factuurdatum
                   </p>
                 </div>
               </div>
@@ -198,24 +198,24 @@ const PaymentStep = ({
       <button
         onClick={handlePayment}
         disabled={isProcessing}
-        className={`w-full px-6 py-3 bg-green-600 text-white rounded-lg font-medium 
-          hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 
-          focus:ring-offset-2 transition-colors 
+        className={`w-full px-6 py-3 bg-green-600 text-white rounded-lg font-medium
+          hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500
+          focus:ring-offset-2 transition-colors
           ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         <div className="flex gap-2 justify-center items-center">
           {isProcessing ? (
             <>
               <div className="w-5 h-5 rounded-full border-t-2 border-white animate-spin" />
-              <span>Processing...</span>
+              <span>Verwerken...</span>
             </>
           ) : (
             <>
               <CreditCard className="w-5 h-5" />
               <span>
                 {formData.isCompany || paymentMethod === "online"
-                  ? "Continue to payment"
-                  : "Place order"}
+                  ? "Ga naar betaling"
+                  : "Plaats bestelling"}
               </span>
             </>
           )}
