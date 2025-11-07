@@ -29,6 +29,7 @@ export const product = defineType({
       name: "image",
       title: "Image",
       type: "image",
+      required: true,
     }),
     defineField({
       name: "price",
