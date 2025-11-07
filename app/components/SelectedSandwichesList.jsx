@@ -28,7 +28,7 @@ const SelectedSandwichesList = ({
   if (groupedSelections.length === 0) {
     return (
       <div className="bg-muted p-4 rounded-lg text-muted-foreground text-center mt-8">
-        No items selected
+        Geen items geselecteerd
       </div>
     );
   }

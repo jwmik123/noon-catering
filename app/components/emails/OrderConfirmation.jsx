@@ -10,6 +10,7 @@ import {
 import { isDrink } from "@/lib/product-helpers";
 import { calculateOrderTotal } from "@/lib/pricing-utils";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
+import { parseDateString } from "@/lib/utils";
 
 // Helper function to format variety selection for both old and new structures
 const formatVarietySelection = (varietySelection) => {
@@ -139,7 +140,7 @@ export default function OrderConfirmation({
             <Text style={subtitle}>Delivery details</Text>
             <Text style={detailText}>
               Date:{" "}
-              {new Date(deliveryDetails.deliveryDate).toLocaleDateString(
+              {parseDateString(deliveryDetails.deliveryDate).toLocaleDateString(
                 "nl-NL"
               )}
               <br />

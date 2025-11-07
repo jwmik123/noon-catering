@@ -188,16 +188,16 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData, pricing })
         </div>
         <div className="absolute right-0 z-10 invisible w-64 p-4 mt-2 transition-all duration-200 bg-white rounded-lg shadow-lg opacity-0 top-full group-hover:opacity-100 group-hover:visible">
           <p className="text-sm text-gray-700">
-            Our variety offer lets you choose different types of products. Select categories,
-            then choose quantities for each type. For lunchboxes, first select the box type,
-            then choose your protein options.
+            Onze verrassing aanbod laat je verschillende soorten producten kiezen. Selecteer categorieën,
+            dan kies je de hoeveelheid voor elke soort. Voor lunchboxes, selecteer eerst het box type,
+            dan kies je de eiwitten voor het box type.
           </p>
         </div>
       </div>
 
       <div className="space-y-6">
         <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md">
-          Step 1: Choose your main categories, then select options within each.
+          Stap 1: Kies je hoofdcategorieën, dan selecteer je de opties binnen elke categorie.
         </div>
 
         {mainCategories.map((categoryData) => {
@@ -370,10 +370,10 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData, pricing })
       {/* Summary */}
       <div className="p-4 rounded-md bg-blue-50">
         <p className="text-blue-700">
-          Current selection: <span className="font-semibold">{currentTotal} items</span>
+          Huidige selectie: <span className="font-semibold">{currentTotal} items</span>
         </p>
         <p className="text-sm text-blue-600 mt-1">
-          You can select any quantity you want
+          Je kunt elke hoeveelheid selecteren die je wilt.
         </p>
       </div>
     </div>

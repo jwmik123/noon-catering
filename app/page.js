@@ -94,12 +94,12 @@ const Home = () => {
   const secondaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
 
   const steps = [
-    { icon: Users, title: "How many people?" },
-    { icon: Utensils, title: "Offer" },
-    { icon: FileText, title: "Summary" },
-    { icon: Calendar, title: "Delivery" },
-    { icon: Building2, title: "Company details" },
-    { icon: CreditCard, title: "Payment" },
+    { icon: Users, title: "Hoeveel personen?" },
+    { icon: Utensils, title: "Keuze" },
+    { icon: FileText, title: "Samenvatting" },
+    { icon: Calendar, title: "Levering" },
+    { icon: Building2, title: "Bedrijfsgegevens" },
+    { icon: CreditCard, title: "Betaling" },
   ];
 
   const renderStepContent = () => {

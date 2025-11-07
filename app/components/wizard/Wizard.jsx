@@ -34,7 +34,7 @@ const Wizard = ({
         <div className="flex justify-center items-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
           <span className="font-bold">
      
-            5% discount on pick up & Free delivery for orders above 350,-
+            5% korting bij afhaal & gratis levering voor bestellingen boven 350,-
           </span>
         </div>
         <div className="container px-4 py-1 mx-auto">
@@ -53,7 +53,7 @@ const Wizard = ({
                 className={`flex gap-1 items-center ${secondaryButtonClasses}`}
               >
                 <ChevronLeft className="w-4 h-4" />
-                Go back
+                Terug
               </button>
             )}
 
@@ -71,7 +71,7 @@ const Wizard = ({
                     !isStepValid(currentStep) ? "opacity-50" : ""
                   }`}
                 >
-                  {currentStep === steps.length - 1 ? "Payment" : "Next"}
+                  {currentStep === steps.length - 1 ? "Betaling" : "Volgende"}
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>

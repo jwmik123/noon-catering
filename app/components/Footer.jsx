@@ -44,14 +44,14 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Information</h3>
+            <h3 className="mb-4 text-lg font-semibold">Informatie</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/terms"
                   className="text-white hover:text-gray-300"
                 >
-                  Terms and Conditions
+                  Algemene voorwaarden
                 </Link>
               </li>
               <li>
@@ -59,7 +59,7 @@ const Footer = () => {
                   href="/privacy"
                   className="text-white hover:text-gray-300"
                 >
-                  Privacy Policy
+                  Privacybeleid
                 </Link>
               </li>
             </ul>

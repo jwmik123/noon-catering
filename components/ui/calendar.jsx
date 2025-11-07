@@ -27,6 +27,7 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }) {
       className={cn("p-3", className)}
       month={month}
       onMonthChange={setMonth}
+      weekStartsOn={1}
       numberOfMonths={isMobile ? 1 : 2}
       classNames={{
         months: "flex space-x-4",

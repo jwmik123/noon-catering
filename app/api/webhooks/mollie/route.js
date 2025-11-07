@@ -7,6 +7,7 @@ import { sendOrderSmsNotification } from "@/lib/sms";
 import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 import { calculateOrderTotal } from "@/lib/pricing-utils";
+import { parseDateString } from "@/lib/utils";
 
 
 const mollieClient = createMollieClient({
@@ -201,8 +202,8 @@ async function handlePaidStatus(quoteId) {
 
     // Create an invoice document in Sanity for consistency
     try {
-      const deliveryDate = new Date(
-        order.deliveryDetails.deliveryDate || Date.now()
+      const deliveryDate = parseDateString(
+        order.deliveryDetails.deliveryDate || new Date().toISOString()
       );
       const dueDate = new Date(deliveryDate);
       dueDate.setDate(deliveryDate.getDate() + 14);

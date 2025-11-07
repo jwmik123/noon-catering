@@ -10,6 +10,7 @@ import {
 import { isDrink } from "@/lib/product-helpers";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 import { calculateOrderTotal, getVarietyPrice } from "@/lib/pricing-utils";
+import { parseDateString } from "@/lib/utils";
 
 const styles = StyleSheet.create({
   page: {
@@ -329,7 +330,7 @@ const InvoicePDF = ({
 
   // Calculate due date as 14 days after delivery date
   const deliveryDate = deliveryDetails?.deliveryDate
-    ? new Date(deliveryDetails.deliveryDate + "T00:00:00+02:00")
+    ? parseDateString(deliveryDetails.deliveryDate)
     : new Date();
 
   // If we have a delivery date, calculate due date as 14 days after delivery date
@@ -395,7 +396,7 @@ const InvoicePDF = ({
     if (!customSelection || Object.keys(customSelection).length === 0) {
       return (
         <View style={styles.tableRow}>
-          <Text style={styles.tableCellName}>No items selected</Text>
+          <Text style={styles.tableCellName}>Geen items geselecteerd</Text>
           <Text style={styles.tableCell}>-</Text>
           <Text style={styles.tableCell}>-</Text>
           <Text style={styles.tableCell}>-</Text>

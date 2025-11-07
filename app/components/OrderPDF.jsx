@@ -9,6 +9,7 @@ import {
 import { isDrink } from "@/lib/product-helpers";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 import { calculateOrderTotal, getVarietyPrice } from "@/lib/pricing-utils";
+import { parseDateString } from "@/lib/utils";
 
 const styles = StyleSheet.create({
   page: {
@@ -341,7 +342,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], pricing = n
                 <View style={styles.row}>
                   <Text style={styles.label}>Date:</Text>
                   <Text style={styles.value}>
-                    {new Date(orderData.deliveryDate).toLocaleDateString(
+                    {parseDateString(orderData.deliveryDate).toLocaleDateString(
                       "nl-NL"
                     )}
                   </Text>

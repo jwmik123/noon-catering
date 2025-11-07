@@ -3,6 +3,7 @@ import InvoicePDF from "@/app/components/InvoicePDF";
 import { NextResponse } from "next/server";
 import { client } from "@/sanity/lib/client";
 import { PRICING_QUERY } from "@/sanity/lib/queries";
+import { parseDateString } from "@/lib/utils";
 
 export async function POST(request) {
   try {
@@ -22,7 +23,7 @@ export async function POST(request) {
 
     // If due date isn't provided, calculate it from delivery date
     if (!dueDate && data.deliveryDetails?.deliveryDate) {
-      const deliveryDate = new Date(data.deliveryDetails.deliveryDate);
+      const deliveryDate = parseDateString(data.deliveryDetails.deliveryDate);
       dueDate = new Date(deliveryDate);
       dueDate.setDate(deliveryDate.getDate() + 14);
     } else if (!dueDate) {
