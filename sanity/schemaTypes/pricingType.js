@@ -38,7 +38,7 @@ export const pricing = defineType({
               options: {
                 list: [
                   { title: "Sandwiches", value: "sandwiches" },
-                  { title: "Salads", value: "salads" },
+                  { title: "Salades", value: "salades" },
                   { title: "Lunchboxes", value: "lunchboxes" },
                   { title: "Desserts", value: "desserts" },
                 ],
@@ -67,9 +67,9 @@ export const pricing = defineType({
                       type: "string",
                       options: {
                         list: [
-                          { title: "Meat", value: "meat" },
-                          { title: "Chicken", value: "chicken" },
-                          { title: "Fish", value: "fish" },
+                          { title: "Vlees", value: "vlees" },
+                          { title: "Kip", value: "kip" },
+                          { title: "Vis", value: "vis" },
                           { title: "Veggie", value: "veggie" },
                           { title: "Vegan", value: "vegan" },
                         ],
