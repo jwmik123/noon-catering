@@ -241,7 +241,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   {/* Soup Small (400ml) */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Soep 400ml</label>
+                      <label className="text-sm font-medium text-gray-700">Soep - 400ml</label>
                       <div className="text-xs text-gray-500">
                         €{pricing?.soup?.soup_small?.toFixed(2) || '3.80'} per stuk
                       </div>
@@ -284,7 +284,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                   {/* Soup Large (1000ml) */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Soep 1000ml</label>
+                      <label className="text-sm font-medium text-gray-700">Soep - 1000ml</label>
                       <div className="text-xs text-gray-500">
                         €{pricing?.soup?.soup_large?.toFixed(2) || '6.40'} per stuk
                       </div>
