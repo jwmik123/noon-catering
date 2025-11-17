@@ -224,6 +224,128 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
+                  id="addSoup"
+                  checked={formData.addSoup || false}
+                  onChange={(e) => updateFormData("addSoup", e.target.checked)}
+                  className="w-4 h-4 text-black bg-gray-100 border-gray-300 rounded focus:ring-black focus:ring-2"
+                />
+                <label htmlFor="addSoup" className="text-lg font-medium text-gray-900 cursor-pointer">
+                  Wil je soep toevoegen?
+                </label>
+              </div>
+
+              {formData.addSoup && (
+                <div className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="text-md font-medium text-gray-800">Selecteer soep</h4>
+
+                  {/* Soup Small (400ml) */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Soep 400ml</label>
+                      <div className="text-xs text-gray-500">
+                        €{pricing?.soup?.soup_small?.toFixed(2) || '3.80'} per stuk
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.soup?.soup_small || 0;
+                          const newAmount = Math.max(0, current - 1);
+                          updateFormData("soup", {
+                            ...formData.soup,
+                            soup_small: newAmount
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                        disabled={!formData.soup?.soup_small || formData.soup?.soup_small <= 0}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-sm">
+                        {formData.soup?.soup_small || 0}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.soup?.soup_small || 0;
+                          updateFormData("soup", {
+                            ...formData.soup,
+                            soup_small: current + 1
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Soup Large (1000ml) */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Soep 1000ml</label>
+                      <div className="text-xs text-gray-500">
+                        €{pricing?.soup?.soup_large?.toFixed(2) || '6.40'} per stuk
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.soup?.soup_large || 0;
+                          const newAmount = Math.max(0, current - 1);
+                          updateFormData("soup", {
+                            ...formData.soup,
+                            soup_large: newAmount
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                        disabled={!formData.soup?.soup_large || formData.soup?.soup_large <= 0}
+                      >
+                        -
+                      </button>
+                      <span className="w-8 text-center text-sm">
+                        {formData.soup?.soup_large || 0}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = formData.soup?.soup_large || 0;
+                          updateFormData("soup", {
+                            ...formData.soup,
+                            soup_large: current + 1
+                          });
+                        }}
+                        className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Total soup summary */}
+                  {(formData.soup?.soup_small > 0 || formData.soup?.soup_large > 0) && (
+                    <div className="mt-4 pt-3 border-t border-gray-200">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">
+                          Totaal soep: {(formData.soup?.soup_small || 0) + (formData.soup?.soup_large || 0)}
+                        </span>
+                        <span className="font-medium text-gray-800">
+                          €{(
+                            (formData.soup?.soup_small || 0) * (pricing?.soup?.soup_small || 3.80) +
+                            (formData.soup?.soup_large || 0) * (pricing?.soup?.soup_large || 6.40)
+                          ).toFixed(2)} excl. BTW
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
                   id="addDesserts"
                   checked={formData.addDesserts || false}
                   onChange={(e) => updateFormData("addDesserts", e.target.checked)}
@@ -360,6 +482,19 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                       €{(
                         (formData.drinks?.freshOrangeJuice || 0) * (pricing?.drinks?.freshOrangeJuice || 3.35) +
                         (formData.drinks?.sodas || 0) * (pricing?.drinks?.sodas || 2.35)
+                      ).toFixed(2)}
+                    </span>
+                  </div>
+                </>
+              )}
+              {formData.addSoup && (formData.soup?.soup_small > 0 || formData.soup?.soup_large > 0) && (
+                <>
+                  <div className="flex justify-between text-sm text-custom-gray">
+                    <span>Totaal soep</span>
+                    <span>
+                      €{(
+                        (formData.soup?.soup_small || 0) * (pricing?.soup?.soup_small || 3.80) +
+                        (formData.soup?.soup_large || 0) * (pricing?.soup?.soup_large || 6.40)
                       ).toFixed(2)}
                     </span>
                   </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export const useOrderForm = (pricing = null) => {
   const [formData, setFormData] = useState({
@@ -55,6 +55,14 @@ export const useOrderForm = (pricing = null) => {
 
   // Old calculateDeliveryCost function removed - now using Google Maps validation
 
+  // Migration map for old English values to new Dutch values
+  const SUBCATEGORY_MIGRATION_MAP = {
+    'meat': 'vlees',
+    'chicken': 'kip',
+    'fish': 'vis',
+    'salads': 'salades'
+  };
+
   // Helper function to get price for a variety selection item
   const getVarietyPrice = (key) => {
     if (!pricing) {
@@ -67,11 +75,14 @@ export const useOrderForm = (pricing = null) => {
     // Handle old format (single word like "meat", "veggie", "vegan")
     if (parts.length === 1) {
       console.warn('Old variety selection format detected:', key, '- assuming sandwiches category');
+      // Migrate old value to new value if needed
+      const migratedKey = SUBCATEGORY_MIGRATION_MAP[key] || key;
+
       // Assume it's a sandwich subcategory for backward compatibility
       const sandwichCategory = pricing.categoryPricing?.find(cat => cat.typeCategory === 'sandwiches');
-      const subCatData = sandwichCategory?.subCategoryPricing?.find(sc => sc.subCategory === key);
+      const subCatData = sandwichCategory?.subCategoryPricing?.find(sc => sc.subCategory === migratedKey);
       if (!subCatData?.price) {
-        console.error(`No price found for old format key "${key}" in sandwiches category`);
+        console.warn(`No price found for old format key "${key}" (migrated to "${migratedKey}") in sandwiches category - returning 0`);
         return 0;
       }
       return subCatData.price;
@@ -80,20 +91,28 @@ export const useOrderForm = (pricing = null) => {
     if (parts[0] === 'lunchboxes' && parts.length === 3) {
       // Lunchbox: price by box type
       const boxType = parts[1];
+      // Migrate subcategory if needed
+      const protein = SUBCATEGORY_MIGRATION_MAP[parts[2]] || parts[2];
+
       const lunchboxCategory = pricing.categoryPricing?.find(cat => cat.typeCategory === 'lunchboxes');
       const boxTypeData = lunchboxCategory?.boxTypes?.find(bt => bt.boxType === boxType);
       if (!boxTypeData?.price) {
-        console.error(`No price found for lunchbox ${boxType} in useOrderForm`);
+        console.warn(`No price found for lunchbox ${boxType} in useOrderForm - returning 0`);
         return 0;
       }
       return boxTypeData.price;
     } else if (parts.length === 2) {
       // Sandwiches/Salads: price by subcategory
-      const [typeCategory, subCategory] = parts;
+      let [typeCategory, subCategory] = parts;
+
+      // Migrate old values to new values
+      typeCategory = SUBCATEGORY_MIGRATION_MAP[typeCategory] || typeCategory;
+      subCategory = SUBCATEGORY_MIGRATION_MAP[subCategory] || subCategory;
+
       const categoryData = pricing.categoryPricing?.find(cat => cat.typeCategory === typeCategory);
       const subCatData = categoryData?.subCategoryPricing?.find(sc => sc.subCategory === subCategory);
       if (!subCatData?.price) {
-        console.error(`No price found for ${typeCategory}-${subCategory} in useOrderForm`);
+        console.warn(`No price found for ${typeCategory}-${subCategory} in useOrderForm - returning 0`);
         return 0;
       }
       return subCatData.price;
@@ -127,6 +146,14 @@ export const useOrderForm = (pricing = null) => {
         (formData.drinks.freshOrangeJuice || 0) * (pricing?.drinks?.freshOrangeJuice || 3.35) +
         (formData.drinks.sodas || 0) * (pricing?.drinks?.sodas || 2.35);
       subtotal += drinksTotal;
+    }
+
+    // Add soup pricing if soup is selected
+    if (formData.addSoup && formData.soup) {
+      const soupTotal =
+        (formData.soup.soup_small || 0) * (pricing?.soup?.soup_small || 3.80) +
+        (formData.soup.soup_large || 0) * (pricing?.soup?.soup_large || 6.40);
+      subtotal += soupTotal;
     }
 
     // Add desserts pricing if desserts are selected

@@ -35,6 +35,10 @@ const ContactStep = ({
             varietySelection: formData.varietySelection,
             addDrinks: formData.addDrinks || false,
             drinks: formData.drinks || null,
+            addSoup: formData.addSoup || false,
+            soup: formData.soup || null,
+            addDesserts: formData.addDesserts || false,
+            desserts: formData.desserts || null,
             allergies: formData.allergies,
             deliveryCost: deliveryCost || 0, // Include delivery cost in order details
           },

@@ -559,7 +559,7 @@ const InvoicePDF = ({
               </View>
               <View style={styles.row}>
                 <Text style={styles.label}>BIC:</Text>
-                <Text style={styles.value}>INGBNL2A</Text>
+                <Text style={styles.value}>BBRUBEBB</Text>
               </View>
               <View style={styles.row}>
                 <Text style={styles.value}>
@@ -653,6 +653,31 @@ const InvoicePDF = ({
                       </Text>
                     </View>
                   )}
+                  {/* Soup for custom selection */}
+                  {orderDetails?.addSoup && orderDetails.soup?.soup_small > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Soep 400ml</Text>
+                      <Text style={styles.tableCell}>{orderDetails.soup.soup_small}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.soup.soup_small * (pricing?.soup?.soup_small || 3.80)).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addSoup && orderDetails.soup?.soup_large > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Soep 1000ml</Text>
+                      <Text style={styles.tableCell}>{orderDetails.soup.soup_large}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.soup.soup_large * (pricing?.soup?.soup_large || 6.40)).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
                   {/* Desserts for custom selection */}
                   {orderDetails?.addDesserts && orderDetails.desserts?.desserts > 0 && (
                     <View style={styles.tableRow}>
@@ -662,7 +687,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.desserts.desserts * 3.50).toFixed(2)}
+                        €{(orderDetails.desserts.desserts * (pricing?.desserts?.desserts || 3.50)).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -720,6 +745,31 @@ const InvoicePDF = ({
                       </Text>
                     </View>
                   )}
+                  {/* Soup for variety selection */}
+                  {orderDetails?.addSoup && orderDetails.soup?.soup_small > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Soep 400ml</Text>
+                      <Text style={styles.tableCell}>{orderDetails.soup.soup_small}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.soup.soup_small * (pricing?.soup?.soup_small || 3.80)).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
+                  {orderDetails?.addSoup && orderDetails.soup?.soup_large > 0 && (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.tableCellName}>Soep 1000ml</Text>
+                      <Text style={styles.tableCell}>{orderDetails.soup.soup_large}x</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>-</Text>
+                      <Text style={styles.tableCell}>
+                        €{(orderDetails.soup.soup_large * (pricing?.soup?.soup_large || 6.40)).toFixed(2)}
+                      </Text>
+                    </View>
+                  )}
                   {/* Desserts for variety selection */}
                   {orderDetails?.addDesserts && orderDetails.desserts?.desserts > 0 && (
                     <View style={styles.tableRow}>
@@ -729,7 +779,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.desserts.desserts * 3.50).toFixed(2)}
+                        €{(orderDetails.desserts.desserts * (pricing?.desserts?.desserts || 3.50)).toFixed(2)}
                       </Text>
                     </View>
                   )}
@@ -741,7 +791,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.desserts.cookies * 2.50).toFixed(2)}
+                        €{(orderDetails.desserts.cookies * (pricing?.desserts?.cookies || 2.50)).toFixed(2)}
                       </Text>
                     </View>
                   )}

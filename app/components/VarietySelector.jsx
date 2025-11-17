@@ -14,14 +14,14 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData, pricing })
 
   // Get categories from pricing data
   const mainCategories = pricing?.categoryPricing?.filter(cat =>
-    ['sandwiches', 'salads', 'lunchboxes'].includes(cat.typeCategory)
+    ['sandwiches', 'salades', 'lunchboxes'].includes(cat.typeCategory)
   ) || [];
 
   // Standard subcategories for sandwiches, salads, and lunchbox proteins
   const subCategories = [
-    { value: "meat", label: "Meat" },
-    { value: "chicken", label: "Chicken" },
-    { value: "fish", label: "Fish" },
+    { value: "vlees", label: "Vlees" },
+    { value: "kip", label: "Kip" },
+    { value: "vis", label: "Vis" },
     { value: "veggie", label: "Veggie" },
     { value: "vegan", label: "Vegan" }
   ];

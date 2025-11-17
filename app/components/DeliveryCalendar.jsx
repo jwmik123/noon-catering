@@ -25,9 +25,14 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     updateFormData("deliveryDate", formattedDate);
     // Reset time when date changes
     updateFormData("deliveryTime", "");
+
+    // If Saturday is selected (day 6), automatically enable pickup mode
+    if (selectedDate.getDay() === 6) {
+      updateFormData("isPickup", true);
+    }
   };
 
-  // Function to disable dates - only allow 2 days ahead or later
+  // Function to disable dates - only allow 2 days ahead or later, and disable Sundays
   const disabledDays = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -36,6 +41,8 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     minDeliveryDate.setDate(today.getDate() + 2);
     // Disable dates before minimum delivery date
     if (date < minDeliveryDate) return true;
+    // Disable Sundays (0 = Sunday)
+    if (date.getDay() === 0) return true;
     return false;
   };
 

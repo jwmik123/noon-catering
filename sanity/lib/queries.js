@@ -90,6 +90,10 @@ export const PRICING_QUERY = defineQuery(`*[_type == "pricing" && active == true
     freshOrangeJuice,
     sodas
   },
+  soup {
+    soup_small,
+    soup_large
+  },
   desserts {
     desserts,
     cookies

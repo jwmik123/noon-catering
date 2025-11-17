@@ -149,6 +149,26 @@ export const invoice = defineType({
             { name: "smoothies", title: "Smoothies", type: "number" },
           ],
         },
+        { name: "addSoup", title: "Add Soup", type: "boolean" },
+        {
+          name: "soup",
+          title: "Soup Selection",
+          type: "object",
+          fields: [
+            { name: "soup_small", title: "Soup 400ml", type: "number" },
+            { name: "soup_large", title: "Soup 1000ml", type: "number" },
+          ],
+        },
+        { name: "addDesserts", title: "Add Desserts", type: "boolean" },
+        {
+          name: "desserts",
+          title: "Desserts Selection",
+          type: "object",
+          fields: [
+            { name: "desserts", title: "Desserts", type: "number" },
+            { name: "cookies", title: "Cookies", type: "number" },
+          ],
+        },
         {
           name: "customSelection",
           title: "Custom Selection",

@@ -227,6 +227,30 @@ export const pricing = defineType({
         },
       ],
     }),
+    // Soep pricing
+    defineField({
+      name: "soup",
+      title: "Soep",
+      type: "object",
+      fields: [
+        {
+          name: "soup_small",
+          title: "400ml",
+          type: "number",
+          description: "Price per 400ml soep",
+          initialValue: 3.80,
+          validation: (rule) => rule.required().min(0),
+        },
+        {
+          name: "soup_large",
+          title: "1000ml",
+          type: "number",
+          description: "Price per 1000ml soep",
+          initialValue: 6.40,
+          validation: (rule) => rule.required().min(0),
+        },
+      ],
+    }),
   ],
   preview: {
     select: {

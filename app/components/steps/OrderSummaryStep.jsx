@@ -267,6 +267,26 @@ const OrderSummaryStep = ({
                   </div>
                 </div>
               )}
+              {/* Soup section for variety selection */}
+              {formData.addSoup && (formData.soup?.soup_small > 0 || formData.soup?.soup_large > 0) && (
+                <div className="pt-4 mt-4 border-t">
+                  <p className="mb-2 text-sm text-gray-500">Soep</p>
+                  <div className="space-y-2">
+                    {formData.soup?.soup_small > 0 && (
+                      <div className="flex justify-between">
+                        <span>Soep 400ml</span>
+                        <span>{formData.soup.soup_small}x €{(formData.soup.soup_small * (pricing?.soup?.soup_small || 3.80)).toFixed(2)}</span>
+                      </div>
+                    )}
+                    {formData.soup?.soup_large > 0 && (
+                      <div className="flex justify-between">
+                        <span>Soep 1000ml</span>
+                        <span>{formData.soup.soup_large}x €{(formData.soup.soup_large * (pricing?.soup?.soup_large || 6.40)).toFixed(2)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               {/* Desserts section for variety selection */}
               {formData.addDesserts && (formData.desserts?.desserts > 0 || formData.desserts?.cookies > 0) && (
                 <div className="pt-4 mt-4 border-t">

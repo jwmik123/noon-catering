@@ -9,106 +9,106 @@ export default function TermsPage() {
             href="/"
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-primary hover:bg-primary/90"
           >
-            ← Back to Home
+            ← Terug naar Home
           </a>
         </div>
       </div>
-      <h1 className="mb-8 text-3xl font-bold">Terms and Conditions - NOON Sandwicherie & Koffie</h1>
+      <h1 className="mb-8 text-3xl font-bold">Algemene Voorwaarden - NOON Sandwicherie & Koffie</h1>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 1 - Definitions</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 1 - Definities</h2>
         <p className="mb-4">
-          NOON Sandwicherie: provider of catering services. <br />
-          Client: contracting party of NOON Sandwicherie.
+          NOON Sandwicherie: aanbieder van cateringdiensten. <br />
+          Opdrachtgever: contractpartner van NOON Sandwicherie.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 2 - Applicability</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 2 - Toepasselijkheid</h2>
         <p className="mb-4">
-          These terms and conditions apply to all offers, quotations, and agreements.
-          Deviations are only valid if agreed upon in writing.
+          Deze algemene voorwaarden gelden voor alle aanbiedingen, offertes en overeenkomsten.
+          Afwijkingen zijn enkel geldig indien schriftelijk overeengekomen.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 3 - Quotations and Orders</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 3 - Offertes en Bestellingen</h2>
         <p className="mb-4">
-          Quotations are non-binding and valid for 14 days unless otherwise stated.
-          Acceptance must be confirmed in writing within this period.
+          Offertes zijn vrijblijvend en geldig gedurende 14 dagen, tenzij anders vermeld.
+          Aanvaarding dient binnen deze termijn schriftelijk bevestigd te worden.
           <br />
-          Catering orders must be confirmed in writing at least two working days in advance,
-          specifying the correct number of participants. Prices are based on this number,
-          with additional consumption invoiced afterward.
+          Cateringbestellingen moeten minstens twee werkdagen op voorhand schriftelijk bevestigd worden,
+          met vermelding van het correcte aantal personen. Prijzen zijn gebaseerd op dit aantal,
+          extra verbruik wordt nadien gefactureerd.
           <br />
-          If no updated number is provided, the most recent known number will be used.
+          Indien geen bijgewerkt aantal wordt doorgegeven, wordt het laatst gekende aantal gebruikt.
           <br />
-          NOON Sandwicherie reserves the right to reject orders that have not been confirmed
-          in writing at least two working days prior. Naturally, we are happy to discuss this if needed.
+          NOON Sandwicherie behoudt zich het recht voor om bestellingen die niet minstens twee werkdagen
+          op voorhand schriftelijk bevestigd zijn, te weigeren. Uiteraard staan we steeds open voor overleg.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 4 - Delivery & Courier Services</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 4 - Levering & Koeriersdiensten</h2>
         <p className="mb-4">
-          NOON Sandwicherie is not responsible for delays caused by external delivery services.
-          We strive to deliver all orders at the agreed time but cannot guarantee this.
+          NOON Sandwicherie is niet verantwoordelijk voor vertragingen veroorzaakt door externe leveringsdiensten.
+          We streven ernaar alle bestellingen op het afgesproken tijdstip te leveren, maar kunnen dit niet garanderen.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 5 - Timely Presence</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 5 - Stiptheid</h2>
         <p className="mb-4">
-          We ask clients to ensure that agreed-upon times are respected to allow smooth execution.
-          In case of delay, NOON Sandwicherie may provide adjusted service,
-          and any additional costs will be invoiced after consultation.
+          We vragen de opdrachtgever ervoor te zorgen dat afgesproken tijdstippen worden gerespecteerd
+          zodat een vlotte uitvoering mogelijk is. Bij vertraging kan NOON Sandwicherie aangepaste service leveren,
+          en eventuele meerkosten worden na overleg gefactureerd.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 6 - Payment</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 6 - Betaling</h2>
         <p className="mb-4">
-          Invoices must be paid within 30 days of the invoice date.
-          Late payment incurs an interest rate of 2% per month on the total amount.
+          Facturen dienen betaald te worden binnen 30 dagen na factuurdatum.
+          Bij laattijdige betaling geldt een intrestvoet van 2% per maand op het totaalbedrag.
           <br />
-          For amounts from €500 and above, a 50% deposit is required upon confirmation, payable electronically.
-          The remaining balance must be paid after the service, electronically as well.
+          Voor bedragen vanaf €500 en hoger is een voorschot van 50% vereist bij bevestiging, elektronisch te betalen.
+          Het resterende saldo dient na de dienstverlening betaald te worden, eveneens elektronisch.
           <br />
-          Failure to meet payment obligations allows NOON Sandwicherie to cancel the agreement
-          without compensation.
+          Het niet nakomen van betalingsverplichtingen geeft NOON Sandwicherie het recht
+          de overeenkomst te annuleren zonder schadevergoeding.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 7 - Cancellation</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 7 - Annulering</h2>
         <p className="mb-4">
-          In case of cancellation, the client is charged as follows:
+          Bij annulering worden volgende kosten aangerekend:
         </p>
         <ul className="list-disc list-inside mt-2 mb-4">
-          <li>Within 24 hours before delivery: 50% of the total amount + €25 administrative fee</li>
-          <li>24 hours to 3 days before delivery: 25% of the total amount + €25 administrative fee</li>
-          <li>Up to 3 days before delivery: €25 administrative fee</li>
+          <li>Binnen 24 uur voor levering: 50% van het totaalbedrag + €25 administratiekosten</li>
+          <li>24 uur tot 3 dagen voor levering: 25% van het totaalbedrag + €25 administratiekosten</li>
+          <li>Tot 3 dagen voor levering: €25 administratiekosten</li>
         </ul>
         <p className="mb-4">
-          Cancellations must be made via email, preferably preceded by a phone call.
-          The date of the email counts as the official cancellation date.
+          Annuleringen dienen per e-mail gemeld te worden, bij voorkeur voorafgegaan door een telefoongesprek.
+          De datum van de e-mail geldt als officiële annuleringsdatum.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 8 - Change in Number of Participants</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 8 - Wijziging Aantal Personen</h2>
         <p className="mb-4">
-          Changes to the number of participants must be communicated in writing at least 24 hours in advance,
-          preferably preceded by a phone call. Changes within this period can no longer be processed;
-          the full amount remains due.
+          Wijzigingen in het aantal personen moeten minstens 24 uur op voorhand schriftelijk worden doorgegeven,
+          bij voorkeur voorafgegaan door een telefoongesprek. Wijzigingen binnen deze termijn kunnen niet meer
+          verwerkt worden; het volledige bedrag blijft verschuldigd.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Article 9 - Complaints</h2>
+        <h2 className="mb-4 text-2xl font-semibold">Artikel 9 - Klachten</h2>
         <p className="mb-4">
-          Complaints must be reported in writing on the day of delivery.
-          Liability is limited to the invoice amount.
+          Klachten dienen schriftelijk gemeld te worden op de dag van levering.
+          Aansprakelijkheid is beperkt tot het factuurbedrag.
         </p>
       </section>
 

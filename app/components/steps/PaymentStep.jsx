@@ -161,7 +161,7 @@ const PaymentStep = ({
                 <div>
                   <p className="font-medium">Betaal direct online</p>
                   <p className="text-sm text-gray-500">
-                    iDEAL, creditcard, etc.
+                    Bancontact, creditcard, etc.
                   </p>
                 </div>
               </div>
