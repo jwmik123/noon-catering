@@ -182,25 +182,29 @@ const SelectionModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] p-0 rounded-t-lg">
-        <div className="overflow-hidden relative w-full h-40 rounded-t-lg">
-          <div
-            className="absolute inset-0 bg-center bg-cover scale-150"
-            style={{
-              backgroundImage: `url(${urlFor(sandwich?.image).url()})`,
-            }}
-          />
-          <Button
-            variant="link"
-            size="icon"
-            onClick={onClose}
-            className="absolute top-2 right-2 w-8 h-8 text-white rounded-full"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
+      <DialogContent className="sm:max-w-[800px] p-0 max-h-[90vh] overflow-hidden">
+        <Button
+          variant="link"
+          size="icon"
+          onClick={onClose}
+          className="absolute top-2 right-2 z-10 w-8 h-8 text-white rounded-full md:text-foreground"
+        >
+          <X className="w-4 h-4" />
+        </Button>
 
-        <div className="p-6">
+        <div className="flex flex-col md:flex-row max-h-[90vh]">
+          {/* Image Section - Full width on mobile, left side on desktop */}
+          <div className="overflow-hidden relative w-full h-48 rounded-t-lg md:rounded-l-lg md:rounded-tr-none md:w-[350px] md:h-auto shrink-0">
+            <div
+              className="absolute inset-0 bg-center bg-cover"
+              style={{
+                backgroundImage: `url(${urlFor(sandwich?.image).url()})`,
+              }}
+            />
+          </div>
+
+          {/* Content Section - Scrollable */}
+          <div className="overflow-y-auto flex-1 p-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-primary/80">
           <DialogHeader className="mb-4">
             <DialogTitle>Select options - {sandwich?.name}</DialogTitle>
           </DialogHeader>
@@ -406,6 +410,7 @@ const SelectionModal = ({
               </div>
             </div>
           )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

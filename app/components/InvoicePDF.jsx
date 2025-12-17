@@ -601,16 +601,16 @@ const InvoicePDF = ({
 
         {/* Order Details */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Order</Text>
+          <Text style={styles.sectionTitle}>Bestelling</Text>
           <View style={styles.table}>
             <View>
               <View style={styles.tableHeader}>
-                <Text style={styles.tableCellBoldName}>Sandwich</Text>
-                <Text style={styles.tableCellBold}>Quantity</Text>
-                <Text style={styles.tableCellBold}>Bread</Text>
-                <Text style={styles.tableCellBold}>Sauce</Text>
+                <Text style={styles.tableCellBoldName}>Item</Text>
+                <Text style={styles.tableCellBold}>Aantal</Text>
+                <Text style={styles.tableCellBold}>Broodsoort</Text>
+                <Text style={styles.tableCellBold}>Saus</Text>
                 <Text style={styles.tableCellBold}>Toppings</Text>
-                <Text style={styles.tableCellBold}>Price</Text>
+                <Text style={styles.tableCellBold}>Prijs</Text>
               </View>
               {selectionType === "custom" ? (
                 <>
@@ -618,7 +618,7 @@ const InvoicePDF = ({
                   {orderDetails?.deliveryCost &&
                     orderDetails.deliveryCost > 0 && (
                       <View style={styles.tableRow}>
-                        <Text style={styles.tableCellName}>Delivery</Text>
+                        <Text style={styles.tableCellName}>Levering</Text>
                         <Text style={styles.tableCell}>1x</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
@@ -803,21 +803,21 @@ const InvoicePDF = ({
 
         {/* Allergies */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Allergies or comments</Text>
+          <Text style={styles.sectionTitle}>Allergieën of opmerkingen</Text>
           <Text style={styles.value}>{allergies}</Text>
         </View>
 
         {/* Totals */}
         <View style={styles.totalSection}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal:</Text>
+            <Text style={styles.totalLabel}>Subtotaal:</Text>
             <Text style={styles.totalValue}>
               €{(amountData.originalSubtotal || amountData.subtotal || 0).toFixed(2)}
             </Text>
           </View>
           {isPickup && (amountData.pickupDiscount || 0) > 0 && (
             <View style={styles.totalRow}>
-              <Text style={[styles.totalLabel, { color: '#16a34a' }]}>Pickup Discount (5%):</Text>
+              <Text style={[styles.totalLabel, { color: '#16a34a' }]}>Ophalen Discount (5%):</Text>
               <Text style={[styles.totalValue, { color: '#16a34a' }]}>
                 -€{(amountData.pickupDiscount || 0).toFixed(2)}
               </Text>
@@ -825,33 +825,33 @@ const InvoicePDF = ({
           )}
           {(amountData.delivery || 0) > 0 ? (
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Delivery:</Text>
+              <Text style={styles.totalLabel}>Levering:</Text>
               <Text style={styles.totalValue}>
                 €{(amountData.delivery || 0).toFixed(2)}
               </Text>
             </View>
           ) : (
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Delivery:</Text>
-              <Text style={styles.totalValue}>{isPickup ? "Pick Up" : "Free"}</Text>
+              <Text style={styles.totalLabel}>Levering:</Text>
+              <Text style={styles.totalValue}>{isPickup ? "Zelf ophalen" : "Gratis"}</Text>
             </View>
           )}
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>VAT Food (6%):</Text>
+            <Text style={styles.totalLabel}>BTW bestelling (6%):</Text>
             <Text style={styles.totalValue}>€{(amountData.foodVAT || 0).toFixed(2)}</Text>
           </View>
           {(amountData.deliveryVAT || 0) > 0 && (
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>VAT Delivery (21%):</Text>
+              <Text style={styles.totalLabel}>BTW levering (21%):</Text>
               <Text style={styles.totalValue}>€{(amountData.deliveryVAT || 0).toFixed(2)}</Text>
             </View>
           )}
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total VAT:</Text>
+            <Text style={styles.totalLabel}>Totaal BTW:</Text>
             <Text style={styles.totalValue}>€{(amountData.vat || 0).toFixed(2)}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={styles.totalLabel}>Totaal:</Text>
             <Text style={[styles.totalValue, { fontWeight: 600 }]}>
               €{(amountData.total || 0).toFixed(2)}
             </Text>
@@ -869,94 +869,94 @@ const InvoicePDF = ({
       {/* Terms and Conditions Page */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>Terms and Conditions - NOON Sandwicherie & Koffie</Text>
+          <Text style={styles.title}>Algemene Voorwaarden - NOON Sandwicherie & Koffie</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 1 - Definitions</Text>
+          <Text style={styles.sectionTitle}>Artikel 1 - Definities</Text>
           <Text style={styles.value}>
-            NOON Sandwicherie: provider of catering services.{"\n"}
-            Client: contracting party of NOON Sandwicherie.
+            NOON Sandwicherie: aanbieder van cateringdiensten.{"\n"}
+            Opdrachtgever: contractspartij van NOON Sandwicherie.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 2 - Applicability</Text>
+          <Text style={styles.sectionTitle}>Artikel 2 - Toepasselijkheid</Text>
           <Text style={styles.value}>
-            These terms and conditions apply to all offers, quotations, and agreements.
-            Deviations are only valid if agreed upon in writing.
+            Deze algemene voorwaarden zijn van toepassing op alle aanbiedingen, offertes en overeenkomsten.
+            Afwijkingen zijn enkel geldig indien schriftelijk overeengekomen.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 3 - Quotations and Orders</Text>
+          <Text style={styles.sectionTitle}>Artikel 3 - Offertes en Bestellingen</Text>
           <Text style={styles.value}>
-            Quotations are non-binding and valid for 14 days unless otherwise stated.
-            Acceptance must be confirmed in writing within this period.{"\n\n"}
-            Catering orders must be confirmed in writing at least two working days in advance,
-            specifying the correct number of participants. Prices are based on this number,
-            with additional consumption invoiced afterward.{"\n\n"}
-            If no updated number is provided, the most recent known number will be used.{"\n\n"}
-            NOON Sandwicherie reserves the right to reject orders that have not been confirmed
-            in writing at least two working days prior. Naturally, we are happy to discuss this if needed.
+            Offertes zijn vrijblijvend en geldig gedurende 14 dagen, tenzij anders vermeld.
+            Aanvaarding dient schriftelijk bevestigd te worden binnen deze termijn.{"\n\n"}
+            Cateringbestellingen dienen minimaal twee werkdagen vooraf schriftelijk bevestigd te worden,
+            met vermelding van het juiste aantal deelnemers. Prijzen zijn gebaseerd op dit aantal,
+            waarbij extra consumptie achteraf gefactureerd wordt.{"\n\n"}
+            Indien geen actueel aantal wordt doorgegeven, wordt het laatst bekende aantal gebruikt.{"\n\n"}
+            NOON Sandwicherie behoudt zich het recht voor om bestellingen die niet minimaal twee werkdagen
+            vooraf schriftelijk bevestigd zijn te weigeren. Uiteraard overleggen we hierover graag indien nodig.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 4 - Delivery & Courier Services</Text>
+          <Text style={styles.sectionTitle}>Artikel 4 - Levering & Koeriersdiensten</Text>
           <Text style={styles.value}>
-            NOON Sandwicherie is not responsible for delays caused by external delivery services.
-            We strive to deliver all orders at the agreed time but cannot guarantee this.
+            NOON Sandwicherie is niet verantwoordelijk voor vertragingen veroorzaakt door externe leveringsdiensten.
+            We streven ernaar alle bestellingen op het afgesproken tijdstip te leveren, maar kunnen dit niet garanderen.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 5 - Timely Presence</Text>
+          <Text style={styles.sectionTitle}>Artikel 5 - Tijdige Aanwezigheid</Text>
           <Text style={styles.value}>
-            We ask clients to ensure that agreed-upon times are respected to allow smooth execution.
-            In case of delay, NOON Sandwicherie may provide adjusted service,
-            and any additional costs will be invoiced after consultation.
+            We vragen opdrachtgevers ervoor te zorgen dat afgesproken tijden worden gerespecteerd om een vlotte uitvoering mogelijk te maken.
+            Bij vertraging kan NOON Sandwicherie een aangepaste service verlenen,
+            waarbij eventuele extra kosten na overleg gefactureerd worden.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 6 - Payment</Text>
+          <Text style={styles.sectionTitle}>Artikel 6 - Betaling</Text>
           <Text style={styles.value}>
-            Invoices must be paid within 30 days of the invoice date.
-            Late payment incurs an interest rate of 2% per month on the total amount.{"\n\n"}
-            For amounts from €500 and above, a 50% deposit is required upon confirmation, payable electronically.
-            The remaining balance must be paid after the service, electronically as well.{"\n\n"}
-            Failure to meet payment obligations allows NOON Sandwicherie to cancel the agreement
-            without compensation.
+            Facturen dienen betaald te worden binnen 30 dagen na factuurdatum.
+            Bij laattijdige betaling wordt een intrestvoet van 2% per maand op het totaalbedrag aangerekend.{"\n\n"}
+            Voor bedragen vanaf €500 is bij bevestiging een voorschot van 50% verschuldigd, elektronisch te betalen.
+            Het resterende saldo dient na de dienstverlening eveneens elektronisch betaald te worden.{"\n\n"}
+            Het niet nakomen van betalingsverplichtingen geeft NOON Sandwicherie het recht de overeenkomst
+            te annuleren zonder schadevergoeding.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 7 - Cancellation</Text>
+          <Text style={styles.sectionTitle}>Artikel 7 - Annulering</Text>
           <Text style={styles.value}>
-            In case of cancellation, the client is charged as follows:{"\n\n"}
-            • Within 24 hours before delivery: 50% of the total amount + €25 administrative fee{"\n"}
-            • 24 hours to 3 days before delivery: 25% of the total amount + €25 administrative fee{"\n"}
-            • Up to 3 days before delivery: €25 administrative fee{"\n\n"}
-            Cancellations must be made via email, preferably preceded by a phone call.
-            The date of the email counts as the official cancellation date.
+            Bij annulering worden de volgende kosten aangerekend:{"\n\n"}
+            • Binnen 24 uur voor levering: 50% van het totaalbedrag + €25 administratiekosten{"\n"}
+            • 24 uur tot 3 dagen voor levering: 25% van het totaalbedrag + €25 administratiekosten{"\n"}
+            • Tot 3 dagen voor levering: €25 administratiekosten{"\n\n"}
+            Annuleringen dienen via e-mail te gebeuren, bij voorkeur voorafgegaan door een telefonisch contact.
+            De datum van de e-mail geldt als officiële annuleringsdatum.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 8 - Change in Number of Participants</Text>
+          <Text style={styles.sectionTitle}>Artikel 8 - Wijziging Aantal Deelnemers</Text>
           <Text style={styles.value}>
-            Changes to the number of participants must be communicated in writing at least 24 hours in advance,
-            preferably preceded by a phone call. Changes within this period can no longer be processed;
-            the full amount remains due.
+            Wijzigingen in het aantal deelnemers dienen minimaal 24 uur vooraf schriftelijk doorgegeven te worden,
+            bij voorkeur voorafgegaan door een telefonisch contact. Wijzigingen binnen deze termijn kunnen niet meer verwerkt worden;
+            het volledige bedrag blijft verschuldigd.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Article 9 - Complaints</Text>
+          <Text style={styles.sectionTitle}>Artikel 9 - Klachten</Text>
           <Text style={styles.value}>
-            Complaints must be reported in writing on the day of delivery.
-            Liability is limited to the invoice amount.
+            Klachten dienen op de dag van levering schriftelijk gemeld te worden.
+            Aansprakelijkheid is beperkt tot het factuurbedrag.
           </Text>
         </View>
       </Page>
