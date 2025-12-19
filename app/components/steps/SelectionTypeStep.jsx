@@ -267,7 +267,7 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
                       </span>
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={() => { 
                           const current = formData.soup?.soup_small || 0;
                           updateFormData("soup", {
                             ...formData.soup,
