@@ -3,7 +3,6 @@
 export const dynamic = "force-dynamic";
 
 import { client } from "@/sanity/lib/client";
-import { PRICING_QUERY } from "@/sanity/lib/queries";
 import { sendPeppolInvoice, validateInvoiceForPeppol } from "@/lib/billit";
 import { NextResponse } from "next/server";
 
@@ -69,10 +68,6 @@ export async function GET(request) {
     // Log invoice IDs for debugging
     console.log("Invoice IDs to process:", invoices.map((inv) => inv.quoteId || inv._id));
 
-    // Fetch pricing data for order line calculations
-    console.log("Fetching pricing data...");
-    const pricing = await client.fetch(PRICING_QUERY);
-
     // Process each invoice
     const results = [];
     for (const invoice of invoices) {
@@ -100,7 +95,7 @@ export async function GET(request) {
       }
 
       // Send to Billit
-      const result = await sendPeppolInvoice(invoice, pricing);
+      const result = await sendPeppolInvoice(invoice);
 
       if (result.success) {
         console.log(`Successfully sent ${invoice.quoteId} to Billit. Order ID: ${result.orderId}`);

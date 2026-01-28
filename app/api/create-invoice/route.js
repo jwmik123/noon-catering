@@ -84,32 +84,33 @@ export async function POST(request) {
       deliveryDate.toISOString()
     );
 
-    // Calculate amounts using PaymentStep.jsx pattern
-    // The amount passed is the final total with VAT: (subtotal + delivery) * 1.09
-    const finalTotal = Number(amount) || 0;
-    const deliveryCost = orderDetails.deliveryCost || 0;
-    
-    // Reverse calculate from final total using correct VAT rates
-    // This is complex because we need to work backwards from total with mixed VAT rates
-    // For now, we'll use a simplified approach and recalculate properly
+    // Helper to round to 2 decimal places (matches Billit's rounding)
+    const round2 = (val) => Math.round(val * 100) / 100;
 
-    // First, extract delivery VAT if there's a delivery cost
+    // Calculate amounts using PaymentStep.jsx pattern
+    // The amount passed is the final total with VAT
+    // deliveryCost from orderDetails is VAT-EXCLUSIVE (e.g., €19 base price)
+    const finalTotal = round2(Number(amount) || 0);
+    const deliveryCost = round2(orderDetails.deliveryCost || 0);
+
+    // Reverse calculate from final total using correct VAT rates
+    // deliveryCost is already VAT-exclusive, so we calculate the VAT-inclusive amount
     let remainingTotal = finalTotal;
     let deliveryWithoutVAT = deliveryCost;
-    let deliveryVATAmount = 0;
 
     if (deliveryCost > 0) {
-      // Delivery total includes 21% VAT, so delivery without VAT = total / 1.21
-      deliveryWithoutVAT = deliveryCost / 1.21;
-      deliveryVATAmount = deliveryCost - deliveryWithoutVAT;
-      remainingTotal = finalTotal - deliveryCost;
+      // deliveryCost is VAT-exclusive, calculate VAT-inclusive amount
+      const deliveryVAT = round2(deliveryCost * 0.21);
+      const deliveryWithVAT = round2(deliveryCost + deliveryVAT);
+      // Subtract VAT-inclusive delivery from total to get food portion (with VAT)
+      remainingTotal = round2(finalTotal - deliveryWithVAT);
     }
 
     // The remaining total is food + food VAT (6%)
-    const foodSubtotal = remainingTotal / 1.06;
-    const foodVATAmount = remainingTotal - foodSubtotal;
+    // Round to 2 decimals to match Billit's calculation
+    const foodSubtotal = round2(remainingTotal / 1.06);
 
-    // Use proper VAT breakdown calculation
+    // Use proper VAT breakdown calculation (both params are VAT-exclusive and rounded)
     const vatBreakdown = calculateVATBreakdown(foodSubtotal, deliveryWithoutVAT);
 
     const amountData = {
