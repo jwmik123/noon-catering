@@ -55,7 +55,7 @@ const DeliveryStep = ({
 
       <div className="space-y-6">
         {/* Pickup Option */}
-        <div className={`p-4 border rounded-md ${isSaturday ? 'bg-yellow-50 border-yellow-300' : 'bg-blue-50 border-blue-200'}`}>
+        <div className={`p-4 border mt-4 rounded-md ${isSaturday ? 'bg-yellow-50 border-yellow-300' : 'bg-blue-50 border-blue-200'}`}>
           <div className="flex gap-2 items-center">
             <Checkbox
               id="isPickup"
@@ -71,7 +71,7 @@ const DeliveryStep = ({
               }}
             />
             <Label htmlFor="isPickup" className="text-sm font-medium">
-              Bestelling ophalen bij NOON Sandwicherie (5% korting)
+              Bestelling ophalen bij NOON Sandwicherie
               {isSaturday && <span className="ml-2 text-yellow-700">(Alleen ophalen mogelijk op zaterdag)</span>}
             </Label>
           </div>

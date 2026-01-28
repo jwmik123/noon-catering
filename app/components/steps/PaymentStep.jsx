@@ -183,7 +183,7 @@ const PaymentStep = ({
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <p className="font-medium">Betaal via factuur</p>
+                  <p className="font-medium">Betaal via factuur (Peppol e-factuur)</p>
                   <p className="text-sm text-gray-500">
                     Binnen 14 dagen na factuurdatum
                   </p>
