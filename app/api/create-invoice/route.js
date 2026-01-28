@@ -128,6 +128,7 @@ export async function POST(request) {
     // Ensure we have valid company details
     const companyDetails = {
       name: orderDetails.companyName || "Unknown Company",
+      btwNumber: orderDetails.btwNumber || null, // Required for Peppol e-invoicing
       referenceNumber: orderDetails.referenceNumber || null,
       address: {
         street: orderDetails.street || "",

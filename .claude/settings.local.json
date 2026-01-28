@@ -6,7 +6,9 @@
       "Bash(npm run dev:*)",
       "Read(//Users/joelmik/Code/sandwich-catering/sanity/**)",
       "Read(//Users/joelmik/Code/sandwich-catering/sanity/schemaTypes/**)",
-      "Read(//Users/joelmik/Code/sandwich-catering/**)"
+      "Read(//Users/joelmik/Code/sandwich-catering/**)",
+      "WebFetch(domain:docs.billit.be)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

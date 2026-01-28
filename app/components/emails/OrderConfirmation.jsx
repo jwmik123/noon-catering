@@ -137,6 +137,13 @@ export default function OrderConfirmation({
               </>
             )}
 
+            <Text style={subtitle}>Packaging</Text>
+            <Text style={detailText}>
+              {orderDetails.packagingType === "plateau"
+                ? "Door twee gesneden en feestelijk verpakt op plateau"
+                : "Individueel verpakt"}
+            </Text>
+
             <Text style={subtitle}>Delivery details</Text>
             <Text style={detailText}>
               Date:{" "}

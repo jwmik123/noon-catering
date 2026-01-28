@@ -9,6 +9,7 @@ export const useOrderForm = (pricing = null) => {
     // Stap 3
     selectionType: "",
     allergies: "",
+    packagingType: "individual", // "individual" or "plateau"
     varietySelection: {
       meat: 0,
       chicken: 0,
@@ -228,6 +229,7 @@ export const useOrderForm = (pricing = null) => {
               vegan: 0,
             },
             allergies: quote.orderDetails.allergies || "",
+            packagingType: quote.orderDetails.packagingType || "individual",
             // Step 5
             deliveryDate: quote.deliveryDetails.deliveryDate,
             deliveryTime: quote.deliveryDetails.deliveryTime,

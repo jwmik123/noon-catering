@@ -63,7 +63,12 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
             <div className="w-full">
               <div className="space-y-6">
                 <div className="p-4 text-sm text-green-500 bg-green-50 rounded-md bg-beige-50">
-                  <p className="mt-2">Broodjes doormidden gesneden, feestelijk verpakt op een plateau. Wij adviseren 1 broodje per persoon. Omdat ze doormidden zijn gesneden, kan iedereen twee verschillende broodjes proeven.</p>
+                  <p className="mt-2">
+                  Welkom bij Noon Catering! <br /> <br />
+                  Maak een keuze voor hoeveel personen u wilt bestellen. Wij adviseren 1 broodje per persoon. Voeg een extra dessertje of drankje toe voor een complete ervaring. <br />
+                   Bestel minimaal 24 uur op voorhand. <br /> <br />
+                    Korter dag? Neem even contact met ons op via 09 324 88 20.
+                  </p>
                 </div>
               </div>
             </div>

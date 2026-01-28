@@ -59,6 +59,12 @@ export const invoice = defineType({
       fields: [
         defineField({ name: "name", type: "string" }),
         defineField({
+          name: "btwNumber",
+          title: "BTW Number",
+          type: "string",
+          description: "Customer VAT number for Peppol e-invoicing",
+        }),
+        defineField({
           name: "address",
           type: "object",
           fields: [
@@ -109,6 +115,29 @@ export const invoice = defineType({
       name: "notes",
       title: "Notes",
       type: "text",
+    }),
+
+    // -- Billit / Peppol Integration --
+    defineField({
+      name: "billitOrderId",
+      title: "Billit Order ID",
+      type: "string",
+      description: "Order ID returned from Billit API after successful submission",
+      readOnly: true,
+    }),
+    defineField({
+      name: "billitSentAt",
+      title: "Billit Sent At",
+      type: "datetime",
+      description: "Timestamp when the invoice was sent to Billit",
+      readOnly: true,
+    }),
+    defineField({
+      name: "billitError",
+      title: "Billit Error",
+      type: "text",
+      description: "Error message if Billit submission failed",
+      readOnly: true,
     }),
 
     // -- Order Details --

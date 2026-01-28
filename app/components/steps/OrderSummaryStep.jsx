@@ -3,6 +3,7 @@ import React from "react";
 import { FileText } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import QuoteButton from "@/app/components/QuoteButton";
 import { isDrink } from "@/lib/product-helpers";
 
@@ -319,6 +320,27 @@ const OrderSummaryStep = ({
               </div>
             </div>
           )}
+        </div>
+        <div>
+          <Label className="text-base">Kies je verpakking</Label>
+          <RadioGroup
+            value={formData.packagingType || "individual"}
+            onValueChange={(value) => updateFormData("packagingType", value)}
+            className="mt-3 space-y-3"
+          >
+            <div className="flex items-start space-x-3">
+              <RadioGroupItem value="individual" id="packaging-individual" className="mt-0.5" />
+              <Label htmlFor="packaging-individual" className="font-normal cursor-pointer">
+                Individueel verpakt
+              </Label>
+            </div>
+            <div className="flex items-start space-x-3">
+              <RadioGroupItem value="plateau" id="packaging-plateau" className="mt-0.5" />
+              <Label htmlFor="packaging-plateau" className="font-normal cursor-pointer">
+                Door twee gesneden en feestelijk verpakt op plateau
+              </Label>
+            </div>
+          </RadioGroup>
         </div>
         <div>
           <Label htmlFor="allergies" className="text-base">
