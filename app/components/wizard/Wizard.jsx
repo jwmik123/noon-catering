@@ -34,7 +34,7 @@ const Wizard = ({
         <div className="flex justify-center items-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
           <span className="font-bold">
      
-            5% korting bij afhaal & gratis levering voor bestellingen boven 350,-
+            5% korting bij afhaal & gratis levering voor bestellingen boven 500,-
           </span>
         </div>
         <div className="container px-4 py-1 mx-auto">
