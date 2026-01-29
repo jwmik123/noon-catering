@@ -8,7 +8,8 @@
       "Read(//Users/joelmik/Code/sandwich-catering/sanity/schemaTypes/**)",
       "Read(//Users/joelmik/Code/sandwich-catering/**)",
       "WebFetch(domain:docs.billit.be)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(node --experimental-detect-module:*)"
     ],
     "deny": [],
     "ask": []

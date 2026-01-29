@@ -10,7 +10,7 @@ const SandwichAmountStep = ({ formData, updateFormData }) => {
     const numPeople = parseInt(people) || 0;
     const totalSandwiches = Math.max(numPeople, 3); // 1 per person, minimum 3
     updateFormData("numberOfPeople", numPeople);
-    updateFormData("totalSandwiches", totalSandwiches.toString());
+    updateFormData("totalSandwiches", totalSandwiches);
   };
 
   return (
