@@ -20,6 +20,28 @@ const ContactStep = ({
       // Use the totalAmount prop which already includes dynamic pricing
       const finalAmount = totalAmount + (deliveryCost || 0);
 
+      // Determine which address to use for billing
+      // For pickup orders: always use invoice address (no delivery address exists)
+      // For delivery orders: use invoice address when sameAsDelivery is false
+      const isPickup = formData.isPickup === true;
+      const useInvoiceAddress = isPickup || formData.sameAsDelivery === false;
+
+      const billingAddress = useInvoiceAddress
+        ? {
+            street: formData.invoiceStreet || "",
+            houseNumber: formData.invoiceHouseNumber || "",
+            houseNumberAddition: formData.invoiceHouseNumberAddition || "",
+            postalCode: formData.invoicePostalCode || "",
+            city: formData.invoiceCity || "",
+          }
+        : {
+            street: formData.street || "",
+            houseNumber: formData.houseNumber || "",
+            houseNumberAddition: formData.houseNumberAddition || "",
+            postalCode: formData.postalCode || "",
+            city: formData.city || "",
+          };
+
       // Call the API to generate PDF
       const response = await fetch("/api/generate-pdf", {
         method: "POST",
@@ -40,19 +62,24 @@ const ContactStep = ({
             addDesserts: formData.addDesserts || false,
             desserts: formData.desserts || null,
             allergies: formData.allergies,
-            deliveryCost: deliveryCost || 0, // Include delivery cost in order details
+            deliveryCost: deliveryCost || 0,
+            isPickup: isPickup,
           },
           deliveryDetails: {
             deliveryDate: formData.deliveryDate,
             deliveryTime: formData.deliveryTime,
             address: {
-              street: formData.street,
-              houseNumber: formData.houseNumber,
-              houseNumberAddition: formData.houseNumberAddition,
-              postalCode: formData.postalCode,
-              city: formData.city,
+              street: formData.street || "",
+              houseNumber: formData.houseNumber || "",
+              houseNumberAddition: formData.houseNumberAddition || "",
+              postalCode: formData.postalCode || "",
+              city: formData.city || "",
             },
             phoneNumber: formData.phoneNumber,
+          },
+          invoiceDetails: {
+            sameAsDelivery: !useInvoiceAddress,
+            address: billingAddress,
           },
           companyDetails: {
             isCompany: formData.isCompany,
@@ -60,17 +87,12 @@ const ContactStep = ({
             vatNumber: formData.companyVAT,
             btwNumber: formData.btwNumber,
             referenceNumber: formData.referenceNumber,
-            address: {
-              street: formData.street,
-              houseNumber: formData.houseNumber,
-              houseNumberAddition: formData.houseNumberAddition,
-              postalCode: formData.postalCode,
-              city: formData.city,
-            },
+            address: billingAddress,
           },
-          amount: finalAmount, // Use total including delivery
+          amount: finalAmount,
           dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
           sandwichOptions: sandwichOptions,
+          fullName: formData.name,
         }),
       });
 
