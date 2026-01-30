@@ -139,9 +139,20 @@ async function handlePaidStatus(quoteId) {
             city
           }
         },
+        invoiceDetails {
+          sameAsDelivery,
+          address {
+            street,
+            houseNumber,
+            houseNumberAddition,
+            postalCode,
+            city
+          }
+        },
         companyDetails {
           companyName,
-          companyVAT
+          companyVAT,
+          referenceNumber
         },
         status,
         paymentStatus,
@@ -208,6 +219,36 @@ async function handlePaidStatus(quoteId) {
       const dueDate = new Date(deliveryDate);
       dueDate.setDate(deliveryDate.getDate() + 14);
 
+      // Build orderDetails with invoice address fields for Sanity storage
+      const invoiceOrderDetails = {
+        ...order.orderDetails,
+        // Customer info
+        name: order.name,
+        email: order.email,
+        phoneNumber: order.phoneNumber,
+        // Delivery info
+        deliveryDate: order.deliveryDetails?.deliveryDate,
+        deliveryTime: order.deliveryDetails?.deliveryTime,
+        deliveryCost: order.deliveryDetails?.deliveryCost || 0,
+        street: order.deliveryDetails?.address?.street || "",
+        houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+        houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+        postalCode: order.deliveryDetails?.address?.postalCode || "",
+        city: order.deliveryDetails?.address?.city || "",
+        // Invoice address fields (flat structure for invoice schema)
+        sameAsDelivery: order.invoiceDetails?.sameAsDelivery !== false,
+        invoiceStreet: order.invoiceDetails?.address?.street || "",
+        invoiceHouseNumber: order.invoiceDetails?.address?.houseNumber || "",
+        invoiceHouseNumberAddition: order.invoiceDetails?.address?.houseNumberAddition || "",
+        invoicePostalCode: order.invoiceDetails?.address?.postalCode || "",
+        invoiceCity: order.invoiceDetails?.address?.city || "",
+        // Company info
+        isCompany: !!order.companyDetails,
+        companyName: order.companyDetails?.companyName || "",
+        btwNumber: order.companyDetails?.companyVAT || "",
+        paymentMethod: "online",
+      };
+
       const invoicePayload = {
         _type: "invoice",
         quoteId: order.quoteId,
@@ -215,8 +256,19 @@ async function handlePaidStatus(quoteId) {
         amount: amountData,
         status: "paid", // From Mollie
         dueDate: dueDate.toISOString(),
-        companyDetails: order.companyDetails,
-        orderDetails: order.orderDetails,
+        companyDetails: {
+          name: order.companyDetails?.companyName || "",
+          btwNumber: order.companyDetails?.companyVAT || "",
+          referenceNumber: order.companyDetails?.referenceNumber || null,
+          address: {
+            street: order.deliveryDetails?.address?.street || "",
+            houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+            houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+            postalCode: order.deliveryDetails?.address?.postalCode || "",
+            city: order.deliveryDetails?.address?.city || "",
+          },
+        },
+        orderDetails: invoiceOrderDetails,
         createdAt: new Date().toISOString(),
       };
 
@@ -277,6 +329,7 @@ async function handlePaidStatus(quoteId) {
         ? {
             name: order.companyDetails.companyName || "",
             vatNumber: order.companyDetails.companyVAT || "",
+            referenceNumber: order.companyDetails.referenceNumber || "",
             address: {
               street: order.deliveryDetails?.address?.street || "",
               houseNumber: order.deliveryDetails?.address?.houseNumber || "",
@@ -287,6 +340,29 @@ async function handlePaidStatus(quoteId) {
             },
           }
         : null,
+
+      // Format invoiceDetails for email template
+      invoiceDetails: order.invoiceDetails
+        ? {
+            sameAsDelivery: order.invoiceDetails.sameAsDelivery,
+            address: {
+              street: order.invoiceDetails.address?.street || "",
+              houseNumber: order.invoiceDetails.address?.houseNumber || "",
+              houseNumberAddition: order.invoiceDetails.address?.houseNumberAddition || "",
+              postalCode: order.invoiceDetails.address?.postalCode || "",
+              city: order.invoiceDetails.address?.city || "",
+            },
+          }
+        : {
+            sameAsDelivery: true,
+            address: {
+              street: order.deliveryDetails?.address?.street || "",
+              houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+              houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+              postalCode: order.deliveryDetails?.address?.postalCode || "",
+              city: order.deliveryDetails?.address?.city || "",
+            },
+          },
 
       // Add all other necessary fields
       status: order.status || "pending",

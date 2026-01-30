@@ -70,6 +70,13 @@ export async function POST(request) {
       // Include drinks data
       addDrinks: orderDetails.addDrinks || false,
       drinks: orderDetails.drinks || null,
+      // Invoice address fields (stored flat in invoice schema)
+      sameAsDelivery: orderDetails.sameAsDelivery !== false,
+      invoiceStreet: orderDetails.invoiceStreet || "",
+      invoiceHouseNumber: orderDetails.invoiceHouseNumber || "",
+      invoiceHouseNumberAddition: orderDetails.invoiceHouseNumberAddition || "",
+      invoicePostalCode: orderDetails.invoicePostalCode || "",
+      invoiceCity: orderDetails.invoiceCity || "",
     };
     // --- End Data Transformation ---
 
@@ -182,6 +189,27 @@ export async function POST(request) {
       );
 
       try {
+        // Build invoiceDetails from orderDetails
+        // If sameAsDelivery is true/undefined, use delivery address, otherwise use invoice address
+        const invoiceDetailsForEmail = {
+          sameAsDelivery: orderDetails.sameAsDelivery !== false,
+          address: orderDetails.sameAsDelivery !== false
+            ? {
+                street: orderDetails.street || "",
+                houseNumber: orderDetails.houseNumber || "",
+                houseNumberAddition: orderDetails.houseNumberAddition || "",
+                postalCode: orderDetails.postalCode || "",
+                city: orderDetails.city || "",
+              }
+            : {
+                street: orderDetails.invoiceStreet || "",
+                houseNumber: orderDetails.invoiceHouseNumber || "",
+                houseNumberAddition: orderDetails.invoiceHouseNumberAddition || "",
+                postalCode: orderDetails.invoicePostalCode || "",
+                city: orderDetails.invoiceCity || "",
+              },
+        };
+
         // Prepare email data with explicitly structured objects
         const emailData = {
           quoteId,
@@ -210,6 +238,7 @@ export async function POST(request) {
             city: orderDetails.city || "",
             phoneNumber: orderDetails.phoneNumber || "",
           },
+          invoiceDetails: invoiceDetailsForEmail,
           companyDetails,
           amount: amountData,
           dueDate,
