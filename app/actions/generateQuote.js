@@ -71,6 +71,8 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
       deliveryDetails: {
         deliveryDate: formData.deliveryDate,
         deliveryTime: formData.deliveryTime,
+        deliveryCost: formData.deliveryCost || 0,
+        isPickup: formData.isPickup || false,
         address: {
           street: formData.street,
           houseNumber: formData.houseNumber,
@@ -79,22 +81,24 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
           city: formData.city,
         },
       },
+      // For pickup orders: always use invoice address (no delivery address exists)
+      // For delivery orders: use invoice address when sameAsDelivery is false
       invoiceDetails: {
-        sameAsDelivery: formData.sameAsDelivery,
-        address: formData.sameAsDelivery
+        sameAsDelivery: formData.isPickup ? false : formData.sameAsDelivery,
+        address: (formData.isPickup || !formData.sameAsDelivery)
           ? {
-              street: formData.street,
-              houseNumber: formData.houseNumber,
-              houseNumberAddition: formData.houseNumberAddition,
-              postalCode: formData.postalCode,
-              city: formData.city,
-            }
-          : {
               street: formData.invoiceStreet,
               houseNumber: formData.invoiceHouseNumber,
               houseNumberAddition: formData.invoiceHouseNumberAddition,
               postalCode: formData.invoicePostalCode,
               city: formData.invoiceCity,
+            }
+          : {
+              street: formData.street,
+              houseNumber: formData.houseNumber,
+              houseNumberAddition: formData.houseNumberAddition,
+              postalCode: formData.postalCode,
+              city: formData.city,
             },
       },
       companyDetails: formData.isCompany

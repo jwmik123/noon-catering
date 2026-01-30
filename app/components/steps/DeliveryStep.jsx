@@ -67,6 +67,9 @@ const DeliveryStep = ({
                   // Clear delivery address and cost when pickup is selected
                   setDeliveryCost(0);
                   setDeliveryError(null);
+                  // For pickup orders, we always use invoice address (not delivery address)
+                  // Set sameAsDelivery to false to ensure billing address is used
+                  updateFormData("sameAsDelivery", false);
                 }
               }}
             />

@@ -131,6 +131,7 @@ async function handlePaidStatus(quoteId) {
           deliveryDate,
           deliveryTime,
           deliveryCost,
+          isPickup,
           address {
             street,
             houseNumber,
@@ -211,6 +212,27 @@ async function handlePaidStatus(quoteId) {
       total: vatBreakdown.totalWithVAT,
     };
 
+    // Determine billing address based on isPickup and sameAsDelivery
+    // For pickup orders: always use invoice address (no delivery address exists)
+    // For delivery orders: use invoice address when sameAsDelivery is false
+    const isPickup = order.deliveryDetails?.isPickup === true;
+    const useInvoiceAddress = isPickup || order.invoiceDetails?.sameAsDelivery === false;
+    const billingAddress = useInvoiceAddress
+      ? {
+          street: order.invoiceDetails?.address?.street || "",
+          houseNumber: order.invoiceDetails?.address?.houseNumber || "",
+          houseNumberAddition: order.invoiceDetails?.address?.houseNumberAddition || "",
+          postalCode: order.invoiceDetails?.address?.postalCode || "",
+          city: order.invoiceDetails?.address?.city || "",
+        }
+      : {
+          street: order.deliveryDetails?.address?.street || "",
+          houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+          houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+          postalCode: order.deliveryDetails?.address?.postalCode || "",
+          city: order.deliveryDetails?.address?.city || "",
+        };
+
     // Create an invoice document in Sanity for consistency
     try {
       const deliveryDate = parseDateString(
@@ -227,6 +249,7 @@ async function handlePaidStatus(quoteId) {
         email: order.email,
         phoneNumber: order.phoneNumber,
         // Delivery info
+        isPickup: isPickup,
         deliveryDate: order.deliveryDetails?.deliveryDate,
         deliveryTime: order.deliveryDetails?.deliveryTime,
         deliveryCost: order.deliveryDetails?.deliveryCost || 0,
@@ -236,7 +259,7 @@ async function handlePaidStatus(quoteId) {
         postalCode: order.deliveryDetails?.address?.postalCode || "",
         city: order.deliveryDetails?.address?.city || "",
         // Invoice address fields (flat structure for invoice schema)
-        sameAsDelivery: order.invoiceDetails?.sameAsDelivery !== false,
+        sameAsDelivery: !useInvoiceAddress,
         invoiceStreet: order.invoiceDetails?.address?.street || "",
         invoiceHouseNumber: order.invoiceDetails?.address?.houseNumber || "",
         invoiceHouseNumberAddition: order.invoiceDetails?.address?.houseNumberAddition || "",
@@ -260,13 +283,7 @@ async function handlePaidStatus(quoteId) {
           name: order.companyDetails?.companyName || "",
           btwNumber: order.companyDetails?.companyVAT || "",
           referenceNumber: order.companyDetails?.referenceNumber || null,
-          address: {
-            street: order.deliveryDetails?.address?.street || "",
-            houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-            houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
-            postalCode: order.deliveryDetails?.address?.postalCode || "",
-            city: order.deliveryDetails?.address?.city || "",
-          },
+          address: billingAddress,
         },
         orderDetails: invoiceOrderDetails,
         createdAt: new Date().toISOString(),
@@ -324,45 +341,23 @@ async function handlePaidStatus(quoteId) {
         },
       },
 
-      // Format companyDetails
+      // Format companyDetails - use invoice address when pickup OR sameAsDelivery is false
       companyDetails: order.companyDetails
         ? {
             name: order.companyDetails.companyName || "",
             vatNumber: order.companyDetails.companyVAT || "",
             referenceNumber: order.companyDetails.referenceNumber || "",
-            address: {
-              street: order.deliveryDetails?.address?.street || "",
-              houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-              houseNumberAddition:
-                order.deliveryDetails?.address?.houseNumberAddition || "",
-              postalCode: order.deliveryDetails?.address?.postalCode || "",
-              city: order.deliveryDetails?.address?.city || "",
-            },
+            address: billingAddress,
           }
         : null,
 
       // Format invoiceDetails for email template
-      invoiceDetails: order.invoiceDetails
-        ? {
-            sameAsDelivery: order.invoiceDetails.sameAsDelivery,
-            address: {
-              street: order.invoiceDetails.address?.street || "",
-              houseNumber: order.invoiceDetails.address?.houseNumber || "",
-              houseNumberAddition: order.invoiceDetails.address?.houseNumberAddition || "",
-              postalCode: order.invoiceDetails.address?.postalCode || "",
-              city: order.invoiceDetails.address?.city || "",
-            },
-          }
-        : {
-            sameAsDelivery: true,
-            address: {
-              street: order.deliveryDetails?.address?.street || "",
-              houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-              houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
-              postalCode: order.deliveryDetails?.address?.postalCode || "",
-              city: order.deliveryDetails?.address?.city || "",
-            },
-          },
+      // For pickup: always use invoice address (no delivery address exists)
+      // For delivery: use invoice address when sameAsDelivery is false
+      invoiceDetails: {
+        sameAsDelivery: !useInvoiceAddress,
+        address: billingAddress,
+      },
 
       // Add all other necessary fields
       status: order.status || "pending",

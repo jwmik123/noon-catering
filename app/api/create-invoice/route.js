@@ -133,19 +133,40 @@ export async function POST(request) {
     console.log("- Quote ID:", quoteId);
     console.log("- Amount:", amountData);
 
+    // Determine if using same address for billing
+    // For pickup orders: always use invoice address (no delivery address exists)
+    // For delivery orders: use invoice address when sameAsDelivery is false
+    const isPickup = orderDetails.isPickup === true;
+    const useInvoiceAddress = isPickup || orderDetails.sameAsDelivery === false;
+
     // Ensure we have valid company details
+    // Use invoice address for billing when pickup or sameAsDelivery is false
     const companyDetails = {
       name: orderDetails.companyName || "Unknown Company",
       btwNumber: orderDetails.btwNumber || null, // Required for Peppol e-invoicing
       referenceNumber: orderDetails.referenceNumber || null,
-      address: {
-        street: orderDetails.street || "",
-        houseNumber: orderDetails.houseNumber || "",
-        houseNumberAddition: orderDetails.houseNumberAddition || "",
-        postalCode: orderDetails.postalCode || "",
-        city: orderDetails.city || "",
-      },
+      address: useInvoiceAddress
+        ? {
+            street: orderDetails.invoiceStreet || "",
+            houseNumber: orderDetails.invoiceHouseNumber || "",
+            houseNumberAddition: orderDetails.invoiceHouseNumberAddition || "",
+            postalCode: orderDetails.invoicePostalCode || "",
+            city: orderDetails.invoiceCity || "",
+          }
+        : {
+            street: orderDetails.street || "",
+            houseNumber: orderDetails.houseNumber || "",
+            houseNumberAddition: orderDetails.houseNumberAddition || "",
+            postalCode: orderDetails.postalCode || "",
+            city: orderDetails.city || "",
+          },
     };
+
+    console.log("Invoice address settings:");
+    console.log("- isPickup:", isPickup);
+    console.log("- sameAsDelivery:", orderDetails.sameAsDelivery);
+    console.log("- useInvoiceAddress:", useInvoiceAddress);
+    console.log("- Billing address:", companyDetails.address);
 
     // Create invoice record in Sanity
     const updatedQuote = await client.create({
@@ -190,23 +211,24 @@ export async function POST(request) {
 
       try {
         // Build invoiceDetails from orderDetails
-        // If sameAsDelivery is true/undefined, use delivery address, otherwise use invoice address
+        // For pickup: always use invoice address (no delivery address)
+        // For delivery: use invoice address when sameAsDelivery is false
         const invoiceDetailsForEmail = {
-          sameAsDelivery: orderDetails.sameAsDelivery !== false,
-          address: orderDetails.sameAsDelivery !== false
+          sameAsDelivery: !useInvoiceAddress,
+          address: useInvoiceAddress
             ? {
-                street: orderDetails.street || "",
-                houseNumber: orderDetails.houseNumber || "",
-                houseNumberAddition: orderDetails.houseNumberAddition || "",
-                postalCode: orderDetails.postalCode || "",
-                city: orderDetails.city || "",
-              }
-            : {
                 street: orderDetails.invoiceStreet || "",
                 houseNumber: orderDetails.invoiceHouseNumber || "",
                 houseNumberAddition: orderDetails.invoiceHouseNumberAddition || "",
                 postalCode: orderDetails.invoicePostalCode || "",
                 city: orderDetails.invoiceCity || "",
+              }
+            : {
+                street: orderDetails.street || "",
+                houseNumber: orderDetails.houseNumber || "",
+                houseNumberAddition: orderDetails.houseNumberAddition || "",
+                postalCode: orderDetails.postalCode || "",
+                city: orderDetails.city || "",
               },
         };
 
