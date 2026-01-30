@@ -125,6 +125,10 @@ async function handlePaidStatus(quoteId) {
           varietySelection,
           addDrinks,
           drinks,
+          addSoup,
+          soup,
+          addDesserts,
+          desserts,
           allergies
         },
         deliveryDetails {
@@ -319,6 +323,10 @@ async function handlePaidStatus(quoteId) {
         deliveryCost: order.deliveryDetails?.deliveryCost || 0,
         addDrinks: order.orderDetails?.addDrinks || false,
         drinks: order.orderDetails?.drinks || null,
+        addSoup: order.orderDetails?.addSoup || false,
+        soup: order.orderDetails?.soup || null,
+        addDesserts: order.orderDetails?.addDesserts || false,
+        desserts: order.orderDetails?.desserts || null,
         varietySelection: order.orderDetails?.varietySelection || {},
 
         // Convert customSelection from Sanity array format to object format

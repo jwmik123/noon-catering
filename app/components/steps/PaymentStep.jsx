@@ -14,8 +14,8 @@ const PaymentStep = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("online");
 
-  // Calculate VAT breakdown with correct rates and pickup discount
-  const vatBreakdown = formatVATBreakdown(totalAmount, deliveryCost || 0, formData.isPickup);
+  // Calculate VAT breakdown with correct rates
+  const vatBreakdown = formatVATBreakdown(totalAmount, deliveryCost || 0);
 
   const handlePayment = async () => {
     try {
@@ -37,7 +37,7 @@ const PaymentStep = ({
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: calculateTotalWithVAT(totalAmount, deliveryCost || 0, formData.isPickup), // Include correct VAT rates and pickup discount
+              amount: calculateTotalWithVAT(totalAmount, deliveryCost || 0), // Include correct VAT rates
               orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
@@ -57,7 +57,7 @@ const PaymentStep = ({
             },
             body: JSON.stringify({
               quoteId: result.quoteId,
-              amount: calculateTotalWithVAT(totalAmount, deliveryCost || 0, formData.isPickup), // Include correct VAT rates and pickup discount
+              amount: calculateTotalWithVAT(totalAmount, deliveryCost || 0), // Include correct VAT rates
               orderDetails: { ...formData, deliveryCost: deliveryCost || 0 },
             }),
           });
@@ -90,12 +90,6 @@ const PaymentStep = ({
             <span className="text-gray-600">Subtotaal:</span>
             <span className="font-medium">€{totalAmount.toFixed(2)}</span>
           </div>
-          {formData.isPickup && vatBreakdown.pickupDiscount && (
-            <div className="flex justify-between items-center">
-              <span className="text-green-600">Ophaalkorting (5%):</span>
-              <span className="font-medium text-green-600">-{vatBreakdown.pickupDiscount}</span>
-            </div>
-          )}
           {deliveryCost !== null ? (
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Bezorging:</span>
@@ -213,9 +207,11 @@ const PaymentStep = ({
             <>
               <CreditCard className="w-5 h-5" />
               <span>
-                {formData.isCompany || paymentMethod === "online"
+                {formData.isCompany || 
+                  paymentMethod === "online"
                   ? "Ga naar betaling"
-                  : "Plaats bestelling"}
+                  : "Plaats bestelling"
+                }
               </span>
             </>
           )}

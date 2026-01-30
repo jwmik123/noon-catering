@@ -70,6 +70,12 @@ export async function POST(request) {
       // Include drinks data
       addDrinks: orderDetails.addDrinks || false,
       drinks: orderDetails.drinks || null,
+      // Include soup data
+      addSoup: orderDetails.addSoup || false,
+      soup: orderDetails.addSoup ? orderDetails.soup : null,
+      // Include desserts data
+      addDesserts: orderDetails.addDesserts || false,
+      desserts: orderDetails.addDesserts ? orderDetails.desserts : null,
       // Invoice address fields (stored flat in invoice schema)
       sameAsDelivery: orderDetails.sameAsDelivery !== false,
       invoiceStreet: orderDetails.invoiceStreet || "",
@@ -248,6 +254,10 @@ export async function POST(request) {
               nonVega: 0,
               vegan: 0,
             },
+            addSoup: orderDetails.addSoup || false,
+            soup: orderDetails.soup || null,
+            addDesserts: orderDetails.addDesserts || false,
+            desserts: orderDetails.desserts || null,
             paymentMethod: "invoice", // Add payment method
           },
           deliveryDetails: {

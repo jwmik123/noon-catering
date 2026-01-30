@@ -43,6 +43,7 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
       phoneNumber: formData.phoneNumber,
       name: formData.name,
       orderDetails: {
+        numberOfPeople: formData.numberOfPeople || null,
         totalSandwiches: formData.totalSandwiches,
         selectionType: formData.selectionType,
         customSelection:
@@ -66,6 +67,10 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
             : null,
         addDrinks: formData.addDrinks || false,
         drinks: formData.addDrinks ? formData.drinks : null,
+        addSoup: formData.addSoup || false,
+        soup: formData.addSoup ? formData.soup : null,
+        addDesserts: formData.addDesserts || false,
+        desserts: formData.addDesserts ? formData.desserts : null,
         allergies: formData.allergies,
       },
       deliveryDetails: {

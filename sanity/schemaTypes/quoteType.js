@@ -126,10 +126,46 @@ export const quote = defineType({
           ],
           hidden: ({ document }) => !document?.orderDetails?.addDrinks,
         }),
+        defineField({
+          name: "addSoup",
+          title: "Add Soup",
+          type: "boolean",
+        }),
+        defineField({
+          name: "soup",
+          title: "Soup Selection",
+          type: "object",
+          fields: [
+            defineField({ name: "soup_small", title: "Soup 400ml", type: "number" }),
+            defineField({ name: "soup_large", title: "Soup 1000ml", type: "number" }),
+          ],
+          hidden: ({ document }) => !document?.orderDetails?.addSoup,
+        }),
+        defineField({
+          name: "addDesserts",
+          title: "Add Desserts",
+          type: "boolean",
+        }),
+        defineField({
+          name: "desserts",
+          title: "Desserts Selection",
+          type: "object",
+          fields: [
+            defineField({ name: "desserts", title: "Desserts", type: "number" }),
+            defineField({ name: "cookies", title: "Cookies", type: "number" }),
+          ],
+          hidden: ({ document }) => !document?.orderDetails?.addDesserts,
+        }),
+        defineField({
+          name: "allergies",
+          title: "Allergies / Dietary Notes",
+          type: "text",
+        }),
       ],
     }),
     defineField({
       name: "allergies",
+      title: "Allergies (Legacy)",
       title: "Allergies",
       type: "string",
     }),

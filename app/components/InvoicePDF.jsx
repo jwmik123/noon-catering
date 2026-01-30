@@ -308,13 +308,11 @@ const InvoicePDF = ({
     // Delivery cost (VAT-exclusive) - 0 for pickup orders
     const deliveryCost = isPickup ? 0 : (orderDetails.deliveryCost || 0);
 
-    // Calculate VAT and total using correct Belgian VAT rates with pickup discount
-    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost, isPickup);
+    // Calculate VAT and total using correct Belgian VAT rates
+    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
 
     return {
       subtotal: vatBreakdown.subtotal || 0,
-      originalSubtotal: vatBreakdown.originalFoodSubtotal || subtotalAmount,
-      pickupDiscount: vatBreakdown.pickupDiscount || 0,
       delivery: vatBreakdown.deliverySubtotal || 0,
       foodVAT: vatBreakdown.foodVAT || 0,
       deliveryVAT: vatBreakdown.deliveryVAT || 0,
@@ -813,17 +811,9 @@ const InvoicePDF = ({
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotaal:</Text>
             <Text style={styles.totalValue}>
-              €{(amountData.originalSubtotal || amountData.subtotal || 0).toFixed(2)}
+              €{(amountData.subtotal || 0).toFixed(2)}
             </Text>
           </View>
-          {isPickup && (amountData.pickupDiscount || 0) > 0 && (
-            <View style={styles.totalRow}>
-              <Text style={[styles.totalLabel, { color: '#16a34a' }]}>Ophalen Discount (5%):</Text>
-              <Text style={[styles.totalValue, { color: '#16a34a' }]}>
-                -€{(amountData.pickupDiscount || 0).toFixed(2)}
-              </Text>
-            </View>
-          )}
           {(amountData.delivery || 0) > 0 ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Levering:</Text>
