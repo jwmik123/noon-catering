@@ -479,11 +479,11 @@ const InvoicePDF = ({
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>{isPickup ? "Pick Up" : "Delivery"}</Text>
                 <View style={styles.row}>
-                  <Text style={styles.label}>Company:</Text>
+                  <Text style={styles.label}>Bedrijf:</Text>
                   <Text style={styles.value}>{companyName}</Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>Phone:</Text>
+                  <Text style={styles.label}>Telefoonnummer:</Text>
                   <Text style={styles.value}>
                     {deliveryDetails.phoneNumber || "-"}
                   </Text>
@@ -530,17 +530,17 @@ const InvoicePDF = ({
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Invoice Address</Text>
               <View style={styles.row}>
-                <Text style={styles.label}>Company:</Text>
+                <Text style={styles.label}>Bedrijf:</Text>
                 <Text style={styles.value}>{companyName}</Text>
               </View>
               {companyDetails.btwNumber && (
                 <View style={styles.row}>
-                  <Text style={styles.label}>BTW Number:</Text>
+                  <Text style={styles.label}>BTW Nummer:</Text>
                   <Text style={styles.value}>{companyDetails.btwNumber}</Text>
                 </View>
               )}
               <View style={styles.row}>
-                <Text style={styles.label}>Address:</Text>
+                <Text style={styles.label}>Adres:</Text>
                 <Text style={styles.value}>
                   {invoiceStreet} {invoiceHouseNumber}
                   {invoiceHouseNumberAddition}
@@ -552,7 +552,7 @@ const InvoicePDF = ({
 
             {/* Payment Information */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Payment Information</Text>
+              <Text style={styles.sectionTitle}>Betaalinfo</Text>
               <View style={styles.row}>
                 <Text style={styles.label}>IBAN:</Text>
                 <Text style={styles.value}>BE02 3631 5506 4240</Text>
@@ -567,11 +567,11 @@ const InvoicePDF = ({
                 </Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>VAT Number:</Text>
-                <Text style={styles.value}>BTW BE 0795406037</Text>
+                <Text style={styles.label}>BTW Nummer:</Text>
+                <Text style={styles.value}>BE 0795406037</Text>
               </View>
               <View style={styles.row}>
-                <Text style={styles.label}>Due Date:</Text>
+                <Text style={styles.label}>Betalen voor:</Text>
                 <Text style={styles.value}>
                   {finalDueDate.toLocaleDateString("nl-NL", {
                     timeZone: "Europe/Amsterdam",
@@ -585,14 +585,14 @@ const InvoicePDF = ({
         {/* Company Details if applicable */}
         {companyDetails.isCompany && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Company Details</Text>
+            <Text style={styles.sectionTitle}>Bedrijf informatie</Text>
             <View style={styles.row}>
-              <Text style={styles.label}>Company Name:</Text>
+              <Text style={styles.label}>Bedrijf:</Text>
               <Text style={styles.value}>{companyName}</Text>
             </View>
             {companyDetails.btwNumber && (
               <View style={styles.row}>
-                <Text style={styles.label}>BTW Number:</Text>
+                <Text style={styles.label}>BTW Nummer:</Text>
                 <Text style={styles.value}>{companyDetails.btwNumber}</Text>
               </View>
             )}

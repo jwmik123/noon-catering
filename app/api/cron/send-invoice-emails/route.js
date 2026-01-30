@@ -1,9 +1,11 @@
-// Cron job to send invoices to Billit for Peppol e-invoicing
+// Cron job to send invoices to Billit for Peppol e-invoicing and email to customers
 // Runs daily at 8 AM (configured in vercel.json)
 export const dynamic = "force-dynamic";
 
 import { client } from "@/sanity/lib/client";
 import { sendPeppolInvoice, validateInvoiceForPeppol } from "@/lib/billit";
+import { sendInvoiceEmail } from "@/lib/email";
+import { PRICING_QUERY } from "@/sanity/lib/queries";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
@@ -68,6 +70,14 @@ export async function GET(request) {
     // Log invoice IDs for debugging
     console.log("Invoice IDs to process:", invoices.map((inv) => inv.quoteId || inv._id));
 
+    // Fetch pricing data once for all invoices
+    let pricing = null;
+    try {
+      pricing = await client.fetch(PRICING_QUERY);
+    } catch (pricingError) {
+      console.error("Error fetching pricing data:", pricingError);
+    }
+
     // Process each invoice
     const results = [];
     for (const invoice of invoices) {
@@ -110,10 +120,37 @@ export async function GET(request) {
           })
           .commit();
 
+        // Send invoice email to customer with PDF attachment
+        const emailResult = await sendInvoiceEmail(invoice, pricing);
+
+        if (emailResult.success) {
+          console.log(`Invoice email sent successfully for ${invoice.quoteId}`);
+
+          // Update invoice with email sent timestamp
+          await client
+            .patch(invoice._id)
+            .set({
+              invoiceEmailSentAt: new Date().toISOString(),
+            })
+            .commit();
+        } else {
+          console.error(`Failed to send invoice email for ${invoice.quoteId}:`, emailResult.error);
+
+          // Update invoice with email error (but don't fail the whole process)
+          await client
+            .patch(invoice._id)
+            .set({
+              invoiceEmailError: emailResult.error,
+            })
+            .commit();
+        }
+
         results.push({
           quoteId: invoice.quoteId,
           success: true,
           billitOrderId: result.orderId,
+          emailSent: emailResult.success,
+          emailError: emailResult.error || null,
         });
       } else {
         console.error(`Failed to send ${invoice.quoteId} to Billit:`, result.error);
