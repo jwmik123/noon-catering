@@ -583,7 +583,7 @@ export const OrderPDF = ({ orderData, quoteId, sandwichOptions = [], pricing = n
                 ) : (
                   <View style={styles.totalRow}>
                     <Text style={styles.totalLabel}>Delivery:</Text>
-                    <Text style={styles.totalValue}>{isPickup ? "Pick Up" : "TBD"}</Text>
+                    <Text style={styles.totalValue}>{orderData.isPickup ? "Pick Up" : "TBD"}</Text>
                   </View>
                 )}
                 <View style={styles.totalRow}>
