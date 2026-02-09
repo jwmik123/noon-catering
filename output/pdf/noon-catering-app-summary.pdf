@@ -1,0 +1,59 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2133 >>
+stream
+BT /F1 18 Tf 54 770 Td (Noon Catering App Summary) Tj ET
+BT /F1 13 Tf 54 742 Td (What it is) Tj ET
+BT /F1 11 Tf 54 726 Td (A Next.js web app for placing and managing catering orders for) Tj ET
+BT /F1 11 Tf 54 712 Td (sandwiches and related items, with quotes, payments, and invoicing.) Tj ET
+BT /F1 13 Tf 54 690 Td (Who it's for) Tj ET
+BT /F1 11 Tf 54 674 Td (Primary user: office or event coordinators ordering catering for a) Tj ET
+BT /F1 11 Tf 54 660 Td (company \(with company details and VAT\).) Tj ET
+BT /F1 13 Tf 54 638 Td (What it does) Tj ET
+BT /F1 11 Tf 66 622 Td (- Multi-step order wizard: quantity, selection, summary, delivery,) Tj ET
+BT /F1 11 Tf 78 608 Td (company details, payment.) Tj ET
+BT /F1 11 Tf 66 594 Td (- Custom or variety selections with breads, sauces, toppings from Sanity.) Tj ET
+BT /F1 11 Tf 66 580 Td (- Quote restore and lookup by quote ID.) Tj ET
+BT /F1 11 Tf 66 566 Td (- Delivery or pickup details with scheduling and delivery cost.) Tj ET
+BT /F1 11 Tf 66 552 Td (- Mollie checkout and webhook-driven payment status updates.) Tj ET
+BT /F1 11 Tf 66 538 Td (- Invoice creation, PDF generation, and confirmation email/WhatsApp.) Tj ET
+BT /F1 11 Tf 66 524 Td (- Daily cron to send Peppol invoices via Billit.) Tj ET
+BT /F1 13 Tf 54 502 Td (How it works) Tj ET
+BT /F1 11 Tf 54 486 Td (UI: Next.js App Router pages and a client-side wizard collect order) Tj ET
+BT /F1 11 Tf 54 472 Td (data and step validation.) Tj ET
+BT /F1 11 Tf 54 458 Td (Data: Sanity CMS stores products, pricing, quotes, invoices via GROQ.) Tj ET
+BT /F1 11 Tf 54 444 Td (APIs: Next.js route handlers create payments, invoices, PDFs, and) Tj ET
+BT /F1 11 Tf 54 430 Td (serve quote lookup and webhook processing.) Tj ET
+BT /F1 11 Tf 54 416 Td (Integrations: Mollie \(payments\), Resend \(email\), Twilio \(WhatsApp\),) Tj ET
+BT /F1 11 Tf 54 402 Td (Billit \(Peppol invoicing\).) Tj ET
+BT /F1 13 Tf 54 380 Td (How to run) Tj ET
+BT /F1 11 Tf 54 364 Td (1. npm install) Tj ET
+BT /F1 11 Tf 54 350 Td (2. cp env.example .env.local and fill required keys) Tj ET
+BT /F1 11 Tf 54 336 Td (3. npm run dev \(open http://localhost:3000\)) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2496
+%%EOF

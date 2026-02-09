@@ -9,7 +9,8 @@
       "Read(//Users/joelmik/Code/sandwich-catering/**)",
       "WebFetch(domain:docs.billit.be)",
       "Bash(npm run build:*)",
-      "Bash(node --experimental-detect-module:*)"
+      "Bash(node --experimental-detect-module:*)",
+      "Bash(npx next build:*)"
     ],
     "deny": [],
     "ask": []

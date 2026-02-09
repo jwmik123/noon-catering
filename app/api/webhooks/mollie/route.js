@@ -194,6 +194,19 @@ async function handlePaidStatus(quoteId) {
       console.log("Will continue with empty data arrays");
     }
 
+    // Convert customSelection from Sanity array format to object format for calculations
+    // Sanity stores: [{sandwichId: {_ref: "id"}, selections: [{subTotal, ...}]}]
+    // calculateOrderTotal expects: {"sandwichId": [{subTotal, ...}]}
+    if (Array.isArray(order.orderDetails?.customSelection)) {
+      const convertedSelection = {};
+      order.orderDetails.customSelection.forEach((item) => {
+        if (item.sandwichId && item.sandwichId._ref) {
+          convertedSelection[item.sandwichId._ref] = Array.isArray(item.selections) ? item.selections : [];
+        }
+      });
+      order.orderDetails.customSelection = convertedSelection;
+    }
+
     // Calculate amounts using correct Belgian VAT rates with dynamic pricing
     const subtotalAmount = calculateOrderTotal(order.orderDetails, pricing); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
@@ -374,32 +387,14 @@ async function handlePaidStatus(quoteId) {
       paymentMethod: "online", // Since this is a paid webhook
     };
 
-    // Set variety selection if available
+    // Preserve the actual variety selection data (supports both old and new formats)
     if (order.orderDetails?.varietySelection) {
-      formattedOrder.orderDetails.varietySelection = {
-        vega: order.orderDetails.varietySelection.vega || 0,
-        nonVega: order.orderDetails.varietySelection.nonVega || 0,
-        vegan: order.orderDetails.varietySelection.vegan || 0,
-      };
-    } else {
-      formattedOrder.orderDetails.varietySelection = {
-        vega: 0,
-        nonVega: 0,
-        vegan: 0,
-      };
+      formattedOrder.orderDetails.varietySelection = order.orderDetails.varietySelection;
     }
 
-    // Convert customSelection from Sanity array format to object format expected by components
-    if (Array.isArray(order.orderDetails?.customSelection)) {
-      console.log("Converting customSelection array format to object format");
-
-      order.orderDetails.customSelection.forEach((item) => {
-        if (item.sandwichId && item.sandwichId._ref) {
-          formattedOrder.orderDetails.customSelection[item.sandwichId._ref] =
-            Array.isArray(item.selections) ? item.selections : [];
-        }
-      });
-    }
+    // customSelection was already converted from Sanity array format to object format
+    // earlier (before calculateOrderTotal), so use the converted data directly
+    formattedOrder.orderDetails.customSelection = order.orderDetails.customSelection || {};
 
     console.log("Sending order confirmation with formatted data");
     console.log(
