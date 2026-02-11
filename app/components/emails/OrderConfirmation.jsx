@@ -105,6 +105,14 @@ export default function OrderConfirmation({
     return sandwich && !isDrink(sandwich) && breadType;
   };
 
+  // Helper function to get display name with category prefix
+  const getDisplayName = (sandwichId) => {
+    const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
+    if (!sandwich) return "Unknown Item";
+    const category = sandwich.typeCategory?.name;
+    return category ? `${category} - ${sandwich.name}` : sandwich.name;
+  };
+
   // This function calculates the subtotal (VAT-exclusive) for the order using dynamic pricing.
   const calculateSubtotal = (orderDetails) => {
     return calculateOrderTotal(orderDetails, pricing);
@@ -167,7 +175,7 @@ export default function OrderConfirmation({
                 ([sandwichId, selections]) =>
                   selections.map((selection, index) => (
                     <Text key={index} style={detailText}>
-                      {selection.quantity}x
+                      {selection.quantity}x {getDisplayName(sandwichId)}
                       {shouldShowBreadType(sandwichId, selection?.breadType) &&
                         ` - ${selection?.breadType}`}
                       {selection?.sauce !== "none" &&

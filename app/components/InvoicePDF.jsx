@@ -278,10 +278,12 @@ const InvoicePDF = ({
   invoiceDetails = invoiceDetails || {};
   companyDetails = companyDetails || {};
 
-  // Function to get sandwich name from ID
+  // Function to get sandwich name from ID, prefixed with category
   const getSandwichName = (sandwichId) => {
     const sandwich = sandwichOptions.find((s) => s._id === sandwichId);
-    return sandwich ? sandwich.name : "Unknown Sandwich";
+    if (!sandwich) return "Unknown Item";
+    const category = sandwich.typeCategory?.name;
+    return category ? `${category} - ${sandwich.name}` : sandwich.name;
   };
 
   // Check if this is a pickup order
