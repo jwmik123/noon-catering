@@ -333,6 +333,7 @@ async function handlePaidStatus(quoteId) {
         totalSandwiches: order.orderDetails?.totalSandwiches || 0,
         selectionType: order.orderDetails?.selectionType || "variety",
         allergies: order.orderDetails?.allergies || "",
+        isPickup: isPickup,
         deliveryCost: order.deliveryDetails?.deliveryCost || 0,
         addDrinks: order.orderDetails?.addDrinks || false,
         drinks: order.orderDetails?.drinks || null,

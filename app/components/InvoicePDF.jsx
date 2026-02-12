@@ -616,8 +616,7 @@ const InvoicePDF = ({
               {selectionType === "custom" ? (
                 <>
                   {renderCustomSelections()}
-                  {orderDetails?.deliveryCost &&
-                    orderDetails.deliveryCost > 0 && (
+                  {!isPickup && orderDetails?.deliveryCost > 0 && (
                       <View style={styles.tableRow}>
                         <Text style={styles.tableCellName}>Levering</Text>
                         <Text style={styles.tableCell}>1x</Text>
@@ -708,8 +707,7 @@ const InvoicePDF = ({
               ) : (
                 <>
                   {renderVarietySelection(varietySelection, pricing)}
-                  {orderDetails?.deliveryCost &&
-                    orderDetails.deliveryCost > 0 && (
+                  {!isPickup && orderDetails?.deliveryCost > 0 && (
                       <View style={styles.tableRow}>
                         <Text style={styles.tableCellName}>Delivery</Text>
                         <Text style={styles.tableCell}>1x</Text>

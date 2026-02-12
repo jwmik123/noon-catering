@@ -185,6 +185,18 @@ export const quote = defineType({
           type: "string",
         }),
         defineField({
+          name: "isPickup",
+          title: "Is Pickup",
+          type: "boolean",
+          initialValue: false,
+        }),
+        defineField({
+          name: "deliveryCost",
+          title: "Delivery Cost",
+          type: "number",
+          description: "VAT-exclusive delivery cost",
+        }),
+        defineField({
           name: "address",
           title: "Address",
           type: "object",

@@ -233,6 +233,7 @@ export const useOrderForm = (pricing = null) => {
             // Step 5
             deliveryDate: quote.deliveryDetails.deliveryDate,
             deliveryTime: quote.deliveryDetails.deliveryTime,
+            isPickup: quote.deliveryDetails.isPickup || false,
             street: quote.deliveryDetails.address.street,
             houseNumber: quote.deliveryDetails.address.houseNumber,
             houseNumberAddition:
@@ -246,6 +247,13 @@ export const useOrderForm = (pricing = null) => {
             btwNumber: quote.companyDetails?.btwNumber || "",
             referenceNumber: quote.companyDetails?.referenceNumber || "",
           });
+
+          // Restore delivery cost from quote
+          if (quote.deliveryDetails?.deliveryCost !== undefined) {
+            setDeliveryCost(quote.deliveryDetails.deliveryCost);
+          } else if (quote.deliveryDetails?.isPickup) {
+            setDeliveryCost(0);
+          }
 
           // Clear the stored quote
           localStorage.removeItem("restoreQuote");
