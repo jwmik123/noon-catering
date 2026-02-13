@@ -40,7 +40,7 @@ const Home = () => {
     restoreQuote,
   } = useOrderForm(pricing);
 
-  const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError);
+  const { isStepValid, getValidationMessage } = useOrderValidation(formData, deliveryError, deliveryCost);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -145,8 +145,6 @@ const Home = () => {
             updateFormData={updateFormData}
             date={date}
             setDate={setDate}
-            deliveryError={deliveryError}
-            deliveryCost={deliveryCost}
             setDeliveryCost={setDeliveryCost}
             setDeliveryError={setDeliveryError}
             totalAmount={totalAmount}

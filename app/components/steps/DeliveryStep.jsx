@@ -11,28 +11,13 @@ const DeliveryStep = ({
   updateFormData,
   date,
   setDate,
-  deliveryError,
-  deliveryCost,
   setDeliveryCost,
   setDeliveryError,
   totalAmount,
 }) => {
-  const [useGoogleMaps, setUseGoogleMaps] = useState(true);
-
   // Check if selected date is a Saturday
   const isSaturday = date && date.getDay() === 6;
 
-  // Clear delivery error when switching to Google Maps mode
-  const handleGoogleMapsToggle = (checked) => {
-    setUseGoogleMaps(checked);
-    if (checked) {
-      // Clear any existing delivery errors when switching to Google Maps
-      setDeliveryError(null);
-      updateFormData("usingGoogleMaps", true);
-    } else {
-      updateFormData("usingGoogleMaps", false);
-    }
-  };
   const [googleMapsDeliveryInfo, setGoogleMapsDeliveryInfo] = useState(null);
 
   const handleDeliveryCostUpdate = (cost, distance) => {
@@ -83,23 +68,10 @@ const DeliveryStep = ({
         {/* Only show delivery address fields if not pickup */}
         {!formData.isPickup && (
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-700">
-                Bezorgadres
-              </h3>
-              <div className="flex gap-2 items-center">
-                <Checkbox
-                  id="useGoogleMaps"
-                  checked={useGoogleMaps}
-                  onCheckedChange={handleGoogleMapsToggle}
-                />
-                <Label htmlFor="useGoogleMaps" className="text-sm">
-                  Slimme adres zoeker
-                </Label>
-              </div>
-            </div>
+            <h3 className="text-lg font-medium text-gray-700 mb-4">
+              Bezorgadres
+            </h3>
 
-          {useGoogleMaps ? (
             <div className="space-y-4">
               <AddressAutocomplete
                 formData={formData}
@@ -137,83 +109,6 @@ const DeliveryStep = ({
                 </div>
               )}
             </div>
-          ) : (
-            <div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="street">Straat</Label>
-                  <Input
-                    id="street"
-                    type="text"
-                    value={formData.street}
-                    onChange={(e) => updateFormData("street", e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="houseNumber">Huisnummer</Label>
-                    <Input
-                      id="houseNumber"
-                      type="text"
-                      value={formData.houseNumber}
-                      onChange={(e) =>
-                        updateFormData("houseNumber", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="houseNumberAddition">Toevoeging</Label>
-                    <Input
-                      id="houseNumberAddition"
-                      type="text"
-                      value={formData.houseNumberAddition}
-                      onChange={(e) =>
-                        updateFormData("houseNumberAddition", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="postalCode">Postcode</Label>
-                  <Input
-                    id="postalCode"
-                    type="text"
-                    value={formData.postalCode}
-                    onChange={(e) => updateFormData("postalCode", e.target.value)}
-                    required
-                  />
-                  {deliveryError && (
-                    <p className="mt-1 text-sm text-red-500">{deliveryError}</p>
-                  )}
-                  {deliveryCost === 0 && (
-                    <p className="mt-1 text-sm text-green-500">Gratis bezorging!</p>
-                  )}
-                  {deliveryCost > 0 && (
-                    <p className="mt-1 text-sm text-gray-600">
-                      Bezorgkosten: €{deliveryCost.toFixed(2)}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="city">Stad</Label>
-                  <Input
-                    id="city"
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => updateFormData("city", e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          )}
           </div>
         )}
 

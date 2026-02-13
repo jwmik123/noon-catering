@@ -11,7 +11,7 @@ const calculateVarietyTotal = (varietySelection) => {
   }, 0);
 };
 
-export const useOrderValidation = (formData, deliveryError) => {
+export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
   const isStepValid = (step) => {
     switch (step) {
       case 1:
@@ -39,17 +39,18 @@ export const useOrderValidation = (formData, deliveryError) => {
           return hasBasicDeliveryInfo;
         }
 
-        // For delivery orders, check if address is filled (either through Google Maps or manual entry)
+        // For delivery orders, check if address is filled via Google Maps
         const hasAddressInfo = (
-          // Google Maps autocomplete provides fullAddress
           formData.fullAddress ||
-          // Manual entry requires all fields
           (formData.street && formData.houseNumber && formData.postalCode && formData.city)
         );
 
         const hasValidDeliveryLocation = deliveryError !== "We do not deliver to this postal code.";
 
-        return hasBasicDeliveryInfo && hasAddressInfo && hasValidDeliveryLocation;
+        // Ensure delivery cost has been calculated (not null)
+        const hasDeliveryCost = deliveryCost !== null;
+
+        return hasBasicDeliveryInfo && hasAddressInfo && hasValidDeliveryLocation && hasDeliveryCost;
 
       case 5:
         // Validate email format
