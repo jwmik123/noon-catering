@@ -3,15 +3,22 @@
 
 import { client } from "@/sanity/lib/client";
 import { renderToBuffer } from "@react-pdf/renderer";
-import { customAlphabet } from "nanoid";
 import { revalidatePath } from "next/cache";
 import OrderPDF from "@/app/components/OrderPDF";
 
-const nanoid = customAlphabet("1234567890abcdefghijklmnopqrstuvwxyz", 8);
+async function generateQuoteId() {
+  const year = new Date().getFullYear();
+  const latest = await client.fetch(
+    `*[_type == "quote" && quoteId match $pattern] | order(quoteId desc)[0].quoteId`,
+    { pattern: `${year}-*` }
+  );
+  const next = latest ? parseInt(latest.split("-")[1], 10) + 1 : 1;
+  return `${year}-${String(next).padStart(4, "0")}`;
+}
 
 export async function generateQuote(formData, sandwichOptions, pricing) {
   try {
-    const quoteId = `Q${nanoid()}`;
+    const quoteId = await generateQuoteId();
 
     console.log("Generating quote with ID:", quoteId);
     console.log(
