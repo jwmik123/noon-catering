@@ -57,7 +57,7 @@ export async function POST(request) {
 
     console.log("Sending invoice email to:", invoice.orderDetails.email);
 
-    const emailResult = await sendInvoiceEmail(invoice, pricing);
+    const emailResult = await sendInvoiceEmail(invoice, pricing, { customerOnly: true });
 
     if (emailResult.success) {
       console.log("Invoice email sent successfully");
