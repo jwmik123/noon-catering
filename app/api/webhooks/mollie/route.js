@@ -72,7 +72,7 @@ export async function POST(request) {
         case "paid":
           // Payment completed successfully
           console.log("Payment paid - sending confirmation");
-          await handlePaidStatus(quoteId);
+          await handlePaidStatus(quoteId, paymentId);
           break;
         case "failed":
           console.log("Payment failed - sending notification");
@@ -106,7 +106,7 @@ export async function POST(request) {
 }
 
 // Helper functions for different payment statuses
-async function handlePaidStatus(quoteId) {
+async function handlePaidStatus(quoteId, paymentId) {
   try {
     console.log(`Handling paid status for quote ${quoteId}`);
 
@@ -194,6 +194,9 @@ async function handlePaidStatus(quoteId) {
       console.log("Will continue with empty data arrays");
     }
 
+    // Save original customSelection (Sanity array format) before converting for calculation
+    const originalCustomSelection = order.orderDetails?.customSelection;
+
     // Convert customSelection from Sanity array format to object format for calculations
     // Sanity stores: [{sandwichId: {_ref: "id"}, selections: [{subTotal, ...}]}]
     // calculateOrderTotal expects: {"sandwichId": [{subTotal, ...}]}
@@ -252,71 +255,80 @@ async function handlePaidStatus(quoteId) {
 
     // Create an invoice document in Sanity for consistency
     try {
-      const deliveryDate = parseDateString(
-        order.deliveryDetails.deliveryDate || new Date().toISOString()
+      // Duplicate prevention: skip if an invoice already exists for this quoteId
+      const existingInvoice = await client.fetch(
+        `*[_type == "invoice" && quoteId == $quoteId][0]._id`,
+        { quoteId }
       );
-      const dueDate = new Date(deliveryDate);
-      dueDate.setDate(deliveryDate.getDate() + 14);
+      if (existingInvoice) {
+        console.log(`Invoice already exists for quoteId ${quoteId} (${existingInvoice}), skipping creation`);
+      } else {
+        const deliveryDate = parseDateString(
+          order.deliveryDetails.deliveryDate || new Date().toISOString()
+        );
+        const dueDate = new Date(deliveryDate);
+        dueDate.setDate(deliveryDate.getDate() + 14);
 
-      // Build orderDetails with invoice address fields for Sanity storage
-      const invoiceOrderDetails = {
-        ...order.orderDetails,
-        // Customer info
-        name: order.name,
-        email: order.email,
-        phoneNumber: order.phoneNumber,
-        // Delivery info
-        isPickup: isPickup,
-        deliveryDate: order.deliveryDetails?.deliveryDate,
-        deliveryTime: order.deliveryDetails?.deliveryTime,
-        deliveryCost: order.deliveryDetails?.deliveryCost || 0,
-        street: order.deliveryDetails?.address?.street || "",
-        houseNumber: order.deliveryDetails?.address?.houseNumber || "",
-        houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
-        postalCode: order.deliveryDetails?.address?.postalCode || "",
-        city: order.deliveryDetails?.address?.city || "",
-        // Invoice address fields (flat structure for invoice schema)
-        sameAsDelivery: !useInvoiceAddress,
-        invoiceStreet: order.invoiceDetails?.address?.street || "",
-        invoiceHouseNumber: order.invoiceDetails?.address?.houseNumber || "",
-        invoiceHouseNumberAddition: order.invoiceDetails?.address?.houseNumberAddition || "",
-        invoicePostalCode: order.invoiceDetails?.address?.postalCode || "",
-        invoiceCity: order.invoiceDetails?.address?.city || "",
-        // Company info
-        isCompany: !!order.companyDetails,
-        companyName: order.companyDetails?.companyName || "",
-        btwNumber: order.companyDetails?.companyVAT || "",
-        paymentMethod: "online",
-      };
-
-      const invoicePayload = {
-        _type: "invoice",
-        quoteId: order.quoteId,
-        referenceNumber: order.companyDetails?.referenceNumber || null,
-        amount: amountData,
-        status: "paid", // From Mollie
-        dueDate: dueDate.toISOString(),
-        companyDetails: {
-          name: order.companyDetails?.companyName || "",
+        // Build orderDetails with invoice address fields for Sanity storage.
+        // Use originalCustomSelection (Sanity array format) — NOT the converted object
+        // used for calculateOrderTotal, which would fail schema validation.
+        const invoiceOrderDetails = {
+          ...order.orderDetails,
+          customSelection: originalCustomSelection || [],
+          // Customer info
+          name: order.name,
+          email: order.email,
+          phoneNumber: order.phoneNumber,
+          // Delivery info
+          isPickup: isPickup,
+          deliveryDate: order.deliveryDetails?.deliveryDate,
+          deliveryTime: order.deliveryDetails?.deliveryTime,
+          deliveryCost: order.deliveryDetails?.deliveryCost || 0,
+          street: order.deliveryDetails?.address?.street || "",
+          houseNumber: order.deliveryDetails?.address?.houseNumber || "",
+          houseNumberAddition: order.deliveryDetails?.address?.houseNumberAddition || "",
+          postalCode: order.deliveryDetails?.address?.postalCode || "",
+          city: order.deliveryDetails?.address?.city || "",
+          // Invoice address fields (flat structure for invoice schema)
+          sameAsDelivery: !useInvoiceAddress,
+          invoiceStreet: order.invoiceDetails?.address?.street || "",
+          invoiceHouseNumber: order.invoiceDetails?.address?.houseNumber || "",
+          invoiceHouseNumberAddition: order.invoiceDetails?.address?.houseNumberAddition || "",
+          invoicePostalCode: order.invoiceDetails?.address?.postalCode || "",
+          invoiceCity: order.invoiceDetails?.address?.city || "",
+          // Company info
+          isCompany: !!order.companyDetails,
+          companyName: order.companyDetails?.companyName || "",
           btwNumber: order.companyDetails?.companyVAT || "",
+          paymentMethod: "online",
+        };
+
+        const invoicePayload = {
+          _type: "invoice",
+          quoteId: order.quoteId,
           referenceNumber: order.companyDetails?.referenceNumber || null,
-          address: billingAddress,
-        },
-        orderDetails: invoiceOrderDetails,
-        createdAt: new Date().toISOString(),
-      };
+          amount: amountData,
+          status: "paid",
+          paymentStatus: "paid",
+          paymentId: paymentId,
+          paidAt: new Date().toISOString(),
+          dueDate: dueDate.toISOString(),
+          companyDetails: {
+            name: order.companyDetails?.companyName || "",
+            btwNumber: order.companyDetails?.companyVAT || "",
+            referenceNumber: order.companyDetails?.referenceNumber || null,
+            address: billingAddress,
+          },
+          orderDetails: invoiceOrderDetails,
+          createdAt: new Date().toISOString(),
+        };
 
-      const newInvoice = await client.create(invoicePayload);
-      console.log(
-        `Invoice document created in Sanity with ID: ${newInvoice._id}`
-      );
-
-
+        const newInvoice = await client.create(invoicePayload);
+        console.log(`Invoice document created in Sanity with ID: ${newInvoice._id}`);
+      }
     } catch (invoiceError) {
-      console.error(
-        "Failed to create invoice document for paid order:",
-        invoiceError
-      );
+      console.error("Failed to create invoice document for paid order:", invoiceError);
+      console.error("Invoice error stack:", invoiceError.stack);
       // Log error but don't block confirmation emails
     }
 
@@ -435,7 +447,3 @@ async function handleCanceledPayment(quoteId) {
   console.log(`Handling canceled payment for quote ${quoteId}`);
 }
 
-// Helper function to calculate total from order data using dynamic pricing
-function calculateOrderTotalWithPricing(orderDetails, pricing = null) {
-  return calculateOrderTotal(orderDetails, pricing);
-}
