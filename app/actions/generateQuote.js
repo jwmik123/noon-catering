@@ -113,7 +113,7 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
               city: formData.city,
             },
       },
-      companyDetails: formData.isCompany
+      companyDetails: !formData.isCompany
         ? {
             companyName: formData.companyName,
             companyVAT: formData.companyVAT,
