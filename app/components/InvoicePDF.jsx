@@ -382,7 +382,7 @@ const InvoicePDF = ({
     veggie: 0,
     vegan: 0,
   };
-  const allergies = orderDetails?.allergies || "None specified";
+  const allergies = orderDetails?.allergies || "Geen opmerkingen";
 
   // Safely get the image URL
   const baseUrl =
@@ -456,10 +456,10 @@ const InvoicePDF = ({
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Invoice</Text>
-            <Text style={styles.invoiceId}>Invoice ID: {quoteId}</Text>
+            <Text style={styles.title}>Factuur</Text>
+            <Text style={styles.invoiceId}>Factuur ID: {quoteId}</Text>
             <Text style={styles.invoiceId}>
-              Date: {today.toLocaleDateString("nl-NL")}
+              Datum: {today.toLocaleDateString("nl-NL")}
             </Text>
             {referenceNumber && (
               <Text style={styles.invoiceId}>
@@ -490,7 +490,7 @@ const InvoicePDF = ({
                   </Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{isPickup ? "Pick Up Date:" : "Delivery Date:"}</Text>
+                  <Text style={styles.label}>{isPickup ? "Pick Up datum:" : "Leverdatum:"}</Text>
                   <Text style={styles.value}>
                     {deliveryDate.toLocaleDateString("nl-NL", {
                       timeZone: "Europe/Amsterdam",
@@ -498,12 +498,12 @@ const InvoicePDF = ({
                   </Text>
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>Time:</Text>
+                  <Text style={styles.label}>Tijd:</Text>
                   <Text style={styles.value}>{deliveryTime}</Text>
                 </View>
                 {!isPickup && (
                   <View style={styles.row}>
-                    <Text style={styles.label}>Address:</Text>
+                    <Text style={styles.label}>Adres:</Text>
                     <Text style={styles.value}>
                       {deliveryStreet} {deliveryHouseNumber}
                       {deliveryHouseNumberAddition}
@@ -514,7 +514,7 @@ const InvoicePDF = ({
                 )}
                 {isPickup && (
                   <View style={styles.row}>
-                    <Text style={styles.label}>Pick Up Location:</Text>
+                    <Text style={styles.label}>Pick Up locatie:</Text>
                     <Text style={styles.value}>
                       NOON Sandwicherie & Koffie{"\n"}
                       Keizer Leopoldstraat 1{"\n"}
@@ -529,7 +529,7 @@ const InvoicePDF = ({
           {/* Invoice Details */}
           <View style={styles.detailsColumn}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Invoice Address</Text>
+              <Text style={styles.sectionTitle}>Factuuradres</Text>
               <View style={styles.row}>
                 <Text style={styles.label}>Bedrijf:</Text>
                 <Text style={styles.value}>{companyName}</Text>
