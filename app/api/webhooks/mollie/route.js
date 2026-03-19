@@ -117,7 +117,9 @@ async function handlePaidStatus(quoteId, paymentId) {
         quoteId,
         name,
         email,
+        additionalEmails,
         phoneNumber,
+        additionalPhoneNumbers,
         orderDetails {
           totalSandwiches,
           selectionType,
@@ -278,7 +280,9 @@ async function handlePaidStatus(quoteId, paymentId) {
           // Customer info
           name: order.name,
           email: order.email,
+          additionalEmails: order.additionalEmails || [],
           phoneNumber: order.phoneNumber,
+          additionalPhoneNumbers: order.additionalPhoneNumbers || [],
           // Delivery info
           isPickup: isPickup,
           deliveryDate: order.deliveryDetails?.deliveryDate,
@@ -336,7 +340,9 @@ async function handlePaidStatus(quoteId, paymentId) {
     const formattedOrder = {
       quoteId: order.quoteId,
       email: order.email,
+      additionalEmails: order.additionalEmails || [],
       phoneNumber: order.phoneNumber,
+      additionalPhoneNumbers: order.additionalPhoneNumbers || [],
       fullName: order.name, // This will be used as fallback when no company name
       amount: amountData, // Pass the calculated amount data
 

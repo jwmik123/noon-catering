@@ -23,6 +23,18 @@ export const quote = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "additionalEmails",
+      title: "Additional Emails",
+      type: "array",
+      of: [{ type: "string" }],
+    }),
+    defineField({
+      name: "additionalPhoneNumbers",
+      title: "Additional Phone Numbers",
+      type: "array",
+      of: [{ type: "string" }],
+    }),
+    defineField({
       name: "name",
       title: "Full Name",
       type: "string",
@@ -122,7 +134,6 @@ export const quote = defineType({
           fields: [
             defineField({ name: "verseJus", title: "Fresh Juice", type: "number" }),
             defineField({ name: "sodas", title: "Sodas", type: "number" }),
-            defineField({ name: "smoothies", title: "Smoothies", type: "number" }),
           ],
           hidden: ({ document }) => !document?.orderDetails?.addDrinks,
         }),
@@ -155,6 +166,18 @@ export const quote = defineType({
             defineField({ name: "cookies", title: "Cookies", type: "number" }),
           ],
           hidden: ({ document }) => !document?.orderDetails?.addDesserts,
+        }),
+        defineField({
+          name: "packagingType",
+          title: "Packaging Type",
+          type: "string",
+          options: {
+            list: [
+              { title: "Individual", value: "individual" },
+              { title: "Plateau", value: "plateau" },
+            ],
+          },
+          initialValue: "individual",
         }),
         defineField({
           name: "allergies",

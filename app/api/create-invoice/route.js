@@ -76,6 +76,9 @@ export async function POST(request) {
       // Include desserts data
       addDesserts: orderDetails.addDesserts || false,
       desserts: orderDetails.addDesserts ? orderDetails.desserts : null,
+      // Additional contacts
+      additionalEmails: orderDetails.additionalEmails || [],
+      additionalPhoneNumbers: orderDetails.additionalPhoneNumbers || [],
       // Invoice address fields (stored flat in invoice schema)
       sameAsDelivery: orderDetails.sameAsDelivery !== false,
       invoiceStreet: orderDetails.invoiceStreet || "",
@@ -242,6 +245,7 @@ export async function POST(request) {
         const emailData = {
           quoteId,
           email: orderDetails.email,
+          additionalEmails: orderDetails.additionalEmails || [],
           fullName: orderDetails.name,
           orderDetails: {
             ...orderDetails,

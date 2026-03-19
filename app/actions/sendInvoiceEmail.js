@@ -43,17 +43,50 @@ export async function sendInvoiceEmail(quoteId) {
       client.fetch(PRICING_QUERY)
     ]);
 
+    const orderDetails = invoice.orderDetails;
+    const isPickup = orderDetails.isPickup === true;
+    const useInvoiceAddress = isPickup || orderDetails.sameAsDelivery === false;
+
+    // Prefer companyDetails.address (editable in Studio) over flat orderDetails snapshot
+    const companyBillingAddress = invoice.companyDetails?.address;
+    const invoiceDetails = {
+      sameAsDelivery: !useInvoiceAddress,
+      address: companyBillingAddress?.street
+        ? companyBillingAddress
+        : useInvoiceAddress
+        ? {
+            street: orderDetails.invoiceStreet || "",
+            houseNumber: orderDetails.invoiceHouseNumber || "",
+            houseNumberAddition: orderDetails.invoiceHouseNumberAddition || "",
+            postalCode: orderDetails.invoicePostalCode || "",
+            city: orderDetails.invoiceCity || "",
+          }
+        : {
+            street: orderDetails.street || "",
+            houseNumber: orderDetails.houseNumber || "",
+            houseNumberAddition: orderDetails.houseNumberAddition || "",
+            postalCode: orderDetails.postalCode || "",
+            city: orderDetails.city || "",
+          },
+    };
+
+    const companyDetails = {
+      ...(invoice.companyDetails || {}),
+      name: invoice.companyDetails?.name || orderDetails.companyName || orderDetails.name,
+      btwNumber: invoice.companyDetails?.btwNumber || orderDetails.btwNumber || orderDetails.companyVAT,
+    };
+
     // Prepare email data
     const emailData = {
       quoteId,
-      email: invoice.orderDetails.email,
-      fullName: invoice.orderDetails.name,
+      email: orderDetails.email,
+      fullName: orderDetails.name,
       orderDetails: {
-        ...invoice.orderDetails,
-        selectionType: invoice.orderDetails.selectionType || "custom",
-        allergies: invoice.orderDetails.allergies || "",
-        customSelection: invoice.orderDetails.customSelection || {},
-        varietySelection: invoice.orderDetails.varietySelection || {
+        ...orderDetails,
+        selectionType: orderDetails.selectionType || "custom",
+        allergies: orderDetails.allergies || "",
+        customSelection: orderDetails.customSelection || {},
+        varietySelection: orderDetails.varietySelection || {
           vega: 0,
           nonVega: 0,
           vegan: 0,
@@ -61,17 +94,20 @@ export async function sendInvoiceEmail(quoteId) {
         paymentMethod: "invoice",
       },
       deliveryDetails: {
-        deliveryDate: invoice.orderDetails.deliveryDate,
-        deliveryTime: invoice.orderDetails.deliveryTime || "12:00",
-        street: invoice.orderDetails.street || "",
-        houseNumber: invoice.orderDetails.houseNumber || "",
-        houseNumberAddition: invoice.orderDetails.houseNumberAddition || "",
-        postalCode: invoice.orderDetails.postalCode || "",
-        city: invoice.orderDetails.city || "",
-        phoneNumber: invoice.orderDetails.phoneNumber || "",
+        deliveryDate: orderDetails.deliveryDate,
+        deliveryTime: orderDetails.deliveryTime || "12:00",
+        phoneNumber: orderDetails.phoneNumber || "",
+        address: {
+          street: orderDetails.street || "",
+          houseNumber: orderDetails.houseNumber || "",
+          houseNumberAddition: orderDetails.houseNumberAddition || "",
+          postalCode: orderDetails.postalCode || "",
+          city: orderDetails.city || "",
+        },
       },
-      companyDetails: invoice.companyDetails,
-      amount: invoice.amount, // Pass the entire amount object
+      invoiceDetails,
+      companyDetails,
+      amount: invoice.amount,
       dueDate: invoice.dueDate,
       sandwichOptions,
     };

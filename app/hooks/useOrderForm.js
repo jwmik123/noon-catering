@@ -40,7 +40,9 @@ export const useOrderForm = (pricing = null) => {
     // Stap 6
     name: "",
     email: "",
+    additionalEmails: [],
     phoneNumber: "",
+    additionalPhoneNumbers: [],
     isCompany: false,
     companyName: "",
     companyVAT: "",

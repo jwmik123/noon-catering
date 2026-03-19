@@ -13,6 +13,7 @@ import {apiVersion, dataset, projectId} from './sanity/env'
 import {schema} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
 import {SendInvoiceAction} from './sanity/actions/SendInvoiceAction'
+import {CancelOrderAction} from './sanity/actions/CancelOrderAction'
 
 export default defineConfig({
   basePath: '/studio',
@@ -29,7 +30,7 @@ export default defineConfig({
   document: {
     actions: (prev, context) => {
       if (context.schemaType === 'invoice') {
-        return [...prev, SendInvoiceAction]
+        return [...prev, SendInvoiceAction, CancelOrderAction]
       }
       return prev
     },

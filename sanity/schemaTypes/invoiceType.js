@@ -240,6 +240,13 @@ export const invoice = defineType({
       readOnly: true,
     }),
     defineField({
+      name: "cancelledAt",
+      title: "Cancelled At",
+      type: "datetime",
+      group: "meta",
+      readOnly: true,
+    }),
+    defineField({
       name: "notes",
       title: "Internal Notes",
       type: "text",
@@ -270,6 +277,18 @@ export const invoice = defineType({
           name: "phoneNumber",
           title: "Phone Number",
           type: "string",
+        }),
+        defineField({
+          name: "additionalEmails",
+          title: "Additional Emails",
+          type: "array",
+          of: [{ type: "string" }],
+        }),
+        defineField({
+          name: "additionalPhoneNumbers",
+          title: "Additional Phone Numbers",
+          type: "array",
+          of: [{ type: "string" }],
         }),
         defineField({
           name: "isCompany",
@@ -541,7 +560,6 @@ export const invoice = defineType({
           fields: [
             defineField({ name: "verseJus", title: "Fresh Juice", type: "number" }),
             defineField({ name: "sodas", title: "Sodas", type: "number" }),
-            defineField({ name: "smoothies", title: "Smoothies", type: "number" }),
           ],
         }),
 

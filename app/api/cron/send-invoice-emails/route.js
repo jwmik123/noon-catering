@@ -35,7 +35,7 @@ export async function GET(request) {
     console.log("Querying Sanity database...");
     const invoices = await client.fetch(
       `*[_type == "invoice" &&
-        orderDetails.deliveryDate match $today &&
+        orderDetails.deliveryDate == $today &&
         !defined(billitSentAt) &&
         status == "pending"]{
         _id,

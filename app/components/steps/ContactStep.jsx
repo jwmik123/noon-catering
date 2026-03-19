@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Building2 } from "lucide-react";
+import { Building2, Plus, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -157,6 +157,38 @@ const ContactStep = ({
               placeholder="jouw@email.com"
               required
             />
+            {(formData.additionalEmails || []).map((email, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    const updated = [...(formData.additionalEmails || [])];
+                    updated[idx] = e.target.value;
+                    updateFormData("additionalEmails", updated);
+                  }}
+                  placeholder="extra@email.com"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = (formData.additionalEmails || []).filter((_, i) => i !== idx);
+                    updateFormData("additionalEmails", updated);
+                  }}
+                  className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  aria-label="Verwijder e-mailadres"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => updateFormData("additionalEmails", [...(formData.additionalEmails || []), ""])}
+              className="flex items-center gap-1 text-sm text-primary hover:underline mt-1"
+            >
+              <Plus className="w-3 h-3" /> E-mailadres toevoegen
+            </button>
           </div>
 
           <div className="space-y-2">
@@ -171,6 +203,38 @@ const ContactStep = ({
               placeholder="04 12345678"
               required
             />
+            {(formData.additionalPhoneNumbers || []).map((phone, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    const updated = [...(formData.additionalPhoneNumbers || [])];
+                    updated[idx] = e.target.value;
+                    updateFormData("additionalPhoneNumbers", updated);
+                  }}
+                  placeholder="04 12345678"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = (formData.additionalPhoneNumbers || []).filter((_, i) => i !== idx);
+                    updateFormData("additionalPhoneNumbers", updated);
+                  }}
+                  className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  aria-label="Verwijder telefoonnummer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => updateFormData("additionalPhoneNumbers", [...(formData.additionalPhoneNumbers || []), ""])}
+              className="flex items-center gap-1 text-sm text-primary hover:underline mt-1"
+            >
+              <Plus className="w-3 h-3" /> Telefoonnummer toevoegen
+            </button>
           </div>
         </div>
 
