@@ -268,6 +268,7 @@ const InvoicePDF = ({
   companyDetails = {},
   amount = 0,
   dueDate = new Date(),
+  invoiceDate = null,
   sandwichOptions = [], // Add sandwichOptions parameter
   referenceNumber = null, // Add reference number parameter
   fullName = null, // Add fullName parameter for non-business orders
@@ -339,7 +340,7 @@ const InvoicePDF = ({
   calculatedDueDate.setDate(calculatedDueDate.getDate() + 14);
   const finalDueDate = dueDate ? formattedDueDate : calculatedDueDate;
 
-  const today = new Date();
+  const today = invoiceDate ? new Date(invoiceDate) : new Date();
 
   // Safely get nested values
   const companyName =
