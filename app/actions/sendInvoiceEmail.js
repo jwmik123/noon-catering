@@ -79,6 +79,7 @@ export async function sendInvoiceEmail(quoteId) {
     // Prepare email data
     const emailData = {
       quoteId,
+      invoiceNumber: invoice.invoiceNumber || null,
       email: orderDetails.email,
       fullName: orderDetails.name,
       orderDetails: {

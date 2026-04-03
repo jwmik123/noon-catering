@@ -40,6 +40,7 @@ export async function GET(request) {
         status == "pending"]{
         _id,
         quoteId,
+        invoiceNumber,
         referenceNumber,
         amount,
         status,

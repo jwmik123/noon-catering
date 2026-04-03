@@ -32,13 +32,13 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     }
   };
 
-  // Function to disable dates - only allow 2 days ahead or later, and disable Sundays
+  // Function to disable dates - only allow 1 day ahead or later, and disable Sundays
   const disabledDays = (date) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    // Calculate minimum delivery date (2 days from today)
+    // Calculate minimum delivery date (1 day from today)
     const minDeliveryDate = new Date(today);
-    minDeliveryDate.setDate(today.getDate() + 2);
+    minDeliveryDate.setDate(today.getDate() + 1);
     // Disable dates before minimum delivery date
     if (date < minDeliveryDate) return true;
     // Disable Sundays (0 = Sunday)

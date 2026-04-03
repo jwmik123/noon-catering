@@ -34,6 +34,7 @@ export async function POST(request) {
     const pdfBuffer = await renderToBuffer(
       <InvoicePDF
         quoteId={data.quoteId}
+        invoiceNumber={data.invoiceNumber}
         orderDetails={data.orderDetails}
         deliveryDetails={{
           ...data.deliveryDetails,

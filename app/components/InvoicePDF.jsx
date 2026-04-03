@@ -261,6 +261,7 @@ const renderVarietySelection = (varietySelection, pricing) => {
 
 const InvoicePDF = ({
   quoteId = "UNKNOWN",
+  invoiceNumber = null,
   orderDetails = {},
   deliveryDetails = {},
   invoiceDetails = {},
@@ -457,7 +458,7 @@ const InvoicePDF = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Factuur</Text>
-            <Text style={styles.invoiceId}>Factuur ID: {quoteId}</Text>
+            <Text style={styles.invoiceId}>Factuur nr: {invoiceNumber || quoteId}</Text>
             <Text style={styles.invoiceId}>
               Datum: {today.toLocaleDateString("nl-NL")}
             </Text>

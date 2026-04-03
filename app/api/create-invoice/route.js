@@ -6,6 +6,31 @@ import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 
 
+async function getNextInvoiceNumber() {
+  const year = new Date().getFullYear();
+  const pattern = `${year}-*`;
+
+  // First check the highest existing invoiceNumber
+  const latestInvoiceNumber = await client.fetch(
+    `*[_type == "invoice" && invoiceNumber match $pattern] | order(invoiceNumber desc)[0].invoiceNumber`,
+    { pattern }
+  );
+
+  if (latestInvoiceNumber) {
+    const next = parseInt(latestInvoiceNumber.split("-")[1], 10) + 1;
+    return `${year}-${String(next).padStart(4, "0")}`;
+  }
+
+  // No invoiceNumber exists yet — fall back to highest quoteId among invoices
+  const latestQuoteId = await client.fetch(
+    `*[_type == "invoice" && quoteId match $pattern] | order(quoteId desc)[0].quoteId`,
+    { pattern }
+  );
+
+  const next = latestQuoteId ? parseInt(latestQuoteId.split("-")[1], 10) + 1 : 1;
+  return `${year}-${String(next).padStart(4, "0")}`;
+}
+
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
 
@@ -177,10 +202,15 @@ export async function POST(request) {
     console.log("- useInvoiceAddress:", useInvoiceAddress);
     console.log("- Billing address:", companyDetails.address);
 
+    // Generate sequential invoice number (separate from quote numbering)
+    const invoiceNumber = await getNextInvoiceNumber();
+    console.log("Invoice number assigned:", invoiceNumber);
+
     // Create invoice record in Sanity
     const updatedQuote = await client.create({
       _type: "invoice",
       quoteId,
+      invoiceNumber,
       referenceNumber: orderDetails.referenceNumber || null,
       amount: amountData,
       status: "pending",
@@ -244,6 +274,7 @@ export async function POST(request) {
         // Prepare email data with explicitly structured objects
         const emailData = {
           quoteId,
+          invoiceNumber,
           email: orderDetails.email,
           additionalEmails: orderDetails.additionalEmails || [],
           fullName: orderDetails.name,
