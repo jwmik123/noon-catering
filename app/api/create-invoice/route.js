@@ -4,32 +4,7 @@ import { NextResponse } from "next/server";
 import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
-
-
-async function getNextInvoiceNumber() {
-  const year = new Date().getFullYear();
-  const pattern = `${year}-*`;
-
-  // First check the highest existing invoiceNumber
-  const latestInvoiceNumber = await client.fetch(
-    `*[_type == "invoice" && invoiceNumber match $pattern] | order(invoiceNumber desc)[0].invoiceNumber`,
-    { pattern }
-  );
-
-  if (latestInvoiceNumber) {
-    const next = parseInt(latestInvoiceNumber.split("-")[1], 10) + 1;
-    return `${year}-${String(next).padStart(4, "0")}`;
-  }
-
-  // No invoiceNumber exists yet — fall back to highest quoteId among invoices
-  const latestQuoteId = await client.fetch(
-    `*[_type == "invoice" && quoteId match $pattern] | order(quoteId desc)[0].quoteId`,
-    { pattern }
-  );
-
-  const next = latestQuoteId ? parseInt(latestQuoteId.split("-")[1], 10) + 1 : 1;
-  return `${year}-${String(next).padStart(4, "0")}`;
-}
+import { getNextInvoiceNumber } from "@/lib/invoiceCounter";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");

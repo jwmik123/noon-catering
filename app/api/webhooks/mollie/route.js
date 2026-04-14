@@ -8,7 +8,7 @@ import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 import { calculateOrderTotal } from "@/lib/pricing-utils";
 import { parseDateString } from "@/lib/utils";
-
+import { getNextInvoiceNumber } from "@/lib/invoiceCounter";
 
 const mollieClient = createMollieClient({
   apiKey: process.env.MOLLIE_LIVE_API_KEY,
@@ -307,9 +307,13 @@ async function handlePaidStatus(quoteId, paymentId) {
           paymentMethod: "online",
         };
 
+        const invoiceNumber = await getNextInvoiceNumber();
+        console.log(`Invoice number assigned: ${invoiceNumber}`);
+
         const invoicePayload = {
           _type: "invoice",
           quoteId: order.quoteId,
+          invoiceNumber,
           referenceNumber: order.companyDetails?.referenceNumber || null,
           amount: amountData,
           status: "paid",

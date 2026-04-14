@@ -11,7 +11,7 @@ export async function GET() {
   try {
     // Fetch all invoices ordered by invoiceNumber / createdAt
     const invoices = await client.withConfig({ useCdn: false }).fetch(
-      `*[_type == "invoice" && !(_id in path("drafts.**"))] | order(coalesce(invoiceNumber, quoteId) asc) {
+      `*[_type == "invoice" && !(_id in path("drafts.**"))] | order(invoiceNumber asc) {
         _id,
         quoteId,
         invoiceNumber,
@@ -105,7 +105,7 @@ export async function GET() {
         />
       );
 
-      const filename = `factuur-${invoice.invoiceNumber || invoice.quoteId}.pdf`;
+      const filename = `factuur-${invoice.invoiceNumber}.pdf`;
       zip.file(filename, pdfBuffer);
     }
 

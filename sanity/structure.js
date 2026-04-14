@@ -106,6 +106,6 @@ export const structure = (S, context) =>
 
       // All other document types
       ...S.documentTypeListItems().filter(
-        (listItem) => !['product', 'typeCategory', 'subCategory'].includes(listItem.getId())
+        (listItem) => !['product', 'typeCategory', 'subCategory', 'quote'].includes(listItem.getId())
       ),
     ])

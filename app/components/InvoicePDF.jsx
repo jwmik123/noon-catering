@@ -459,7 +459,7 @@ const InvoicePDF = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.title}>Factuur</Text>
-            <Text style={styles.invoiceId}>Factuur nr: {invoiceNumber || quoteId}</Text>
+            <Text style={styles.invoiceId}>Factuur nr: {invoiceNumber}</Text>
             <Text style={styles.invoiceId}>
               Datum: {today.toLocaleDateString("nl-NL")}
             </Text>

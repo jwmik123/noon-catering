@@ -10,7 +10,8 @@
       "WebFetch(domain:docs.billit.be)",
       "Bash(npm run build:*)",
       "Bash(node --experimental-detect-module:*)",
-      "Bash(npx next build:*)"
+      "Bash(npx next build:*)",
+      "mcp__Sanity__query_documents"
     ],
     "deny": [],
     "ask": []

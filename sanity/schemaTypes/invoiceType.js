@@ -619,7 +619,7 @@ export const invoice = defineType({
         cancelled: "❌",
       };
       return {
-        title: invoiceNumber || quoteId || "No ID",
+        title: invoiceNumber || "No invoice number",
         subtitle: `${companyName || "Unknown"} • €${total?.toFixed(2) || "0.00"} • ${statusEmoji[status] || ""} ${status || "unknown"}`,
         media: null,
       };
