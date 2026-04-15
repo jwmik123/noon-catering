@@ -256,14 +256,16 @@ async function handlePaidStatus(quoteId, paymentId) {
         };
 
     // Create an invoice document in Sanity for consistency
+    let invoiceNumber;
     try {
       // Duplicate prevention: skip if an invoice already exists for this quoteId
       const existingInvoice = await client.fetch(
-        `*[_type == "invoice" && quoteId == $quoteId][0]._id`,
+        `*[_type == "invoice" && quoteId == $quoteId][0]{_id, invoiceNumber}`,
         { quoteId }
       );
       if (existingInvoice) {
-        console.log(`Invoice already exists for quoteId ${quoteId} (${existingInvoice}), skipping creation`);
+        invoiceNumber = existingInvoice.invoiceNumber;
+        console.log(`Invoice already exists for quoteId ${quoteId} (${existingInvoice._id}), skipping creation`);
       } else {
         const deliveryDate = parseDateString(
           order.deliveryDetails.deliveryDate || new Date().toISOString()
@@ -307,7 +309,7 @@ async function handlePaidStatus(quoteId, paymentId) {
           paymentMethod: "online",
         };
 
-        const invoiceNumber = await getNextInvoiceNumber();
+        invoiceNumber = await getNextInvoiceNumber();
         console.log(`Invoice number assigned: ${invoiceNumber}`);
 
         const invoicePayload = {
@@ -343,6 +345,7 @@ async function handlePaidStatus(quoteId, paymentId) {
     // Create a properly formatted order object expected by the email/PDF components
     const formattedOrder = {
       quoteId: order.quoteId,
+      invoiceNumber,
       email: order.email,
       additionalEmails: order.additionalEmails || [],
       phoneNumber: order.phoneNumber,

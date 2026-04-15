@@ -11,7 +11,8 @@
       "Bash(npm run build:*)",
       "Bash(node --experimental-detect-module:*)",
       "Bash(npx next build:*)",
-      "mcp__Sanity__query_documents"
+      "mcp__Sanity__query_documents",
+      "mcp__Sanity__patch_document_from_json"
     ],
     "deny": [],
     "ask": []
