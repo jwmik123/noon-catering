@@ -306,6 +306,17 @@ export const quote = defineType({
       ],
     }),
     defineField({
+      name: "couponCode",
+      title: "Coupon Code",
+      type: "string",
+    }),
+    defineField({
+      name: "discountAmount",
+      title: "Discount Amount (excl. VAT)",
+      type: "number",
+      description: "VAT-exclusive discount applied to this order",
+    }),
+    defineField({
       name: "status",
       title: "Status",
       type: "string",

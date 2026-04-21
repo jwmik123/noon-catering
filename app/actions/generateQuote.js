@@ -120,6 +120,8 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
             referenceNumber: formData.referenceNumber,
           }
         : null,
+      couponCode: formData.couponCode || null,
+      discountAmount: formData.discountAmount || 0,
       status: "pending",
       pdfAsset: {
         _type: "file",

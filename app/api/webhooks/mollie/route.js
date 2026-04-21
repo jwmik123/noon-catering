@@ -161,6 +161,8 @@ async function handlePaidStatus(quoteId, paymentId) {
           companyVAT,
           referenceNumber
         },
+        couponCode,
+        discountAmount,
         status,
         paymentStatus,
         createdAt,
@@ -215,10 +217,12 @@ async function handlePaidStatus(quoteId, paymentId) {
     // Calculate amounts using correct Belgian VAT rates with dynamic pricing
     const subtotalAmount = calculateOrderTotal(order.orderDetails, pricing); // Items only, VAT-exclusive
     const deliveryCost = order.deliveryDetails.deliveryCost || 0; // VAT-exclusive
-    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost);
+    const discountAmount = order.discountAmount || 0;
+    const vatBreakdown = calculateVATBreakdown(subtotalAmount, deliveryCost, discountAmount);
 
     console.log(`Amount calculation for quote ${quoteId}:`);
     console.log(`- Subtotal (items): €${subtotalAmount.toFixed(2)}`);
+    console.log(`- Discount: €${discountAmount.toFixed(2)}`);
     console.log(`- Delivery cost: €${deliveryCost.toFixed(2)}`);
     console.log(`- VAT Food (6%): €${vatBreakdown.foodVAT.toFixed(2)}`);
     console.log(`- VAT Delivery (21%): €${vatBreakdown.deliveryVAT.toFixed(2)}`);
@@ -228,6 +232,7 @@ async function handlePaidStatus(quoteId, paymentId) {
     const amountData = {
       subtotal: vatBreakdown.subtotal,
       delivery: vatBreakdown.deliverySubtotal,
+      discount: vatBreakdown.discount,
       foodVAT: vatBreakdown.foodVAT,
       deliveryVAT: vatBreakdown.deliveryVAT,
       vat: vatBreakdown.totalVAT,
@@ -317,6 +322,7 @@ async function handlePaidStatus(quoteId, paymentId) {
           quoteId: order.quoteId,
           invoiceNumber,
           referenceNumber: order.companyDetails?.referenceNumber || null,
+          couponCode: order.couponCode || null,
           amount: amountData,
           status: "paid",
           paymentStatus: "paid",
@@ -410,7 +416,8 @@ async function handlePaidStatus(quoteId, paymentId) {
       status: order.status || "pending",
       sandwichOptions: sandwichOptions,
       createdAt: order.createdAt || new Date().toISOString(),
-      paymentMethod: "online", // Since this is a paid webhook
+      paymentMethod: "online",
+      couponCode: order.couponCode || null,
     };
 
     // Preserve the actual variety selection data (supports both old and new formats)

@@ -26,7 +26,7 @@ export async function POST(request) {
       );
     }
 
-    const { quoteId, amount, orderDetails } = requestData || {};
+    const { quoteId, amount, orderDetails, couponCode, discountAmount } = requestData || {};
 
     if (!quoteId || amount === undefined || !orderDetails) {
       console.error("Missing required fields in request:", {
@@ -135,6 +135,7 @@ export async function POST(request) {
       foodVAT: vatBreakdown.foodVAT,
       deliveryVAT: vatBreakdown.deliveryVAT,
       vat: vatBreakdown.totalVAT,
+      discount: round2(discountAmount || 0),
       total: vatBreakdown.totalWithVAT,
     };
 
@@ -187,11 +188,12 @@ export async function POST(request) {
       quoteId,
       invoiceNumber,
       referenceNumber: orderDetails.referenceNumber || null,
+      couponCode: couponCode || null,
       amount: amountData,
       status: "pending",
       dueDate: dueDate.toISOString(),
       companyDetails,
-      orderDetails: structuredOrderDetails, // Use the new structured data
+      orderDetails: structuredOrderDetails,
       createdAt: new Date().toISOString(),
     });
 
@@ -253,6 +255,7 @@ export async function POST(request) {
           email: orderDetails.email,
           additionalEmails: orderDetails.additionalEmails || [],
           fullName: orderDetails.name,
+          couponCode: couponCode || null,
           orderDetails: {
             ...orderDetails,
             // Ensure these exist with defaults

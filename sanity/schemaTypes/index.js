@@ -7,7 +7,8 @@ import { toppingType } from "./toppingType";
 import { pricing } from "./pricingType";
 import { typeCategory } from "./typeCategoryType";
 import { subCategory } from "./subCategoryType";
+import { coupon } from "./couponType";
 
 export const schema = {
-  types: [product, quote, invoice, breadType, sauceType, toppingType, pricing, typeCategory, subCategory],
+  types: [product, quote, invoice, breadType, sauceType, toppingType, pricing, typeCategory, subCategory, coupon],
 };

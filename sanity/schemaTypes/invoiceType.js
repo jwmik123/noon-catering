@@ -101,6 +101,12 @@ export const invoice = defineType({
           description: "Combined VAT (food + delivery)",
         }),
         defineField({
+          name: "discount",
+          title: "Discount (excl. VAT)",
+          type: "number",
+          description: "VAT-exclusive discount from coupon code",
+        }),
+        defineField({
           name: "total",
           title: "Total (incl. VAT)",
           type: "number",
@@ -108,6 +114,12 @@ export const invoice = defineType({
           validation: (Rule) => Rule.required(),
         }),
       ],
+    }),
+    defineField({
+      name: "couponCode",
+      title: "Coupon Code",
+      type: "string",
+      group: "amounts",
     }),
 
     // === COMPANY DETAILS ===

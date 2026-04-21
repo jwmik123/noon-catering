@@ -37,6 +37,9 @@ const Home = () => {
     deliveryError,
     setDeliveryError,
     totalAmount,
+    appliedCoupon,
+    setAppliedCoupon,
+    discountAmount,
     restoreQuote,
   } = useOrderForm(pricing);
 
@@ -168,6 +171,9 @@ const Home = () => {
             totalAmount={totalAmount}
             deliveryCost={deliveryCost}
             deliveryError={deliveryError}
+            appliedCoupon={appliedCoupon}
+            setAppliedCoupon={setAppliedCoupon}
+            discountAmount={discountAmount}
           />
         );
       default:

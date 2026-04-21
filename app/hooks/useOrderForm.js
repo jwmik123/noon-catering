@@ -55,6 +55,7 @@ export const useOrderForm = (pricing = null) => {
 
   const [deliveryCost, setDeliveryCost] = useState(null);
   const [deliveryError, setDeliveryError] = useState(null);
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code, discountType, discountValue }
 
   // Old calculateDeliveryCost function removed - now using Google Maps validation
 
@@ -172,6 +173,16 @@ export const useOrderForm = (pricing = null) => {
 
   const totalAmount = calculateTotal(formData);
 
+  const calculateDiscount = (subtotal, coupon) => {
+    if (!coupon) return 0;
+    if (coupon.discountType === "percentage") {
+      return Math.round(subtotal * (coupon.discountValue / 100) * 100) / 100;
+    }
+    return Math.min(coupon.discountValue, subtotal);
+  };
+
+  const discountAmount = calculateDiscount(totalAmount, appliedCoupon);
+
   // Old postal code effect removed - delivery cost now handled by Google Maps validation
 
   const updateFormData = (field, value) => {
@@ -279,6 +290,10 @@ export const useOrderForm = (pricing = null) => {
     setDeliveryError,
     totalAmount,
     calculateTotal,
+    appliedCoupon,
+    setAppliedCoupon,
+    discountAmount,
+    calculateDiscount,
     restoreQuote,
   };
 }; 

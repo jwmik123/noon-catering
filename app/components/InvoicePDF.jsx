@@ -269,10 +269,11 @@ const InvoicePDF = ({
   amount = 0,
   dueDate = new Date(),
   invoiceDate = null,
-  sandwichOptions = [], // Add sandwichOptions parameter
-  referenceNumber = null, // Add reference number parameter
-  fullName = null, // Add fullName parameter for non-business orders
-  pricing = null, // Add pricing parameter
+  sandwichOptions = [],
+  referenceNumber = null,
+  fullName = null,
+  pricing = null,
+  couponCode = null,
 }) => {
   // Defensive coding: ensure all objects exist to prevent null references
   orderDetails = orderDetails || {};
@@ -299,6 +300,7 @@ const InvoicePDF = ({
         subtotal: amount.subtotal || 0,
         delivery: amount.delivery || 0,
         pickupDiscount: amount.pickupDiscount || 0,
+        discount: amount.discount || 0,
         foodVAT: amount.foodVAT || 0,
         deliveryVAT: amount.deliveryVAT || 0,
         vat: amount.vat || 0,
@@ -810,12 +812,37 @@ const InvoicePDF = ({
 
         {/* Totals */}
         <View style={styles.totalSection}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotaal:</Text>
-            <Text style={styles.totalValue}>
-              €{(amountData.subtotal || 0).toFixed(2)}
-            </Text>
-          </View>
+          {(amountData.discount || 0) > 0 ? (
+            <>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Subtotaal (excl. korting):</Text>
+                <Text style={styles.totalValue}>
+                  €{((amountData.subtotal || 0) + (amountData.discount || 0)).toFixed(2)}
+                </Text>
+              </View>
+              <View style={styles.totalRow}>
+                <Text style={[styles.totalLabel, { color: "#16a34a" }]}>
+                  Korting{couponCode ? ` (${couponCode})` : ""}:
+                </Text>
+                <Text style={[styles.totalValue, { color: "#16a34a" }]}>
+                  -€{(amountData.discount || 0).toFixed(2)}
+                </Text>
+              </View>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Subtotaal na korting:</Text>
+                <Text style={styles.totalValue}>
+                  €{(amountData.subtotal || 0).toFixed(2)}
+                </Text>
+              </View>
+            </>
+          ) : (
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Subtotaal:</Text>
+              <Text style={styles.totalValue}>
+                €{(amountData.subtotal || 0).toFixed(2)}
+              </Text>
+            </View>
+          )}
           {(amountData.delivery || 0) > 0 ? (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Levering:</Text>
