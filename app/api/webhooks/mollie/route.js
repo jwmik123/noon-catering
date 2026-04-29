@@ -262,6 +262,7 @@ async function handlePaidStatus(quoteId, paymentId) {
 
     // Create an invoice document in Sanity for consistency
     let invoiceNumber;
+    let isNewInvoice = false;
     try {
       // Duplicate prevention: skip if an invoice already exists for this quoteId
       const existingInvoice = await client.fetch(
@@ -272,6 +273,7 @@ async function handlePaidStatus(quoteId, paymentId) {
         invoiceNumber = existingInvoice.invoiceNumber;
         console.log(`Invoice already exists for quoteId ${quoteId} (${existingInvoice._id}), skipping creation`);
       } else {
+        isNewInvoice = true;
         const deliveryDate = parseDateString(
           order.deliveryDetails.deliveryDate || new Date().toISOString()
         );
@@ -428,6 +430,11 @@ async function handlePaidStatus(quoteId, paymentId) {
     // customSelection was already converted from Sanity array format to object format
     // earlier (before calculateOrderTotal), so use the converted data directly
     formattedOrder.orderDetails.customSelection = order.orderDetails.customSelection || {};
+
+    if (!isNewInvoice) {
+      console.log(`Invoice already existed for quoteId ${quoteId} — skipping confirmation email and SMS`);
+      return;
+    }
 
     console.log("Sending order confirmation with formatted data");
     console.log(

@@ -7,9 +7,7 @@ import {
   Calendar,
   Building2,
   CreditCard,
-  FileSearch,
 } from "lucide-react";
-import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { PRODUCT_QUERY, BREAD_TYPES_QUERY, SAUCE_TYPES_QUERY, TOPPING_TYPES_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import Wizard from "@/app/components/wizard/Wizard";
@@ -196,16 +194,6 @@ const Home = () => {
         {renderStepContent()}
       </Wizard>
 
-      {/* Quote Lookup Link */}
-      <div className="flex justify-between items-center mt-6 container mx-auto px-4">
-        <Link
-          href="/quote/lookup"
-          className="flex gap-2 items-center px-4 py-2 text-gray-400 rounded-md"
-        >
-          <FileSearch className="w-4 h-4" />
-          Load quote
-        </Link>
-      </div>
     </>
   );
 };
