@@ -1,0 +1,49 @@
+﻿Factuurnummer;Creditnota_nr;Type;Klant;Bedrijf;Subtotaal;BTW;Totaal;Status;Betaalmethode;Factuurdatum;Leverdatum;Ordernummer;Geannuleerd_op;Opmerking
+2026-0078;;Factuur;Roxanne De Brauwer;OVB Willemot;85,18;7,96;93,14;paid;online;2026-04-01;2026-04-08;2026-0071;;
+2026-0079;;Factuur;Hanne Rogge;LEGALFLY BV;122,40;10,19;132,59;pending;;2026-04-01;2026-04-03;2026-0072;;
+2026-0080;;Factuur;Kwint Advocaten BV;Kwint Advocten BV;129,81;10,64;140,45;pending;;2026-04-01;2026-04-03;2026-0073;;
+2026-0081;CN-2026-0005;Creditnota;Sigrun Kirchner;vdk bank;21,99;1,32;23,31;cancelled;;2026-04-02;2026-04-08;2026-0074;2026-04-21;
+2026-0082;;Factuur;Stelina Bajromaj;Showpad;259,71;18,43;278,14;pending;;2026-04-06;2026-04-07;2026-0077;;
+2026-0083;;Factuur;Hanne Rogge;LEGALFLY BV;184,44;13,92;198,36;pending;;2026-04-07;2026-04-08;2026-0078;;
+2026-0084;;Factuur;Museum Dr. Guislain;Museum Dr. Guislain vzw;1200,19;72,01;1272,20;pending;;2026-04-07;2026-04-18;2026-0079;;
+2026-0085;;Factuur;Els Meyvaert;Els Meyvaert;116,10;6,97;123,07;pending;;2026-04-07;2026-04-09;2026-0080;;
+2026-0086;;Factuur;Patricia Roggeman;meemoo;149,00;8,94;157,94;pending;;2026-04-08;2026-05-05;2026-0082;;
+2026-0087;;Factuur;Annelies Mommen;Pinky Swear vzw;69,05;4,14;73,19;pending;;2026-04-08;2026-04-10;2026-0086;;DUBBEL met ordernr 0087 (= factuur 0099 Anke vd Vreede)
+2026-0090;;Factuur;Ashley Tep;Azumuta;116,26;9,83;126,09;pending;;2026-04-09;2026-04-10;2026-0090;;
+2026-0091;CN-2026-0003;Creditnota;Niels Taghon;BRP Europe NV;156,08;13,11;169,19;cancelled;;2026-04-13;2026-04-14;2026-0092;2026-04-13;
+2026-0092;CN-2026-0004;Creditnota;Niels Taghon;BRP Europe NV;69,46;7,92;77,38;cancelled;;2026-04-13;2026-04-14;2026-0094;2026-04-13;DUBBEL: ordernr 0094 botst met factuur 0094 (LegalFly) - creditnota
+2026-0093;;Factuur;Niels Taghon;BRP Europe NV;156,08;13,11;169,19;pending;;2026-04-13;2026-04-14;2026-0096;;DUBBEL met ordernr 0093 (= factuur 0101 Lenie Dhooghe)
+2026-0094;;Factuur;Hanne Rogge;LEGALFLY;198,92;14,79;213,71;pending;;2026-04-14;2026-04-15;2026-0099;;DUBBEL met ordernr 0094 (= creditnota 0092 BRP)
+2026-0095;;Factuur;Melissa Viaene;irres;178,50;13,56;192,06;pending;;2026-04-14;2026-04-23;2026-0102;;
+2026-0096;;Factuur;Elena Decloedt;Aikido;65,90;6,80;72,70;pending;;2026-04-14;2026-04-16;2026-0103;;
+2026-0097;;Factuur;Pedro Paniago;PANIAGO;193,45;11,61;205,06;paid;online;2026-04-14;2026-04-18;2026-0107;;In boekhouding zonder nummer geboekt (Paniago)
+2026-0098;;Factuur;Evy Van Hijfte;Vlaamse Dienst Autimse;353,63;21,22;374,85;paid;online;2026-04-03;2026-04-11;2026-0076;;
+2026-0099;;Factuur;Anke van de Vreede (Voice Four);;130,85;7,85;138,70;paid;online;2026-04-08;2026-04-11;2026-0087;;DUBBEL: ordernr 0087 botst met factuur 0087 (Pinky Swear)
+2026-0100;;Factuur;Sofie Demoor;Smartmat NV;80,28;4,82;85,10;paid;online;2026-04-13;2026-04-14;2026-0091;;
+2026-0101;;Factuur;Lenie Dhooghe ;Lenie Dhooghe architect ;83,38;5,00;88,38;paid;online;2026-04-13;2026-04-14;2026-0093;;DUBBEL: ordernr 0093 botst met factuur 0093 (BRP)
+2026-0102;;Factuur;Universiteit Gent - Team Welzijn en Engagement - Tav Nele Hoste;;80,80;7,70;88,50;paid;online;2026-04-13;2026-04-14;2026-0097;;
+2026-0103;;Factuur;Glen Van De Genachte;;41,64;2,50;44,14;paid;online;2026-04-13;2026-04-14;2026-0098;;
+2026-0104;;Factuur;Geoffrey Ickx;;95,05;9,45;104,50;paid;online;2026-04-14;2026-04-16;2026-0101;;
+2026-0105;;Factuur;Roxanne Peeters;Nevica Commv.;56,21;3,37;59,58;paid;online;2026-04-16;2026-04-17;2026-0108;;
+2026-0106;;Factuur;Katrien Janssen;Toch BV;42,09;2,53;44,62;pending;;2026-04-16;2026-04-18;2026-0109;;
+2026-0107;;Factuur;Orde der artsen Provinciale Raad Oost-Vlaanderen;Orde der artsen Provinciale Raad van Oost-Vlaanderen;44,28;5,51;49,79;pending;;2026-04-16;2026-04-20;2026-0111;;
+2026-0108;;Factuur;Benjamin Daemen;CF Accountancy;227,10;16,48;243,58;pending;;2026-04-17;2026-04-20;2026-0112;;
+2026-0109;;Factuur;Leen Vandermoere;Voka Oost-Vlaanderen;179,27;13,61;192,88;pending;;2026-04-20;2026-04-22;2026-0113;;
+2026-0110;;Factuur;Sigrun Kirchner;vdk bank;36,00;2,16;38,16;pending;;2026-04-20;2026-04-23;2026-0114;;
+2026-0111;;Factuur;Hanne Rogge;LEGALFLY;148,34;11,75;160,09;pending;;2026-04-21;2026-04-22;2026-0116;;
+2026-0112;;Factuur;Annelies Billiet;Abscis Architecten BV;106,89;9,26;116,15;pending;;2026-04-22;2026-04-23;2026-0118;;
+2026-0113;;Factuur;Ellen Deboel;Voka Oost-Vlaanderen;119,95;10,05;130,00;pending;;2026-04-22;2026-04-27;2026-0119;;
+2026-0114;;Factuur;Jan De Niels;;354,65;21,28;375,93;paid;online;2026-04-22;2026-04-25;2026-0120;;
+2026-0115;;Factuur;Admin Nimble;Nimble DPS;126,25;11,33;137,58;pending;;2026-04-23;2026-04-28;2026-0121;;
+2026-0116;;Factuur;De Smet Vermeulen architecten;De Smet Vermeulen architecten;77,10;4,63;81,73;pending;;2026-04-24;2026-04-25;2026-0122;;
+2026-0117;;Factuur;Leen Vandermoere;Voka Oost-Vlaanderen;153,70;12,07;165,77;pending;;2026-04-24;2026-04-28;2026-0123;;
+2026-0118;;Factuur;Marie Borremans;LARF!;173,45;9,27;182,72;pending;;2026-04-25;2026-05-01;2026-0124;;
+2026-0119;;Factuur;Fauve Ghyselinck;Nimble DPS;229,48;17,52;247,00;paid;online;2026-04-27;2026-04-29;2026-0125;;
+2026-0120;CN-2026-0006;Creditnota;Maya van de casteele;;106,41;6,38;112,79;cancelled;online;2026-04-27;2026-04-28;2026-0126;2026-04-28;Factuur EN creditnota delen nr 0120 (annulatie Maya)
+2026-0121;;Factuur;Hanne Rogge;LEGALFLY;180,59;13,69;194,28;pending;;2026-04-28;2026-05-01;2026-0127;;
+2026-0122;;Factuur;Evy Van Hijfte;Vlaamse Dienst Autisme;132,16;11,68;143,84;paid;online;2026-04-28;2026-05-05;2026-0128;;
+2026-0123;;Factuur;Sam Houfflyn;Neofar;77,30;4,64;81,94;pending;;2026-04-28;2026-04-30;2026-0129;;
+2026-0124;;Factuur;Melissa Galle;;115,65;6,94;122,59;paid;online;2026-04-28;2026-05-05;2026-0130;;
+2026-0125;;Factuur;Hanne Peeters;Banijay Belgium;117,75;7,07;124,82;paid;online;2026-04-28;2026-04-30;2026-0131;;
+2026-0126;;Factuur;PETER VAN MOLLE;;151,16;11,92;163,08;paid;online;2026-04-28;2026-04-30;2026-0133;;
+2026-0127;;Factuur;Rebecca De Ceukelaire;BEEL ARCHITECTEN BV;163,09;9,79;172,88;pending;;2026-04-30;2026-05-04;2026-0134;;

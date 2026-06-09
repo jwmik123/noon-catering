@@ -1,0 +1,13 @@
+﻿Boekhouding_ziet;Echt_factuurnummer;Type;Klant;Bedrijf;Totaal;Status;Ordernummer;Factuurdatum;Geannuleerd_op;Toelichting
+40;2026-0055;Creditnota;Sophie Vormezeele;Milliken Europe BV;106,89;cancelled;2026-0040;2026-03-17;;Geboekt op ordernr 0040 i.p.v. factuurnr 0055
+40;2026-0040;Factuur;Siri Zomerplaag;KlimaatContact vzw;74,53;pending;2026-0018;2026-03-05;;Echte factuur nr 0040 - botst met ordernr 0040 van Milliken
+93;2026-0101;Factuur;Lenie Dhooghe;Lenie Dhooghe architect;88,38;paid;2026-0093;2026-04-13;;Geboekt op ordernr 0093 i.p.v. factuurnr 0101
+93;2026-0093;Factuur;Niels Taghon;BRP Europe NV;169,19;pending;2026-0096;2026-04-13;;Echte factuur nr 0093 - botst met ordernr 0093 van Lenie
+94;2026-0092;Creditnota;Niels Taghon;BRP Europe NV;77,38;cancelled;2026-0094;2026-04-13;2026-04-13;Geboekt op ordernr 0094 i.p.v. factuurnr 0092
+94;2026-0094;Factuur;Hanne Rogge;LEGALFLY;213,71;pending;2026-0099;2026-04-14;;Echte factuur nr 0094 - botst met ordernr 0094 van BRP
+87;2026-0099;Factuur;Anke van de Vreede (Voice Four);;138,70;paid;2026-0087;2026-04-08;;Geboekt op ordernr 0087 i.p.v. factuurnr 0099
+87;2026-0087;Factuur;Annelies Mommen;Pinky Swear vzw;73,19;pending;2026-0086;2026-04-08;;Echte factuur nr 0087 - botst met ordernr 0087 van Anke
+120;2026-0120;Factuur+Creditnota;Maya van de casteele;;112,79;cancelled;2026-0126;2026-04-27;2026-04-28;Factuur 0120 geannuleerd; creditnota hergebruikt zelfde nr 0120
+144;2026-0144;Factuur+Creditnota;Saidya Vanhooren;Museum Dr. Guislain;1130,62;cancelled;2026-0154;2026-05-11;;Factuur 0144 geannuleerd; creditnota hergebruikt zelfde nr 0144 (herfactuur = 0152)
+(geen nummer);2026-0097;Factuur;Pedro Paniago;PANIAGO;205,06;paid;2026-0107;2026-04-14;;Heeft wel nr 0097 in systeem - zonder nr geboekt
+(geen nummer);2026-0028;Creditnota;Sophie Vormezeele;Milliken Europe BV;273,47;cancelled;Q0qhlxysw;2026-02-27;;Oude order-id (geen 2026-nummer) - creditnota toont geen nummer

@@ -2,6 +2,7 @@
 import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendCancellationEmail } from "@/lib/email";
+import { getNextCreditNoteNumber } from "@/lib/creditNoteCounter";
 import { createMollieClient } from "@mollie/api-client";
 
 const mollieClient = createMollieClient({
@@ -70,19 +71,33 @@ export async function POST(request) {
       }
     }
 
+    // Generate a credit note number from its own sequence (e.g. CN-2026-0001).
+    // Reuse if this invoice somehow already has one (idempotent on retries).
+    const creditNoteNumber =
+      invoice.creditNoteNumber || (await getNextCreditNoteNumber());
+    const creditNoteDate = new Date().toISOString();
+
+    console.log("Credit note number assigned:", creditNoteNumber);
+
     // Mark as cancelled in Sanity
     await client
       .patch(invoice._id)
       .set({
         status: "cancelled",
-        cancelledAt: new Date().toISOString(),
+        cancelledAt: creditNoteDate,
+        creditNoteNumber,
+        creditNoteDate,
       })
       .commit();
 
     console.log("Invoice status updated to cancelled");
 
     // Send cancellation email to customer + credit note to verkoop
-    const emailResult = await sendCancellationEmail(invoice);
+    const emailResult = await sendCancellationEmail({
+      ...invoice,
+      creditNoteNumber,
+      creditNoteDate,
+    });
 
     if (!emailResult.success) {
       console.error("Cancellation emails failed:", emailResult.error);

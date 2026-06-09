@@ -32,6 +32,22 @@ export const invoice = defineType({
       description: "Auto-generated invoice number",
     }),
     defineField({
+      name: "creditNoteNumber",
+      title: "Credit Note Number",
+      type: "string",
+      group: "main",
+      readOnly: true,
+      description: "Auto-generated credit note number (own series, e.g. CN-2026-0001)",
+    }),
+    defineField({
+      name: "creditNoteDate",
+      title: "Credit Note Date",
+      type: "datetime",
+      group: "main",
+      readOnly: true,
+      description: "Date the credit note was issued (on cancellation)",
+    }),
+    defineField({
       name: "referenceNumber",
       title: "Customer Reference",
       type: "string",
