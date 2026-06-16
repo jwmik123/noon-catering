@@ -31,12 +31,6 @@ const Wizard = ({
   return (
     <div className="min-h-[70vh] bg-background">
       <div className="sticky top-0 z-10 border-b bg-background">
-        <div className="flex justify-center items-center p-2 space-x-2 text-sm text-center bg-green-500 text-accent-foreground">
-          <span className="font-bold">
-     
-            Gratis levering voor bestellingen boven 500,-
-          </span>
-        </div>
         <div className="container px-4 py-1 mx-auto">
           <div className="flex justify-between items-center">
             <Image
