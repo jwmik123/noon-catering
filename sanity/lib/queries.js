@@ -115,3 +115,11 @@ export const SUB_CATEGORY_QUERY = defineQuery(`*[_type == "subCategory" && activ
   description,
   orderRank
 }`);
+
+export const SITE_SETTINGS_QUERY = defineQuery(`*[_type == "siteSettings" && _id == "siteSettings"][0] {
+  disabledDates[] {
+    label,
+    startDate,
+    endDate
+  }
+}`);

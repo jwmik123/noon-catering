@@ -8,7 +8,8 @@ import { pricing } from "./pricingType";
 import { typeCategory } from "./typeCategoryType";
 import { subCategory } from "./subCategoryType";
 import { coupon } from "./couponType";
+import { siteSettings } from "./siteSettingsType";
 
 export const schema = {
-  types: [product, quote, invoice, breadType, sauceType, toppingType, pricing, typeCategory, subCategory, coupon],
+  types: [product, quote, invoice, breadType, sauceType, toppingType, pricing, typeCategory, subCategory, coupon, siteSettings],
 };

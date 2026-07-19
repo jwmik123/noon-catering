@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
+const DeliveryCalendar = ({ date, setDate, updateFormData, formData, disabledDates = [] }) => {
   const handleSelect = (selectedDate) => {
     if (!selectedDate) return;
 
@@ -43,6 +43,17 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData }) => {
     if (date < minDeliveryDate) return true;
     // Disable Sundays (0 = Sunday)
     if (date.getDay() === 0) return true;
+
+    // Disable dates blocked via Sanity site settings
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    for (const period of disabledDates) {
+      if (period.endDate) {
+        if (dateStr >= period.startDate && dateStr <= period.endDate) return true;
+      } else {
+        if (dateStr === period.startDate) return true;
+      }
+    }
+
     return false;
   };
 

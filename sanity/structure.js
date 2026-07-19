@@ -106,6 +106,19 @@ export const structure = (S, context) =>
 
       // All other document types
       ...S.documentTypeListItems().filter(
-        (listItem) => !['product', 'typeCategory', 'subCategory', 'quote'].includes(listItem.getId())
+        (listItem) => !['product', 'typeCategory', 'subCategory', 'quote', 'siteSettings'].includes(listItem.getId())
       ),
+
+      S.divider(),
+
+      // Site Settings singleton
+      S.listItem()
+        .title('Site Settings')
+        .id('siteSettings')
+        .child(
+          S.document()
+            .schemaType('siteSettings')
+            .documentId('siteSettings')
+            .title('Site Settings')
+        ),
     ])

@@ -14,6 +14,7 @@ const DeliveryStep = ({
   setDeliveryCost,
   setDeliveryError,
   totalAmount,
+  disabledDates,
 }) => {
   // Check if selected date is a Saturday
   const isSaturday = date && date.getDay() === 6;
@@ -36,6 +37,7 @@ const DeliveryStep = ({
         date={date}
         setDate={setDate}
         formData={formData}
+        disabledDates={disabledDates}
       />
 
       <div className="space-y-6">
