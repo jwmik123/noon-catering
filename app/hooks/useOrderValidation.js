@@ -11,6 +11,18 @@ const calculateVarietyTotal = (varietySelection) => {
   }, 0);
 };
 
+// Total number of extras (drinks, soup, desserts) that are enabled and have a quantity
+const calculateExtrasTotal = (formData) => {
+  const sum = (obj) =>
+    Object.values(obj || {}).reduce((total, qty) => total + (Number(qty) || 0), 0);
+
+  return (
+    (formData.addDrinks ? sum(formData.drinks) : 0) +
+    (formData.addSoup ? sum(formData.soup) : 0) +
+    (formData.addDesserts ? sum(formData.desserts) : 0)
+  );
+};
+
 export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
   const isStepValid = (step) => {
     switch (step) {
@@ -25,6 +37,10 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
         }
         if (formData.selectionType === "variety") {
           const varietyTotal = calculateVarietyTotal(formData.varietySelection);
+          // Extras-only order (e.g. dessert buffet): no sandwiches required
+          if (varietyTotal === 0 && calculateExtrasTotal(formData) > 0) {
+            return true;
+          }
           return varietyTotal >= formData.numberOfPeople;
         }
         return false;
@@ -91,6 +107,10 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
         }
         if (formData.selectionType === "variety") {
           const total = calculateVarietyTotal(formData.varietySelection);
+
+          if (total === 0 && calculateExtrasTotal(formData) > 0) {
+            return "";
+          }
 
           if (Number(total) !== Number(formData.numberOfPeople)) {
             return `The total must be ${formData.numberOfPeople} items for ${formData.numberOfPeople} people`;

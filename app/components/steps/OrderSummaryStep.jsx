@@ -125,6 +125,21 @@ const OrderSummaryStep = ({
     return 0;
   };
 
+  // Extras-only orders (e.g. dessert buffet) have no sandwiches: count the extras instead
+  const extrasCount = [
+    formData.addDrinks && formData.drinks,
+    formData.addSoup && formData.soup,
+    formData.addDesserts && formData.desserts,
+  ].reduce(
+    (sum, group) =>
+      sum + Object.values(group || {}).reduce((t, qty) => t + (Number(qty) || 0), 0),
+    0
+  );
+  const displayItemCount =
+    formData.selectionType === "variety" && !(formData.totalSandwiches > 0)
+      ? extrasCount
+      : formData.totalSandwiches;
+
   return (
     <div className="space-y-6">
       <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
@@ -139,7 +154,7 @@ const OrderSummaryStep = ({
               <p className="text-sm text-gray-500">
                 Totaal aantal items
               </p>
-              <p className="text-lg font-medium">{formData.totalSandwiches}</p>
+              <p className="text-lg font-medium">{displayItemCount}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Type bestelling</p>
@@ -208,6 +223,8 @@ const OrderSummaryStep = ({
             </div>
           ) : (
             <div className="pt-4 mt-4 border-t">
+              {formData.totalSandwiches > 0 && (
+                <>
               <p className="mb-2 text-sm text-gray-500">
                 Verdeling van items
               </p>
@@ -248,6 +265,8 @@ const OrderSummaryStep = ({
                   </div>
                 </div>
               </div>
+                </>
+              )}
               {/* Drinks section for variety selection */}
               {formData.addDrinks && (formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
                 <div className="pt-4 mt-4 border-t">
@@ -315,7 +334,7 @@ const OrderSummaryStep = ({
                 </div>
                 <div className="flex justify-between mt-1 text-sm text-gray-500">
                   <span>Totaal aantal items</span>
-                  <span>{formData.totalSandwiches} items</span>
+                  <span>{displayItemCount} items</span>
                 </div>
               </div>
             </div>

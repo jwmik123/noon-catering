@@ -189,6 +189,17 @@ export const useOrderForm = (pricing = null) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
 
+      // Keep totalSandwiches accurate so extras-only orders (no sandwiches) don't
+      // inherit a stale count from the people selection
+      if (field === "varietySelection" || (field === "selectionType" && value === "variety")) {
+        newData.totalSandwiches = Object.values(newData.varietySelection || {}).reduce(
+          (sum, qty) => sum + (qty || 0),
+          0
+        );
+      } else if (field === "selectionType" && value === "custom") {
+        newData.totalSandwiches = newData.numberOfPeople;
+      }
+
       // Log company details when they change
       if (
         field === "isCompany" ||

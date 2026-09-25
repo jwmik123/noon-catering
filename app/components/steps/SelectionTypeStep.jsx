@@ -470,10 +470,12 @@ const SelectionTypeStep = ({ formData, updateFormData, sandwichOptions, breadTyp
           {/* Total amount calculation - full width */}
           <div className="pt-4 mt-6 border-t">
             <div className="p-4 space-y-2 rounded-md bg-custom-gray/10">
-              <div className="flex justify-between text-sm text-custom-gray">
-                <span>Verrassing items</span>
-                <span>{formData.totalSandwiches} items</span>
-              </div>
+              {formData.totalSandwiches > 0 && (
+                <div className="flex justify-between text-sm text-custom-gray">
+                  <span>Verrassing items</span>
+                  <span>{formData.totalSandwiches} items</span>
+                </div>
+              )}
               {formData.addDrinks && (formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
                 <>
                   <div className="flex justify-between text-sm text-custom-gray">
