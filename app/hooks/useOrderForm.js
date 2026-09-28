@@ -47,6 +47,8 @@ export const useOrderForm = (pricing = null) => {
     companyName: "",
     companyVAT: "",
     btwNumber: "",
+    noVatNumber: false, // organisation without VAT number (vzw, public body)
+    vatCheck: null, // result of /api/validate-vat for the current btwNumber
     referenceNumber: "",
     // Stap 7
     paymentMethod: "",
@@ -200,6 +202,14 @@ export const useOrderForm = (pricing = null) => {
         newData.totalSandwiches = newData.numberOfPeople;
       }
 
+      // A changed VAT number needs a fresh check
+      if (field === "btwNumber") {
+        newData.vatCheck = null;
+      } else if (field === "noVatNumber" && value) {
+        newData.btwNumber = "";
+        newData.vatCheck = null;
+      }
+
       // Log company details when they change
       if (
         field === "isCompany" ||
@@ -268,7 +278,12 @@ export const useOrderForm = (pricing = null) => {
             isCompany: !!quote.companyDetails,
             companyName: quote.companyDetails?.companyName || "",
             companyVAT: quote.companyDetails?.companyVAT || "",
-            btwNumber: quote.companyDetails?.btwNumber || "",
+            btwNumber:
+              quote.companyDetails?.btwNumber ||
+              quote.companyDetails?.companyVAT ||
+              "",
+            noVatNumber: false,
+            vatCheck: null,
             referenceNumber: quote.companyDetails?.referenceNumber || "",
           });
 

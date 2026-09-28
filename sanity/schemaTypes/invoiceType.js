@@ -157,6 +157,19 @@ export const invoice = defineType({
           description: "Customer VAT number for Peppol e-invoicing (required for B2B)",
         }),
         defineField({
+          name: "noVatNumber",
+          title: "No VAT Number",
+          type: "boolean",
+          description: "Customer indicated their organisation has no VAT number (vzw, public body)",
+        }),
+        defineField({
+          name: "peppolRegistered",
+          title: "Registered on Peppol",
+          type: "boolean",
+          readOnly: true,
+          description: "Result of the Peppol lookup at checkout",
+        }),
+        defineField({
           name: "referenceNumber",
           title: "Reference Number",
           type: "string",
@@ -217,6 +230,20 @@ export const invoice = defineType({
     }),
 
     // === BILLIT / PEPPOL ===
+    defineField({
+      name: "invoiceChannel",
+      title: "Invoice Channel",
+      type: "string",
+      group: "billit",
+      description: "How the invoice is delivered: via Peppol (Billit) or as PDF by e-mail",
+      options: {
+        list: [
+          { title: "Peppol (Billit)", value: "peppol" },
+          { title: "E-mail (PDF)", value: "email" },
+        ],
+        layout: "radio",
+      },
+    }),
     defineField({
       name: "billitOrderId",
       title: "Billit Order ID",

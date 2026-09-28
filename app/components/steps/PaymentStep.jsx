@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CreditCard, Tag, X } from "lucide-react";
 import { generateQuote } from "@/app/actions/generateQuote";
 import { calculateTotalWithVAT, formatVATBreakdown } from "@/lib/vat-calculations";
+import { getInvoiceChannel } from "@/lib/invoice-channel";
 
 const PaymentStep = ({
   formData,
@@ -18,6 +19,15 @@ const PaymentStep = ({
   const [couponInput, setCouponInput] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState(null);
+
+  const invoiceChannel = getInvoiceChannel(formData);
+
+  // Paying on invoice is only possible when the invoice can actually be delivered
+  useEffect(() => {
+    if (!invoiceChannel && paymentMethod === "invoice") {
+      setPaymentMethod("online");
+    }
+  }, [invoiceChannel, paymentMethod]);
 
   const vatBreakdown = formatVATBreakdown(totalAmount, deliveryCost || 0, discountAmount || 0);
 
@@ -276,6 +286,7 @@ const PaymentStep = ({
               </div>
             </div>
 
+            {invoiceChannel ? (
             <div
               className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                 paymentMethod === "invoice"
@@ -292,13 +303,23 @@ const PaymentStep = ({
                   className="text-blue-600 focus:ring-blue-500"
                 />
                 <div>
-                  <p className="font-medium">Betaal via factuur (Peppol e-factuur)</p>
+                  <p className="font-medium">
+                    {invoiceChannel === "peppol"
+                      ? "Betaal via factuur (Peppol e-factuur)"
+                      : "Betaal via factuur (per e-mail)"}
+                  </p>
                   <p className="text-sm text-gray-500">
                     Binnen 14 dagen na factuurdatum
                   </p>
                 </div>
               </div>
             </div>
+            ) : (
+              <p className="px-1 text-sm text-gray-500">
+                Betalen via factuur is niet mogelijk: jullie organisatie is
+                niet bereikbaar via Peppol.
+              </p>
+            )}
           </div>
         </div>
       )}

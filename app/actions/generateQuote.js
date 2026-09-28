@@ -116,7 +116,7 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
       companyDetails: !formData.isCompany
         ? {
             companyName: formData.companyName,
-            companyVAT: formData.companyVAT,
+            companyVAT: formData.btwNumber || formData.companyVAT,
             referenceNumber: formData.referenceNumber,
           }
         : null,

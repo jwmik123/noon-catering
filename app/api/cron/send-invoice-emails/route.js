@@ -44,6 +44,7 @@ export async function GET(request) {
         referenceNumber,
         amount,
         status,
+        invoiceChannel,
         dueDate,
         companyDetails,
         orderDetails,
@@ -83,6 +84,28 @@ export async function GET(request) {
     const results = [];
     for (const invoice of invoices) {
       console.log(`\n--- Processing invoice: ${invoice.quoteId || invoice._id} ---`);
+
+      // No VAT number / foreign company without Peppol: PDF invoice by e-mail only
+      if (invoice.invoiceChannel === "email") {
+        const emailResult = await sendInvoiceEmail(invoice, pricing);
+
+        await client
+          .patch(invoice._id)
+          .set(
+            emailResult.success
+              ? { invoiceEmailSentAt: new Date().toISOString(), invoiceEmailError: null }
+              : { invoiceEmailError: emailResult.error }
+          )
+          .commit();
+
+        results.push({
+          quoteId: invoice.quoteId,
+          success: emailResult.success,
+          channel: "email",
+          error: emailResult.error || null,
+        });
+        continue;
+      }
 
       // Validate invoice has required fields for Peppol
       const validation = validateInvoiceForPeppol(invoice);

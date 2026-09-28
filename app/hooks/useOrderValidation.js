@@ -80,9 +80,16 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
         let isValid =
           isEmailValid && isPhoneValid && formData.name.trim() !== "";
 
-        // Additional company validation if isCompany is checked
+        // Business order ("isCompany" means NOT a business order):
+        // company name plus a checked VAT number, unless the organisation has none
         if (!formData.isCompany) {
-          isValid = isValid && formData.companyName.trim() !== "";
+          const hasValidVAT = ["valid", "unverified"].includes(
+            formData.vatCheck?.status
+          );
+          isValid =
+            isValid &&
+            formData.companyName.trim() !== "" &&
+            (formData.noVatNumber || hasValidVAT);
         }
 
         return isValid;
@@ -136,6 +143,19 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
             deliveryError.includes("10km")
           )) {
             return "Please select an address within our delivery area";
+          }
+        }
+        return "";
+      case 5:
+        if (!formData.isCompany && !formData.noVatNumber) {
+          if (!formData.btwNumber?.trim()) {
+            return "Vul een btw-nummer in, of vink aan dat jullie organisatie er geen heeft";
+          }
+          if (formData.vatCheck?.status === "invalid") {
+            return "Het btw-nummer is ongeldig";
+          }
+          if (!formData.vatCheck) {
+            return "BTW-nummer wordt gecontroleerd...";
           }
         }
         return "";

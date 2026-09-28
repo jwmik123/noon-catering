@@ -5,6 +5,7 @@ import { sendOrderConfirmation } from "@/lib/email";
 import { PRODUCT_QUERY, PRICING_QUERY } from "@/sanity/lib/queries";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 import { getNextInvoiceNumber } from "@/lib/invoiceCounter";
+import { getInvoiceChannel } from "@/lib/invoice-channel";
 
 export async function POST(request) {
   console.log("===== CREATE INVOICE API CALLED =====");
@@ -153,7 +154,14 @@ export async function POST(request) {
     // Use invoice address for billing when pickup or sameAsDelivery is false
     const companyDetails = {
       name: orderDetails.companyName || "Unknown Company",
-      btwNumber: orderDetails.btwNumber || null, // Required for Peppol e-invoicing
+      btwNumber: orderDetails.noVatNumber
+        ? null
+        : orderDetails.vatCheck?.formatted || orderDetails.btwNumber || null, // Required for Peppol e-invoicing
+      noVatNumber: orderDetails.noVatNumber === true,
+      peppolRegistered:
+        typeof orderDetails.vatCheck?.peppol === "boolean"
+          ? orderDetails.vatCheck.peppol
+          : null,
       referenceNumber: orderDetails.referenceNumber || null,
       address: useInvoiceAddress
         ? {
@@ -192,6 +200,7 @@ export async function POST(request) {
       amount: amountData,
       status: "pending",
       dueDate: dueDate.toISOString(),
+      invoiceChannel: getInvoiceChannel(orderDetails) || "peppol",
       companyDetails,
       orderDetails: structuredOrderDetails,
       createdAt: new Date().toISOString(),

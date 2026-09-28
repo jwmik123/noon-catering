@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Building2, Plus, X } from "lucide-react";
+import React, { useEffect } from "react";
+import { AlertTriangle, Building2, CheckCircle2, Loader2, Plus, X, XCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,6 +14,45 @@ const ContactStep = ({
   deliveryCost,
   totalAmount,
 }) => {
+  const isBusinessOrder = !formData.isCompany;
+  const btwNumber = formData.btwNumber || "";
+  const vatCheck = formData.vatCheck;
+
+  // Check VAT number (VIES + Peppol) shortly after the user stops typing
+  useEffect(() => {
+    if (!isBusinessOrder || formData.noVatNumber || vatCheck) return;
+    if (btwNumber.replace(/[^0-9]/g, "").length < 9) return;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/validate-vat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vatNumber: btwNumber }),
+          signal: controller.signal,
+        });
+        const result = await response.json();
+        updateFormData("vatCheck", result);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          updateFormData("vatCheck", { status: "unverified", peppol: null });
+        }
+      }
+    }, 700);
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [btwNumber, vatCheck, formData.noVatNumber, isBusinessOrder]);
+
+  const isCheckingVAT =
+    !formData.noVatNumber &&
+    !vatCheck &&
+    btwNumber.replace(/[^0-9]/g, "").length >= 9;
+
   const handleDownloadInvoice = async () => {
     try {
       // Calculate total amount including delivery costs
@@ -272,17 +311,41 @@ const ContactStep = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="btwNumber">BTW-nummer*</Label>
+                <Label htmlFor="btwNumber">
+                  BTW-nummer{formData.noVatNumber ? "" : "*"}
+                </Label>
                 <Input
                   id="btwNumber"
                   type="text"
-                  value={formData.btwNumber}
+                  value={btwNumber}
                   onChange={(e) =>
                     updateFormData("btwNumber", e.target.value)
                   }
                   placeholder="BE0123456789"
-                  required
+                  disabled={formData.noVatNumber}
+                  required={!formData.noVatNumber}
                 />
+
+                {!formData.noVatNumber && (
+                  <VATCheckStatus checking={isCheckingVAT} vatCheck={vatCheck} />
+                )}
+
+                <div className="flex gap-2 items-center pt-1">
+                  <Checkbox
+                    id="noVatNumber"
+                    checked={formData.noVatNumber || false}
+                    onCheckedChange={(checked) =>
+                      updateFormData("noVatNumber", checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor="noVatNumber"
+                    className="text-sm font-normal text-gray-600"
+                  >
+                    Onze organisatie heeft geen btw-nummer (bv. vzw of
+                    overheidsinstelling)
+                  </Label>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -314,6 +377,64 @@ const ContactStep = ({
         </div>
       </div>
     </div>
+  );
+};
+
+const VATCheckStatus = ({ checking, vatCheck }) => {
+  if (checking) {
+    return (
+      <p className="flex gap-2 items-center text-sm text-gray-500">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        BTW-nummer controleren...
+      </p>
+    );
+  }
+
+  if (!vatCheck) return null;
+
+  if (vatCheck.status === "invalid") {
+    return (
+      <p className="flex gap-2 items-start text-sm text-red-600">
+        <XCircle className="flex-shrink-0 mt-0.5 w-4 h-4" />
+        Dit btw-nummer is ongeldig. Controleer het nummer, of vink hieronder
+        aan dat jullie organisatie geen btw-nummer heeft.
+      </p>
+    );
+  }
+
+  const isBelgian = vatCheck.country === "BE";
+
+  if (isBelgian && vatCheck.peppol === false) {
+    return (
+      <p className="flex gap-2 items-start text-sm text-amber-700">
+        <AlertTriangle className="flex-shrink-0 mt-0.5 w-4 h-4" />
+        <span>
+          Geldig btw-nummer{vatCheck.name ? ` (${vatCheck.name})` : ""}, maar
+          jullie organisatie is niet bereikbaar via Peppol. In België moeten
+          facturen tussen bedrijven via Peppol verstuurd worden, dus betalen
+          op factuur is niet mogelijk. Je kunt wel online betalen, of je
+          gratis registreren via Hermes (FOD Financiën).
+        </span>
+      </p>
+    );
+  }
+
+  if (vatCheck.status === "unverified") {
+    return (
+      <p className="flex gap-2 items-start text-sm text-gray-500">
+        <AlertTriangle className="flex-shrink-0 mt-0.5 w-4 h-4" />
+        We konden dit nummer nu niet controleren bij de EU (VIES). Controleer
+        het zelf nog even goed.
+      </p>
+    );
+  }
+
+  return (
+    <p className="flex gap-2 items-start text-sm text-green-700">
+      <CheckCircle2 className="flex-shrink-0 mt-0.5 w-4 h-4" />
+      Geldig btw-nummer{vatCheck.name ? ` – ${vatCheck.name}` : ""}
+      {vatCheck.peppol ? ". Bereikbaar via Peppol." : ""}
+    </p>
   );
 };
 
