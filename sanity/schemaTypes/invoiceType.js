@@ -163,6 +163,12 @@ export const invoice = defineType({
           description: "Customer indicated their organisation has no VAT number (vzw, public body)",
         }),
         defineField({
+          name: "enterpriseNumber",
+          title: "Enterprise Number (KBO)",
+          type: "string",
+          description: "Ondernemingsnummer for organisations without VAT number; used as Peppol ID (0208)",
+        }),
+        defineField({
           name: "peppolRegistered",
           title: "Registered on Peppol",
           type: "boolean",

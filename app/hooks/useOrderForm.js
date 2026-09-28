@@ -49,6 +49,8 @@ export const useOrderForm = (pricing = null) => {
     btwNumber: "",
     noVatNumber: false, // organisation without VAT number (vzw, public body)
     vatCheck: null, // result of /api/validate-vat for the current btwNumber
+    enterpriseNumber: "", // ondernemingsnummer (KBO) when there is no VAT number
+    enterpriseCheck: null, // result of /api/validate-vat for the enterpriseNumber
     referenceNumber: "",
     // Stap 7
     paymentMethod: "",
@@ -205,9 +207,16 @@ export const useOrderForm = (pricing = null) => {
       // A changed VAT number needs a fresh check
       if (field === "btwNumber") {
         newData.vatCheck = null;
-      } else if (field === "noVatNumber" && value) {
-        newData.btwNumber = "";
-        newData.vatCheck = null;
+      } else if (field === "noVatNumber") {
+        if (value) {
+          newData.btwNumber = "";
+          newData.vatCheck = null;
+        } else {
+          newData.enterpriseNumber = "";
+          newData.enterpriseCheck = null;
+        }
+      } else if (field === "enterpriseNumber") {
+        newData.enterpriseCheck = null;
       }
 
       // Log company details when they change
@@ -284,6 +293,8 @@ export const useOrderForm = (pricing = null) => {
               "",
             noVatNumber: false,
             vatCheck: null,
+            enterpriseNumber: "",
+            enterpriseCheck: null,
             referenceNumber: quote.companyDetails?.referenceNumber || "",
           });
 

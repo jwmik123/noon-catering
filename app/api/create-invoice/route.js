@@ -158,10 +158,15 @@ export async function POST(request) {
         ? null
         : orderDetails.vatCheck?.formatted || orderDetails.btwNumber || null, // Required for Peppol e-invoicing
       noVatNumber: orderDetails.noVatNumber === true,
-      peppolRegistered:
-        typeof orderDetails.vatCheck?.peppol === "boolean"
-          ? orderDetails.vatCheck.peppol
-          : null,
+      // Enterprise number (KBO) for organisations without VAT number
+      enterpriseNumber:
+        (orderDetails.noVatNumber && orderDetails.enterpriseCheck?.formatted) || null,
+      peppolRegistered: (() => {
+        const check = orderDetails.noVatNumber
+          ? orderDetails.enterpriseCheck
+          : orderDetails.vatCheck;
+        return typeof check?.peppol === "boolean" ? check.peppol : null;
+      })(),
       referenceNumber: orderDetails.referenceNumber || null,
       address: useInvoiceAddress
         ? {

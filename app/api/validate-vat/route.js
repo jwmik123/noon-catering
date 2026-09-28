@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
-import { validateVATNumber } from "@/lib/vat";
+import { validateEnterpriseNumber, validateVATNumber } from "@/lib/vat";
 
 export async function POST(request) {
   try {
-    const { vatNumber } = await request.json();
+    const { vatNumber, enterpriseNumber } = await request.json();
+
+    // Organisations without VAT number: check the enterprise number (KBO)
+    if (enterpriseNumber !== undefined) {
+      if (typeof enterpriseNumber !== "string" || enterpriseNumber.length > 20) {
+        return NextResponse.json({ status: "invalid" }, { status: 400 });
+      }
+      return NextResponse.json(await validateEnterpriseNumber(enterpriseNumber));
+    }
 
     if (!vatNumber || typeof vatNumber !== "string" || vatNumber.length > 30) {
       return NextResponse.json(

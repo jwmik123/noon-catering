@@ -17,41 +17,28 @@ const ContactStep = ({
   const isBusinessOrder = !formData.isCompany;
   const btwNumber = formData.btwNumber || "";
   const vatCheck = formData.vatCheck;
+  const enterpriseNumber = formData.enterpriseNumber || "";
+  const enterpriseCheck = formData.enterpriseCheck;
 
-  // Check VAT number (VIES + Peppol) shortly after the user stops typing
-  useEffect(() => {
-    if (!isBusinessOrder || formData.noVatNumber || vatCheck) return;
-    if (btwNumber.replace(/[^0-9]/g, "").length < 9) return;
+  // VAT number: VIES + Peppol lookup
+  const isCheckingVAT = useNumberCheck({
+    value: btwNumber,
+    result: vatCheck,
+    enabled: isBusinessOrder && !formData.noVatNumber,
+    requestKey: "vatNumber",
+    onResult: (result) => updateFormData("vatCheck", result),
+    fallback: { status: "unverified", peppol: null },
+  });
 
-    const controller = new AbortController();
-    const timeout = setTimeout(async () => {
-      try {
-        const response = await fetch("/api/validate-vat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vatNumber: btwNumber }),
-          signal: controller.signal,
-        });
-        const result = await response.json();
-        updateFormData("vatCheck", result);
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          updateFormData("vatCheck", { status: "unverified", peppol: null });
-        }
-      }
-    }, 700);
-
-    return () => {
-      clearTimeout(timeout);
-      controller.abort();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [btwNumber, vatCheck, formData.noVatNumber, isBusinessOrder]);
-
-  const isCheckingVAT =
-    !formData.noVatNumber &&
-    !vatCheck &&
-    btwNumber.replace(/[^0-9]/g, "").length >= 9;
+  // Enterprise number (no VAT number): checksum + Peppol lookup
+  const isCheckingEnterprise = useNumberCheck({
+    value: enterpriseNumber,
+    result: enterpriseCheck,
+    enabled: isBusinessOrder && formData.noVatNumber,
+    requestKey: "enterpriseNumber",
+    onResult: (result) => updateFormData("enterpriseCheck", result),
+    fallback: { status: "valid", formatted: null, peppol: null },
+  });
 
   const handleDownloadInvoice = async () => {
     try {
@@ -346,6 +333,27 @@ const ContactStep = ({
                     overheidsinstelling)
                   </Label>
                 </div>
+
+                {formData.noVatNumber && (
+                  <div className="pt-2 space-y-2">
+                    <Label htmlFor="enterpriseNumber">
+                      Ondernemingsnummer (optioneel)
+                    </Label>
+                    <Input
+                      id="enterpriseNumber"
+                      type="text"
+                      value={enterpriseNumber}
+                      onChange={(e) =>
+                        updateFormData("enterpriseNumber", e.target.value)
+                      }
+                      placeholder="0123.456.789"
+                    />
+                    <EnterpriseCheckStatus
+                      checking={isCheckingEnterprise}
+                      enterpriseCheck={enterpriseCheck}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -377,6 +385,78 @@ const ContactStep = ({
         </div>
       </div>
     </div>
+  );
+};
+
+// Check a number via /api/validate-vat shortly after the user stops typing.
+// Returns whether a check is in progress.
+const useNumberCheck = ({ value, result, enabled, requestKey, onResult, fallback }) => {
+  const hasEnoughDigits = value.replace(/[^0-9]/g, "").length >= 9;
+
+  useEffect(() => {
+    if (!enabled || result || !hasEnoughDigits) return;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/validate-vat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ [requestKey]: value }),
+          signal: controller.signal,
+        });
+        onResult(await response.json());
+      } catch (error) {
+        if (error.name !== "AbortError") onResult(fallback);
+      }
+    }, 700);
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, result, enabled]);
+
+  return enabled && !result && hasEnoughDigits;
+};
+
+const EnterpriseCheckStatus = ({ checking, enterpriseCheck }) => {
+  if (checking) {
+    return (
+      <p className="flex gap-2 items-center text-sm text-gray-500">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Ondernemingsnummer controleren...
+      </p>
+    );
+  }
+
+  if (!enterpriseCheck) {
+    return (
+      <p className="text-sm text-gray-500">
+        Staan jullie op Peppol met je ondernemingsnummer? Dan sturen we de
+        factuur via Peppol, anders per e-mail.
+      </p>
+    );
+  }
+
+  if (enterpriseCheck.status === "invalid") {
+    return (
+      <p className="flex gap-2 items-start text-sm text-red-600">
+        <XCircle className="flex-shrink-0 mt-0.5 w-4 h-4" />
+        Dit ondernemingsnummer is ongeldig. Controleer het nummer, of laat het
+        veld leeg.
+      </p>
+    );
+  }
+
+  return (
+    <p className="flex gap-2 items-start text-sm text-green-700">
+      <CheckCircle2 className="flex-shrink-0 mt-0.5 w-4 h-4" />
+      {enterpriseCheck.peppol
+        ? "Geldig ondernemingsnummer. Bereikbaar via Peppol: de factuur gaat via Peppol."
+        : "Geldig ondernemingsnummer. Niet op Peppol: de factuur komt per e-mail."}
+    </p>
   );
 };
 

@@ -86,10 +86,14 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
           const hasValidVAT = ["valid", "unverified"].includes(
             formData.vatCheck?.status
           );
+          // Enterprise number is optional, but must be valid when filled in
+          const hasValidEnterprise =
+            !formData.enterpriseNumber?.trim() ||
+            formData.enterpriseCheck?.status === "valid";
           isValid =
             isValid &&
             formData.companyName.trim() !== "" &&
-            (formData.noVatNumber || hasValidVAT);
+            (formData.noVatNumber ? hasValidEnterprise : hasValidVAT);
         }
 
         return isValid;
@@ -147,6 +151,14 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
         }
         return "";
       case 5:
+        if (!formData.isCompany && formData.noVatNumber && formData.enterpriseNumber?.trim()) {
+          if (formData.enterpriseCheck?.status === "invalid") {
+            return "Het ondernemingsnummer is ongeldig";
+          }
+          if (!formData.enterpriseCheck) {
+            return "Ondernemingsnummer wordt gecontroleerd...";
+          }
+        }
         if (!formData.isCompany && !formData.noVatNumber) {
           if (!formData.btwNumber?.trim()) {
             return "Vul een btw-nummer in, of vink aan dat jullie organisatie er geen heeft";
