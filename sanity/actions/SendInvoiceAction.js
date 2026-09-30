@@ -2,6 +2,7 @@
 import { EnvelopeIcon } from "@sanity/icons";
 import { useToast } from "@sanity/ui";
 import { useClient } from "sanity";
+import { callStudioApi } from "./studioRequest";
 
 const ACCOUNTANT_LABEL = "de boekhouder";
 
@@ -39,27 +40,12 @@ function createSendInvoiceAction(recipients, label) {
         }
 
         try {
-          // One-time request written with the editor's own session; the API
-          // only sends when this nonce matches (see lib/studio-request.js)
-          const nonce = crypto.randomUUID();
-          await client
-            .patch(published._id)
-            .set({
-              studioRequest: {
-                nonce,
-                action: "sendInvoice",
-                recipients,
-                requestedAt: new Date().toISOString(),
-              },
-            })
-            .commit();
-
-          const response = await fetch("/api/send-invoice", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ invoiceId: published._id, nonce }),
+          const result = await callStudioApi(client, {
+            documentId: published._id,
+            action: "sendInvoice",
+            url: "/api/send-invoice",
+            params: { recipients },
           });
-          const result = await response.json();
 
           toast.push(
             result.success

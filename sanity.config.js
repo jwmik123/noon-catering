@@ -17,6 +17,7 @@ import {
   SendInvoiceToBothAction,
   SendInvoiceToCustomerAction,
 } from './sanity/actions/SendInvoiceAction'
+import {SendPeppolAction} from './sanity/actions/SendPeppolAction'
 import {CancelOrderAction} from './sanity/actions/CancelOrderAction'
 import {DownloadInvoiceAction} from './sanity/actions/DownloadInvoiceAction'
 
@@ -40,6 +41,7 @@ export default defineConfig({
           SendInvoiceToBothAction,
           SendInvoiceToCustomerAction,
           SendInvoiceToAccountantAction,
+          SendPeppolAction,
           DownloadInvoiceAction,
           CancelOrderAction,
         ]
