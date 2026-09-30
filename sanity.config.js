@@ -12,7 +12,11 @@ import {structureTool} from 'sanity/structure'
 import {apiVersion, dataset, projectId} from './sanity/env'
 import {schema} from './sanity/schemaTypes'
 import {structure} from './sanity/structure'
-import {SendInvoiceAction} from './sanity/actions/SendInvoiceAction'
+import {
+  SendInvoiceToAccountantAction,
+  SendInvoiceToBothAction,
+  SendInvoiceToCustomerAction,
+} from './sanity/actions/SendInvoiceAction'
 import {CancelOrderAction} from './sanity/actions/CancelOrderAction'
 import {DownloadInvoiceAction} from './sanity/actions/DownloadInvoiceAction'
 
@@ -31,7 +35,14 @@ export default defineConfig({
   document: {
     actions: (prev, context) => {
       if (context.schemaType === 'invoice') {
-        return [...prev, SendInvoiceAction, DownloadInvoiceAction, CancelOrderAction]
+        return [
+          ...prev,
+          SendInvoiceToBothAction,
+          SendInvoiceToCustomerAction,
+          SendInvoiceToAccountantAction,
+          DownloadInvoiceAction,
+          CancelOrderAction,
+        ]
       }
       return prev
     },

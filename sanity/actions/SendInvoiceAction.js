@@ -1,74 +1,94 @@
 // sanity/actions/SendInvoiceAction.js
 import { EnvelopeIcon } from "@sanity/icons";
+import { useToast } from "@sanity/ui";
+import { useClient } from "sanity";
 
-export function SendInvoiceAction(props) {
-  const { type, published } = props;
+const ACCOUNTANT_LABEL = "de boekhouder";
 
-  // Only show this action for invoice documents
-  if (type !== "invoice") {
-    return null;
-  }
+// recipients: "both" | "customer" | "accountant" (see /api/send-invoice)
+function createSendInvoiceAction(recipients, label) {
+  function SendInvoiceAction(props) {
+    const { type, published, onComplete } = props;
+    const toast = useToast();
+    const client = useClient({ apiVersion: "2025-02-13" });
 
-  // Only show if there's a published document — admin must publish edits before sending
-  if (!published) {
-    return null;
-  }
+    // Only for published invoices — admin must publish edits before sending
+    if (type !== "invoice" || !published) {
+      return null;
+    }
 
-  return {
-    label: "Send Invoice",
-    icon: EnvelopeIcon,
-    onHandle: async () => {
-      const invoiceId = published._id;
-      const email = published.orderDetails?.email;
-      const quoteId = published.quoteId || "Unknown";
+    const email = published.orderDetails?.email;
+    const invoiceNumber = published.invoiceNumber || published.quoteId || "onbekend";
+    const needsCustomerEmail = recipients !== "accountant";
 
-      if (!email) {
-        props.onComplete();
-        return {
-          type: "error",
-          message: "No email address found for this invoice",
-        };
-      }
+    const target = {
+      both: `${email} en ${ACCOUNTANT_LABEL}`,
+      customer: email,
+      accountant: ACCOUNTANT_LABEL,
+    }[recipients];
 
-      const confirmed = window.confirm(
-        `Send invoice ${quoteId} to ${email}?`
-      );
-
-      if (!confirmed) {
-        props.onComplete();
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/send-invoice", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ invoiceId }),
-        });
-
-        const result = await response.json();
-
-        props.onComplete();
-
-        if (result.success) {
-          return {
-            type: "success",
-            message: result.message || "Invoice sent successfully",
-          };
-        } else {
-          return {
-            type: "error",
-            message: result.error || "Failed to send invoice",
-          };
+    return {
+      label,
+      icon: EnvelopeIcon,
+      disabled: needsCustomerEmail && !email,
+      title: needsCustomerEmail && !email ? "Geen e-mailadres bij deze factuur" : undefined,
+      onHandle: async () => {
+        if (!window.confirm(`Factuur ${invoiceNumber} versturen naar ${target}?`)) {
+          onComplete();
+          return;
         }
-      } catch (error) {
-        console.error("Error sending invoice:", error);
-        props.onComplete();
-        return {
-          type: "error",
-          message: "Failed to send invoice: " + error.message,
-        };
-      }
-    },
-  };
+
+        try {
+          // One-time request written with the editor's own session; the API
+          // only sends when this nonce matches (see lib/studio-request.js)
+          const nonce = crypto.randomUUID();
+          await client
+            .patch(published._id)
+            .set({
+              studioRequest: {
+                nonce,
+                action: "sendInvoice",
+                recipients,
+                requestedAt: new Date().toISOString(),
+              },
+            })
+            .commit();
+
+          const response = await fetch("/api/send-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ invoiceId: published._id, nonce }),
+          });
+          const result = await response.json();
+
+          toast.push(
+            result.success
+              ? { status: "success", title: result.message }
+              : { status: "error", title: "Versturen mislukt", description: result.error }
+          );
+        } catch (error) {
+          console.error("Error sending invoice:", error);
+          toast.push({ status: "error", title: "Versturen mislukt", description: error.message });
+        } finally {
+          onComplete();
+        }
+      },
+    };
+  }
+
+  SendInvoiceAction.action = `sendInvoice-${recipients}`;
+  return SendInvoiceAction;
 }
+
+export const SendInvoiceToBothAction = createSendInvoiceAction(
+  "both",
+  "Verstuur naar klant en boekhouder"
+);
+export const SendInvoiceToCustomerAction = createSendInvoiceAction(
+  "customer",
+  "Verstuur naar klant"
+);
+export const SendInvoiceToAccountantAction = createSendInvoiceAction(
+  "accountant",
+  "Verstuur naar boekhouder"
+);

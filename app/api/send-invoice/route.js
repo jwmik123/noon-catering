@@ -3,12 +3,27 @@ import { client } from "@/sanity/lib/client";
 import { NextResponse } from "next/server";
 import { sendInvoiceEmail } from "@/lib/email";
 import { PRICING_QUERY } from "@/sanity/lib/queries";
+import { consumeStudioRequest } from "@/lib/studio-request";
 
 export async function POST(request) {
   console.log("===== SEND INVOICE API CALLED =====");
 
   try {
-    const { invoiceId } = await request.json();
+    const { invoiceId, nonce } = await request.json();
+
+    // Only requests started from the Studio by a logged-in editor
+    const auth = await consumeStudioRequest(invoiceId, nonce, "sendInvoice");
+    if (!auth.ok) {
+      return NextResponse.json({ success: false, error: auth.error }, { status: 401 });
+    }
+
+    const recipients = auth.request.recipients;
+    if (!["both", "customer", "accountant"].includes(recipients)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid recipients" },
+        { status: 400 }
+      );
+    }
 
     if (!invoiceId) {
       console.error("Missing invoiceId in request");
@@ -36,7 +51,7 @@ export async function POST(request) {
 
     console.log("Invoice found:", invoice.quoteId);
 
-    if (!invoice.orderDetails?.email) {
+    if (!invoice.orderDetails?.email && recipients !== "accountant") {
       console.error(`No email found in invoice orderDetails for ${invoice.quoteId}`);
       return NextResponse.json(
         { success: false, error: "No email address found for this invoice" },
@@ -57,20 +72,28 @@ export async function POST(request) {
 
     console.log("Sending invoice email to:", invoice.orderDetails.email);
 
-    const emailResult = await sendInvoiceEmail(invoice, pricing, { customerOnly: true });
+    const emailResult = await sendInvoiceEmail(invoice, pricing, { recipients });
 
     if (emailResult.success) {
       console.log("Invoice email sent successfully");
 
+      const now = new Date().toISOString();
       await client
         .patch(invoice._id)
-        .set({ emailSent: true, emailSentAt: new Date().toISOString() })
+        .set({
+          ...(recipients !== "accountant" && { emailSent: true, emailSentAt: now }),
+          ...(recipients !== "customer" && { accountantEmailSentAt: now }),
+        })
         .commit();
 
       console.log("===== SEND INVOICE API COMPLETED SUCCESSFULLY =====");
       return NextResponse.json({
         success: true,
-        message: `Invoice sent to ${invoice.orderDetails.email}`,
+        message: {
+          both: `Factuur verstuurd naar ${invoice.orderDetails.email} en de boekhouder`,
+          customer: `Factuur verstuurd naar ${invoice.orderDetails.email}`,
+          accountant: "Factuur verstuurd naar de boekhouder",
+        }[recipients],
       });
     } else {
       console.error("Failed to send invoice email:", emailResult.error);

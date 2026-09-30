@@ -32,6 +32,15 @@ export const invoice = defineType({
       description: "Auto-generated invoice number",
     }),
     defineField({
+      name: "previousInvoiceNumber",
+      title: "Previous Invoice Number",
+      type: "string",
+      group: "main",
+      readOnly: true,
+      description: "Old number, replaced because it was already used in Billit/accounting",
+      hidden: ({ document }) => !document?.previousInvoiceNumber,
+    }),
+    defineField({
       name: "creditNoteNumber",
       title: "Credit Note Number",
       type: "string",
@@ -290,6 +299,28 @@ export const invoice = defineType({
       type: "datetime",
       group: "meta",
       description: "Timestamp when the invoice email was sent",
+    }),
+    defineField({
+      name: "accountantEmailSentAt",
+      title: "Sent to Accountant At",
+      type: "datetime",
+      group: "meta",
+      readOnly: true,
+      description: "Last time the invoice was e-mailed to the accountant from the Studio",
+    }),
+    defineField({
+      name: "studioRequest",
+      title: "Studio Request",
+      type: "object",
+      hidden: true,
+      readOnly: true,
+      description: "One-time authorisation for API calls from Studio actions",
+      fields: [
+        defineField({ name: "nonce", type: "string" }),
+        defineField({ name: "action", type: "string" }),
+        defineField({ name: "recipients", type: "string" }),
+        defineField({ name: "requestedAt", type: "datetime" }),
+      ],
     }),
 
     // === METADATA ===
