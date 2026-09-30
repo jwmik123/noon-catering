@@ -105,9 +105,20 @@ export const structure = (S, context) =>
       S.divider(),
 
       // All other document types
-      ...S.documentTypeListItems().filter(
-        (listItem) => !['product', 'typeCategory', 'subCategory', 'quote', 'siteSettings'].includes(listItem.getId())
-      ),
+      ...S.documentTypeListItems()
+        .filter(
+          (listItem) => !['product', 'typeCategory', 'subCategory', 'quote', 'siteSettings'].includes(listItem.getId())
+        )
+        .map((listItem) =>
+          // Invoices: highest invoice number first, so renumbered invoices show at the top
+          listItem.getId() === 'invoice'
+            ? listItem.child(
+                S.documentTypeList('invoice')
+                  .title('Invoices')
+                  .defaultOrdering([{ field: 'invoiceNumber', direction: 'desc' }])
+              )
+            : listItem
+        ),
 
       S.divider(),
 

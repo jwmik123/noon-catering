@@ -721,6 +721,11 @@ export const invoice = defineType({
   // Default ordering
   orderings: [
     {
+      title: "Factuurnummer (hoogste eerst)",
+      name: "invoiceNumberDesc",
+      by: [{ field: "invoiceNumber", direction: "desc" }],
+    },
+    {
       title: "Created (Newest)",
       name: "createdAtDesc",
       by: [{ field: "createdAt", direction: "desc" }],
