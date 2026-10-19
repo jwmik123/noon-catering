@@ -20,7 +20,7 @@ function parseDateString(dateStr) {
 
 export async function POST(request) {
   try {
-    const { invoiceId } = await request.json();
+    const { invoiceId, creditNote = false } = await request.json();
 
     if (!invoiceId) {
       return NextResponse.json(
@@ -38,6 +38,13 @@ export async function POST(request) {
       return NextResponse.json(
         { success: false, error: "Invoice not found" },
         { status: 404 }
+      );
+    }
+
+    if (creditNote && (invoice.status !== "cancelled" || !invoice.creditNoteNumber)) {
+      return NextResponse.json(
+        { success: false, error: "Deze factuur heeft geen creditnota" },
+        { status: 409 }
       );
     }
 
@@ -168,10 +175,20 @@ export async function POST(request) {
         referenceNumber={order.companyDetails?.referenceNumber || null}
         fullName={order.fullName}
         pricing={pricing}
+        creditNote={
+          creditNote
+            ? {
+                number: invoice.creditNoteNumber,
+                date: invoice.creditNoteDate || invoice.cancelledAt,
+              }
+            : null
+        }
       />
     );
 
-    const filename = `invoice-${order.invoiceNumber || order.quoteId}.pdf`;
+    const filename = creditNote
+      ? `creditnota-${invoice.creditNoteNumber}.pdf`
+      : `invoice-${order.invoiceNumber || order.quoteId}.pdf`;
 
     return new Response(pdfBuffer, {
       status: 200,

@@ -51,6 +51,14 @@ export async function POST(request) {
 
     console.log("Invoice found:", invoice.quoteId);
 
+    // A cancelled invoice must not be sent again; its credit note is sent instead
+    if (invoice.status === "cancelled") {
+      return NextResponse.json(
+        { success: false, error: "Factuur is geannuleerd — verstuur de creditnota" },
+        { status: 409 }
+      );
+    }
+
     if (!invoice.orderDetails?.email && recipients !== "accountant") {
       console.error(`No email found in invoice orderDetails for ${invoice.quoteId}`);
       return NextResponse.json(

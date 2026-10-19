@@ -17,9 +17,14 @@ import {
   SendInvoiceToBothAction,
   SendInvoiceToCustomerAction,
 } from './sanity/actions/SendInvoiceAction'
+import {
+  SendCreditNoteToAccountantAction,
+  SendCreditNoteToBothAction,
+  SendCreditNoteToCustomerAction,
+} from './sanity/actions/SendCreditNoteAction'
 import {SendPeppolAction} from './sanity/actions/SendPeppolAction'
 import {CancelOrderAction} from './sanity/actions/CancelOrderAction'
-import {DownloadInvoiceAction} from './sanity/actions/DownloadInvoiceAction'
+import {DownloadCreditNoteAction, DownloadInvoiceAction} from './sanity/actions/DownloadInvoiceAction'
 
 export default defineConfig({
   basePath: '/studio',
@@ -41,8 +46,12 @@ export default defineConfig({
           SendInvoiceToBothAction,
           SendInvoiceToCustomerAction,
           SendInvoiceToAccountantAction,
+          SendCreditNoteToBothAction,
+          SendCreditNoteToCustomerAction,
+          SendCreditNoteToAccountantAction,
           SendPeppolAction,
           DownloadInvoiceAction,
+          DownloadCreditNoteAction,
           CancelOrderAction,
         ]
       }

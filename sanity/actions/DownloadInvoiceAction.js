@@ -2,6 +2,19 @@
 import { DownloadIcon } from "@sanity/icons";
 
 export function DownloadInvoiceAction(props) {
+  return createDownloadAction(props, false);
+}
+
+// Only on cancelled invoices that have a credit note number
+export function DownloadCreditNoteAction(props) {
+  const { published } = props;
+  if (published?.status !== "cancelled" || !published?.creditNoteNumber) {
+    return null;
+  }
+  return createDownloadAction(props, true);
+}
+
+function createDownloadAction(props, creditNote) {
   const { type, published } = props;
 
   if (type !== "invoice") {
@@ -13,7 +26,7 @@ export function DownloadInvoiceAction(props) {
   }
 
   return {
-    label: "Download Invoice",
+    label: creditNote ? "Download creditnota" : "Download Invoice",
     icon: DownloadIcon,
     onHandle: async () => {
       const invoiceId = published._id;
@@ -22,7 +35,7 @@ export function DownloadInvoiceAction(props) {
         const response = await fetch("/api/download-invoice", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ invoiceId }),
+          body: JSON.stringify({ invoiceId, creditNote }),
         });
 
         if (!response.ok) {
@@ -37,7 +50,9 @@ export function DownloadInvoiceAction(props) {
         const blob = await response.blob();
         const invoiceNumber =
           published.invoiceNumber || published.quoteId || invoiceId;
-        const filename = `invoice-${invoiceNumber}.pdf`;
+        const filename = creditNote
+          ? `creditnota-${published.creditNoteNumber}.pdf`
+          : `invoice-${invoiceNumber}.pdf`;
 
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");

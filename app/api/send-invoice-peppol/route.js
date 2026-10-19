@@ -28,6 +28,13 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: "Factuur niet gevonden" }, { status: 404 });
     }
 
+    if (invoice.status === "cancelled") {
+      return NextResponse.json(
+        { success: false, error: "Factuur is geannuleerd en kan niet via Peppol verstuurd worden" },
+        { status: 409 }
+      );
+    }
+
     if (invoice.billitSentAt) {
       return NextResponse.json(
         {

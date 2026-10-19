@@ -13,8 +13,9 @@ function createSendInvoiceAction(recipients, label) {
     const toast = useToast();
     const client = useClient({ apiVersion: "2025-02-13" });
 
-    // Only for published invoices — admin must publish edits before sending
-    if (type !== "invoice" || !published) {
+    // Only for published invoices — admin must publish edits before sending.
+    // Cancelled invoices get the credit note actions instead.
+    if (type !== "invoice" || !published || published.status === "cancelled") {
       return null;
     }
 

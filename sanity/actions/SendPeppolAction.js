@@ -10,7 +10,7 @@ export function SendPeppolAction(props) {
   const toast = useToast();
   const client = useClient({ apiVersion: "2025-02-13" });
 
-  if (type !== "invoice" || !published) {
+  if (type !== "invoice" || !published || published.status === "cancelled") {
     return null;
   }
 

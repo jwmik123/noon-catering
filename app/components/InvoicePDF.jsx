@@ -147,6 +147,12 @@ const styles = StyleSheet.create({
 // Fallback image URL in case the environment variable is missing
 const DEFAULT_IMAGE_URL = "https://catering.thesandwichbar.nl/tsb.png";
 
+// Format an amount as euros; credit notes show every amount negated
+const formatEuro = (value, negate = false) => {
+  const n = negate ? -(value || 0) : value || 0;
+  return `${n < 0 ? "-" : ""}€${Math.abs(n).toFixed(2)}`;
+};
+
 // Helper function to calculate total from variety selection (supports both old and new formats)
 const calculateVarietyTotal = (varietySelection) => {
   if (!varietySelection || Object.keys(varietySelection).length === 0) {
@@ -159,7 +165,7 @@ const calculateVarietyTotal = (varietySelection) => {
 };
 
 // Helper function to render variety selection for both old and new formats
-const renderVarietySelection = (varietySelection, pricing) => {
+const renderVarietySelection = (varietySelection, pricing, eur) => {
   if (!varietySelection || Object.keys(varietySelection).length === 0) {
     return null;
   }
@@ -228,7 +234,7 @@ const renderVarietySelection = (varietySelection, pricing) => {
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>
-              €{(quantity * getVarietyPrice(key, pricing)).toFixed(2)}
+              {eur(quantity * getVarietyPrice(key, pricing))}
             </Text>
           </View>
         );
@@ -248,7 +254,7 @@ const renderVarietySelection = (varietySelection, pricing) => {
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>-</Text>
             <Text style={styles.tableCell}>
-              €{(quantity * getVarietyPrice(`sandwiches-${key}`, pricing)).toFixed(2)}
+              {eur(quantity * getVarietyPrice(`sandwiches-${key}`, pricing))}
             </Text>
           </View>
         );
@@ -274,7 +280,12 @@ const InvoicePDF = ({
   fullName = null,
   pricing = null,
   couponCode = null,
+  // { number, date } renders this document as a credit note for invoiceNumber
+  creditNote = null,
 }) => {
+  const isCreditNote = Boolean(creditNote);
+  const eur = (value) => formatEuro(value, isCreditNote);
+
   // Defensive coding: ensure all objects exist to prevent null references
   orderDetails = orderDetails || {};
   deliveryDetails = deliveryDetails || {};
@@ -446,7 +457,7 @@ const InvoicePDF = ({
               <Text style={styles.tableCell}>
                 {toppings.length > 0 ? toppings.join(", ") : "-"}
               </Text>
-              <Text style={styles.tableCell}>€{subTotal.toFixed(2)}</Text>
+              <Text style={styles.tableCell}>{eur(subTotal)}</Text>
             </View>
           );
         });
@@ -460,11 +471,26 @@ const InvoicePDF = ({
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Text style={styles.title}>Factuur</Text>
-            <Text style={styles.invoiceId}>Factuur nr: {invoiceNumber}</Text>
-            <Text style={styles.invoiceId}>
-              Datum: {today.toLocaleDateString("nl-NL")}
-            </Text>
+            {isCreditNote ? (
+              <>
+                <Text style={styles.title}>Creditnota</Text>
+                <Text style={styles.invoiceId}>Creditnota nr: {creditNote.number}</Text>
+                <Text style={styles.invoiceId}>
+                  Datum: {new Date(creditNote.date || Date.now()).toLocaleDateString("nl-NL")}
+                </Text>
+                <Text style={styles.invoiceId}>
+                  Betreft factuur: {invoiceNumber}
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.title}>Factuur</Text>
+                <Text style={styles.invoiceId}>Factuur nr: {invoiceNumber}</Text>
+                <Text style={styles.invoiceId}>
+                  Datum: {today.toLocaleDateString("nl-NL")}
+                </Text>
+              </>
+            )}
             {referenceNumber && (
               <Text style={styles.invoiceId}>
                 Reference Number: {referenceNumber}
@@ -575,14 +601,23 @@ const InvoicePDF = ({
                 <Text style={styles.label}>BTW Nummer:</Text>
                 <Text style={styles.value}>BE 0795406037</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.label}>Betalen voor:</Text>
-                <Text style={styles.value}>
-                  {finalDueDate.toLocaleDateString("nl-NL", {
-                    timeZone: "Europe/Amsterdam",
-                  })}
-                </Text>
-              </View>
+              {isCreditNote ? (
+                <View style={styles.row}>
+                  <Text style={styles.value}>
+                    Deze creditnota annuleert factuur {invoiceNumber}. Een reeds betaald
+                    bedrag wordt terugbetaald.
+                  </Text>
+                </View>
+              ) : (
+                <View style={styles.row}>
+                  <Text style={styles.label}>Betalen voor:</Text>
+                  <Text style={styles.value}>
+                    {finalDueDate.toLocaleDateString("nl-NL", {
+                      timeZone: "Europe/Amsterdam",
+                    })}
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         </View>
@@ -628,7 +663,7 @@ const InvoicePDF = ({
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>
-                          €{(orderDetails.deliveryCost || 0).toFixed(2)}
+                          {eur(orderDetails.deliveryCost || 0)}
                         </Text>
                       </View>
                     )}
@@ -641,7 +676,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.freshOrangeJuice * 3.35).toFixed(2)}
+                        {eur(orderDetails.drinks.freshOrangeJuice * 3.35)}
                       </Text>
                     </View>
                   )}
@@ -653,7 +688,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 2.35).toFixed(2)}
+                        {eur(orderDetails.drinks.sodas * 2.35)}
                       </Text>
                     </View>
                   )}
@@ -666,7 +701,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.soup.soup_small * (pricing?.soup?.soup_small || 3.80)).toFixed(2)}
+                        {eur(orderDetails.soup.soup_small * (pricing?.soup?.soup_small || 3.80))}
                       </Text>
                     </View>
                   )}
@@ -678,7 +713,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.soup.soup_large * (pricing?.soup?.soup_large || 6.40)).toFixed(2)}
+                        {eur(orderDetails.soup.soup_large * (pricing?.soup?.soup_large || 6.40))}
                       </Text>
                     </View>
                   )}
@@ -691,7 +726,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.desserts.desserts * (pricing?.desserts?.desserts || 3.50)).toFixed(2)}
+                        {eur(orderDetails.desserts.desserts * (pricing?.desserts?.desserts || 3.50))}
                       </Text>
                     </View>
                   )}
@@ -703,14 +738,14 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.desserts.cookies * 2.50).toFixed(2)}
+                        {eur(orderDetails.desserts.cookies * 2.50)}
                       </Text>
                     </View>
                   )}
                 </>
               ) : (
                 <>
-                  {renderVarietySelection(varietySelection, pricing)}
+                  {renderVarietySelection(varietySelection, pricing, eur)}
                   {!isPickup && orderDetails?.deliveryCost > 0 && (
                       <View style={styles.tableRow}>
                         <Text style={styles.tableCellName}>Delivery</Text>
@@ -719,7 +754,7 @@ const InvoicePDF = ({
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>-</Text>
                         <Text style={styles.tableCell}>
-                          €{(orderDetails.deliveryCost || 0).toFixed(2)}
+                          {eur(orderDetails.deliveryCost || 0)}
                         </Text>
                       </View>
                     )}
@@ -732,7 +767,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.freshOrangeJuice * 3.35).toFixed(2)}
+                        {eur(orderDetails.drinks.freshOrangeJuice * 3.35)}
                       </Text>
                     </View>
                   )}
@@ -744,7 +779,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.drinks.sodas * 2.35).toFixed(2)}
+                        {eur(orderDetails.drinks.sodas * 2.35)}
                       </Text>
                     </View>
                   )}
@@ -757,7 +792,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.soup.soup_small * (pricing?.soup?.soup_small || 3.80)).toFixed(2)}
+                        {eur(orderDetails.soup.soup_small * (pricing?.soup?.soup_small || 3.80))}
                       </Text>
                     </View>
                   )}
@@ -769,7 +804,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.soup.soup_large * (pricing?.soup?.soup_large || 6.40)).toFixed(2)}
+                        {eur(orderDetails.soup.soup_large * (pricing?.soup?.soup_large || 6.40))}
                       </Text>
                     </View>
                   )}
@@ -782,7 +817,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.desserts.desserts * (pricing?.desserts?.desserts || 3.50)).toFixed(2)}
+                        {eur(orderDetails.desserts.desserts * (pricing?.desserts?.desserts || 3.50))}
                       </Text>
                     </View>
                   )}
@@ -794,7 +829,7 @@ const InvoicePDF = ({
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>-</Text>
                       <Text style={styles.tableCell}>
-                        €{(orderDetails.desserts.cookies * (pricing?.desserts?.cookies || 2.50)).toFixed(2)}
+                        {eur(orderDetails.desserts.cookies * (pricing?.desserts?.cookies || 2.50))}
                       </Text>
                     </View>
                   )}
@@ -817,7 +852,7 @@ const InvoicePDF = ({
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Subtotaal (excl. korting):</Text>
                 <Text style={styles.totalValue}>
-                  €{((amountData.subtotal || 0) + (amountData.discount || 0)).toFixed(2)}
+                  {eur((amountData.subtotal || 0) + (amountData.discount || 0))}
                 </Text>
               </View>
               <View style={styles.totalRow}>
@@ -825,13 +860,13 @@ const InvoicePDF = ({
                   Korting{couponCode ? ` (${couponCode})` : ""}:
                 </Text>
                 <Text style={[styles.totalValue, { color: "#16a34a" }]}>
-                  -€{(amountData.discount || 0).toFixed(2)}
+                  {eur(-(amountData.discount || 0))}
                 </Text>
               </View>
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>Subtotaal na korting:</Text>
                 <Text style={styles.totalValue}>
-                  €{(amountData.subtotal || 0).toFixed(2)}
+                  {eur(amountData.subtotal || 0)}
                 </Text>
               </View>
             </>
@@ -839,7 +874,7 @@ const InvoicePDF = ({
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Subtotaal:</Text>
               <Text style={styles.totalValue}>
-                €{(amountData.subtotal || 0).toFixed(2)}
+                {eur(amountData.subtotal || 0)}
               </Text>
             </View>
           )}
@@ -847,7 +882,7 @@ const InvoicePDF = ({
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Levering:</Text>
               <Text style={styles.totalValue}>
-                €{(amountData.delivery || 0).toFixed(2)}
+                {eur(amountData.delivery || 0)}
               </Text>
             </View>
           ) : (
@@ -858,22 +893,24 @@ const InvoicePDF = ({
           )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>BTW bestelling (6%):</Text>
-            <Text style={styles.totalValue}>€{(amountData.foodVAT || 0).toFixed(2)}</Text>
+            <Text style={styles.totalValue}>{eur(amountData.foodVAT || 0)}</Text>
           </View>
           {(amountData.deliveryVAT || 0) > 0 && (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>BTW levering (21%):</Text>
-              <Text style={styles.totalValue}>€{(amountData.deliveryVAT || 0).toFixed(2)}</Text>
+              <Text style={styles.totalValue}>{eur(amountData.deliveryVAT || 0)}</Text>
             </View>
           )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Totaal BTW:</Text>
-            <Text style={styles.totalValue}>€{(amountData.vat || 0).toFixed(2)}</Text>
+            <Text style={styles.totalValue}>{eur(amountData.vat || 0)}</Text>
           </View>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Totaal:</Text>
+            <Text style={styles.totalLabel}>
+              {isCreditNote ? "Te crediteren totaal:" : "Totaal:"}
+            </Text>
             <Text style={[styles.totalValue, { fontWeight: 600 }]}>
-              €{(amountData.total || 0).toFixed(2)}
+              {eur(amountData.total || 0)}
             </Text>
           </View>
         </View>
@@ -886,7 +923,8 @@ const InvoicePDF = ({
         </View>
       </Page>
 
-      {/* Terms and Conditions Page */}
+      {/* Terms and Conditions Page (not on credit notes) */}
+      {!isCreditNote && (
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <Text style={styles.title}>Algemene Voorwaarden - NOON Sandwicherie & Koffie</Text>
@@ -980,6 +1018,7 @@ const InvoicePDF = ({
           </Text>
         </View>
       </Page>
+      )}
     </Document>
   );
 };
