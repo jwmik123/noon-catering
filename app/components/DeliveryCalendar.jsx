@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getAvailableTimeSlots } from "@/lib/delivery-slots";
 
 const DeliveryCalendar = ({ date, setDate, updateFormData, formData, disabledDates = [] }) => {
   const handleSelect = (selectedDate) => {
@@ -32,15 +33,9 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData, disabledDat
     }
   };
 
-  // Function to disable dates - only allow 1 day ahead or later, and disable Sundays
+  // Disable dates without any slot at least 24h away, Sundays, and blocked periods
   const disabledDays = (date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    // Calculate minimum delivery date (1 day from today)
-    const minDeliveryDate = new Date(today);
-    minDeliveryDate.setDate(today.getDate() + 1);
-    // Disable dates before minimum delivery date
-    if (date < minDeliveryDate) return true;
+    if (getAvailableTimeSlots(date).length === 0) return true;
     // Disable Sundays (0 = Sunday)
     if (date.getDay() === 0) return true;
 
@@ -57,29 +52,10 @@ const DeliveryCalendar = ({ date, setDate, updateFormData, formData, disabledDat
     return false;
   };
 
-  const generateTimeSlots = () => {
-    const slots = [];
-    // Generate slots between 11:00 and 15:30
-    for (let hour = 11; hour <= 15; hour++) {
-      // Add full hour slot
-      const fullHourValue = `${hour.toString().padStart(2, "0")}:00`;
-      slots.push({
-        value: fullHourValue,
-        label: `${fullHourValue}`,
-      });
-      // Add half hour slot, but stop at 15:30
-      if (hour < 15 || (hour === 15 && 30 <= 30)) {
-        const halfHourValue = `${hour.toString().padStart(2, "0")}:30`;
-        slots.push({
-          value: halfHourValue,
-          label: `${halfHourValue}`,
-        });
-      }
-    }
-    return slots;
-  };
-
-  const timeSlots = generateTimeSlots();
+  const timeSlots = getAvailableTimeSlots(date).map((value) => ({
+    value,
+    label: value,
+  }));
 
   return (
     <div className="space-y-6">

@@ -1,5 +1,7 @@
 "use client";
 
+import { isSlotBookable } from "@/lib/delivery-slots";
+
 // Helper function to calculate total from variety selection (supports both old and new formats)
 const calculateVarietyTotal = (varietySelection) => {
   if (!varietySelection || Object.keys(varietySelection).length === 0) {
@@ -134,6 +136,9 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
         }
         if (!formData.deliveryTime) {
           return formData.isPickup ? "Please select a pick up time" : "Please select a delivery time";
+        }
+        if (!isSlotBookable(formData.deliveryDate, formData.deliveryTime)) {
+          return "Orders must be placed at least 24 hours in advance. Please choose a later time";
         }
         // Skip address validation for pickup orders
         if (!formData.isPickup) {
