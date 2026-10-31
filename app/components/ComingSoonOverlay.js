@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function ComingSoonOverlay() {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
   const CORRECT_PASSWORD = 'Sd12dsx1';
   const STORAGE_KEY = 'site_access_granted';
@@ -33,6 +35,9 @@ export default function ComingSoonOverlay() {
       setPassword('');
     }
   };
+
+  // Studio has its own Sanity login, so leave it reachable
+  if (pathname?.startsWith('/studio')) return null;
 
   if (!isOffline || isUnlocked) return null;
 
