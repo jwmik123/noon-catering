@@ -47,9 +47,12 @@ export default function ComingSoonOverlay() {
           Noon Sandwicherie & Koffie
         </h1>
 
-        {/* Coming soon message */}
-        <p className="text-2xl md:text-3xl text-gray-600 mb-8">
-          Binnenkort online
+        {/* Maintenance message */}
+        <p className="text-2xl md:text-3xl text-gray-600 mb-2">
+          We zijn even in onderhoud
+        </p>
+        <p className="text-gray-500 mb-8">
+          Binnenkort zijn we weer bereikbaar. Bedankt voor je geduld!
         </p>
 
         {/* Password form */}
