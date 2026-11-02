@@ -29,6 +29,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData, pricing })
   // Subcategories not offered per main category
   const excludedSubCategories = {
     sandwiches: ["vis"],
+    salades: ["vlees", "vis"],
   };
 
   const getSubCategoriesFor = (mainCategory) =>
