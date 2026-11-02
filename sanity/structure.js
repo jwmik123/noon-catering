@@ -36,9 +36,9 @@ export const structure = (S, context) =>
           const validCategories = Array.from(categoryMap.values())
             .sort((a, b) => {
               if (a.typeCategoryName !== b.typeCategoryName) {
-                return a.typeCategoryName.localeCompare(b.typeCategoryName)
+                return (a.typeCategoryName || '').localeCompare(b.typeCategoryName || '')
               }
-              return a.subCategoryName.localeCompare(b.subCategoryName)
+              return (a.subCategoryName || '').localeCompare(b.subCategoryName || '')
             })
 
           return S.list()
@@ -58,7 +58,10 @@ export const structure = (S, context) =>
               // Dynamically create category/subcategory items
               ...validCategories.map((cat) => {
                 const title = `${cat.typeCategoryName} - ${cat.subCategoryName}`
+                // Structure ids only allow a-z, 0-9, - and _; slugs edited by hand can contain spaces
                 const id = `orderable-products-${cat.typeCategoryValue}-${cat.subCategoryValue}`
+                  .toLowerCase()
+                  .replace(/[^a-z0-9_-]+/g, '-')
 
                 return orderableDocumentListDeskItem({
                   type: 'product',
