@@ -26,6 +26,16 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData, pricing })
     { value: "vegan", label: "Vegan" }
   ];
 
+  // Subcategories not offered per main category
+  const excludedSubCategories = {
+    sandwiches: ["vis"],
+  };
+
+  const getSubCategoriesFor = (mainCategory) =>
+    subCategories.filter(
+      (sub) => !excludedSubCategories[mainCategory]?.includes(sub.value)
+    );
+
   // Initialize from existing form data ONCE on mount
   useEffect(() => {
     if (formData.varietySelection && Object.keys(formData.varietySelection).length > 0) {
@@ -318,7 +328,7 @@ const VarietySelector = ({ totalSandwiches, formData, updateFormData, pricing })
                   ) : (
                     // SANDWICHES/SALADS: Show subcategories with prices
                     <>
-                      {subCategories.map((subCategory) => {
+                      {getSubCategoriesFor(mainCategory).map((subCategory) => {
                         const combinationKey = `${mainCategory}-${subCategory.value}`;
                         const isSelected = combinationKey in selectedCombinations;
                         const quantity = selectedCombinations[combinationKey] || 0;
