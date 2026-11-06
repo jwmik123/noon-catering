@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Plus } from "lucide-react";
 import SelectionModal from "./SelectionModal";
 import { isDrink, calculateRemainingQuantity } from "@/lib/product-helpers";
 
@@ -29,27 +30,31 @@ const SelectionManager = ({
   };
 
   return (
-    <div className="absolute bottom-2 right-2">
+    <>
       <button
+        type="button"
         onClick={() => setIsModalOpen(true)}
         disabled={!isDrink(sandwich) && remainingQuantity === 0}
-        className="px-3 py-1 rounded-md font-medium bg-muted text-muted-foreground
-          hover:bg-muted/90 focus:outline-none focus:ring-2
-          focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
+        aria-label={`${sandwich.name} toevoegen`}
+        className="flex h-10 items-center gap-1 rounded-[10px] bg-blush px-3 text-[13px] font-semibold text-noon transition-colors hover:bg-noon hover:text-cream disabled:opacity-40 disabled:hover:bg-blush disabled:hover:text-noon"
       >
-        +
+        <Plus className="h-4 w-4" strokeWidth={2.4} />
+        Toevoegen
       </button>
-      <SelectionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        sandwich={sandwich}
-        onAdd={handleAddSelection}
-        remainingQuantity={remainingQuantity}
-        breadTypes={breadTypes}
-        sauceTypes={sauceTypes}
-        toppingTypes={toppingTypes}
-      />
-    </div>
+      {/* Mounted per opening, so every popup starts from the default options */}
+      {isModalOpen && (
+        <SelectionModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          sandwich={sandwich}
+          onAdd={handleAddSelection}
+          remainingQuantity={remainingQuantity}
+          breadTypes={breadTypes}
+          sauceTypes={sauceTypes}
+          toppingTypes={toppingTypes}
+        />
+      )}
+    </>
   );
 };
 

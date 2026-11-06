@@ -1,12 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Card, Heading, PrimaryButton } from "@/app/components/order/ui";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
 
 export default function QuoteLookup() {
   const [quoteId, setQuoteId] = useState("");
@@ -34,29 +32,26 @@ export default function QuoteLookup() {
       // Redirect to home page with query param
       router.push("/?restore=true");
     } catch (error) {
-      setError("Something went wrong when fetching the quote");
+      setError("Er ging iets mis bij het ophalen van de offerte");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl p-6 mx-auto">
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-2xl">Load quote</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="flex min-h-[70vh] items-center justify-center bg-cream px-4 py-12">
+      <div className="flex w-full max-w-md flex-col gap-6">
+        <Heading title="Offerte ophalen" lead="Vul je offertenummer in om verder te gaan met je bestelling." />
+        <Card className="p-5 md:p-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quoteId">Quote ID</Label>
+              <Label htmlFor="quoteId">Offertenummer</Label>
               <Input
                 type="text"
                 id="quoteId"
                 value={quoteId}
                 onChange={(e) => setQuoteId(e.target.value)}
-                placeholder="F.E. Q12345678"
-                className="focus:ring-green-500 focus:border-green-500"
+                placeholder="Bijv. Q12345678"
                 required
               />
             </div>
@@ -67,23 +62,12 @@ export default function QuoteLookup() {
               </Alert>
             )}
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Load quote"
-              )}
-            </Button>
+            <PrimaryButton type="submit" loading={isLoading} className="w-full">
+              {isLoading ? "Laden..." : "Offerte ophalen"}
+            </PrimaryButton>
           </form>
-        </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

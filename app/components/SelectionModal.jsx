@@ -1,14 +1,8 @@
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Check, ChevronDown, Info, Plus, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -16,15 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { isDrink, isSandwich } from "@/lib/product-helpers";
-import { Info, X } from "lucide-react";
-import { urlFor } from "@/sanity/lib/image";
+import { cn } from "@/lib/utils";
+import { productImageKey, productImageLoader } from "@/lib/sanity-image";
+import { Chip, PrimaryButton, QuantityStepper, formatEuro } from "@/app/components/order/ui";
 
 const SelectionModal = ({
   isOpen,
@@ -34,18 +23,16 @@ const SelectionModal = ({
   breadTypes = [],
   toppingTypes = [],
 }) => {
-  const [quantity, setQuantity] = React.useState("1");
-  const [breadType, setBreadType] = React.useState(breadTypes[0]?.slug || "");
+  const [quantity, setQuantity] = React.useState(1);
+  // Start on bread without a surcharge, whatever the order in Sanity.
+  const [breadType, setBreadType] = React.useState(
+    (breadTypes.find((bread) => !bread.surcharge) || breadTypes[0])?.slug || ""
+  );
   const [sauce, setSauce] = React.useState(
     sandwich?.sauceOptions?.[0]?.name || "geen"
   );
   const [selectedToppings, setSelectedToppings] = React.useState([]);
   const [showAllergyInfo, setShowAllergyInfo] = useState(false);
-
-  // Create quantity options from 1 to 100, regardless of item type
-  const quantityOptions = React.useMemo(() => {
-    return Array.from({ length: 100 }, (_, i) => (i + 1).toString());
-  }, []);
 
   const handleToppingChange = (toppingName, checked) => {
     if (checked) {
@@ -55,17 +42,23 @@ const SelectionModal = ({
     }
   };
 
+  const amount = Math.max(1, parseInt(quantity) || 1);
+
   const handleSubmit = () => {
     onAdd({
       sandwichId: sandwich.id,
-      quantity: parseInt(quantity),
+      quantity: amount,
       breadType: isSandwich(sandwich) ? breadType : null,
+      // Kept with the order, so its documents don't change when bread is renamed
+      breadName: isSandwich(sandwich)
+        ? breadTypes.find((b) => b.slug === breadType)?.name || null
+        : null,
       sauce,
       toppings: selectedToppings,
       subTotal: calculateSubTotal(
         sandwich.price,
         isSandwich(sandwich) ? breadType : null,
-        parseInt(quantity),
+        amount,
         sauce,
         selectedToppings
       ),
@@ -109,14 +102,6 @@ const SelectionModal = ({
     return (basePrice + breadSurcharge + sauceCost + toppingCost) * qty;
   };
 
-  const currentSubTotal = calculateSubTotal(
-    sandwich?.price || 0,
-    isSandwich(sandwich) ? breadType : null,
-    parseInt(quantity),
-    sauce,
-    selectedToppings
-  );
-
   // Calculate additional costs from bread, sauce and toppings
   const getAdditionalCosts = () => {
     let additionalCost = 0;
@@ -154,266 +139,235 @@ const SelectionModal = ({
 
   const additionalCosts = getAdditionalCosts();
   const totalPerItem = (sandwich?.price || 0) + additionalCosts;
-  const totalPrice = totalPerItem * parseInt(quantity);
+  const totalPrice = totalPerItem * amount;
 
-  // console.log(sandwich);
-  // Helper function to display allergy information
-  const renderAllergyInfo = () => {
-    if (!sandwich?.allergyInfo || sandwich.allergyInfo.length === 0) {
-      return "No allergy information available";
-    }
-
-    return (
-      <div className="space-y-2">
-        <p className="font-medium">This product contains or may contain:</p>
-        <ul className="pl-5 text-sm list-disc">
-          {sandwich.allergyInfo.map((allergen) => (
-            <li key={allergen} className="capitalize">
-              {allergen}
-            </li>
-          ))}
-        </ul>
-        {sandwich.allergyNotes && (
-          <p className="mt-2 text-sm italic">{sandwich.allergyNotes}</p>
-        )}
-      </div>
-    );
-  };
+  const selectedBread = breadTypes.find((b) => b.slug === breadType);
+  const sauceSurcharge =
+    sandwich?.hasSauceOptions && sauce !== "geen"
+      ? sandwich.sauceOptions?.find((s) => s.name === sauce)?.price || 0
+      : 0;
+  const toppingSurcharge = selectedToppings.reduce(
+    (total, toppingName) =>
+      total +
+      (sandwich.toppingOptions?.find((t) => t.topping?.name === toppingName)?.topping?.price || 0),
+    0
+  );
+  const imageKey = productImageKey(sandwich?.image);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] p-0 max-h-[90vh] overflow-hidden">
-        <Button
-          variant="link"
-          size="icon"
-          onClick={onClose}
-          className="absolute top-2 right-2 z-10 w-8 h-8 text-white rounded-full md:text-foreground"
-        >
-          <X className="w-4 h-4" />
-        </Button>
-
-        <div className="flex flex-col md:flex-row max-h-[90vh]">
-          {/* Image Section - Full width on mobile, left side on desktop */}
-          <div className="overflow-hidden relative w-full h-48 rounded-t-lg md:rounded-l-lg md:rounded-tr-none md:w-[350px] md:h-auto shrink-0">
-            <div
-              className="absolute inset-0 bg-center bg-cover"
-              style={{
-                backgroundImage: `url(${urlFor(sandwich?.image).url()})`,
-              }}
-            />
-          </div>
-
-          {/* Content Section - Scrollable */}
-          <div className="overflow-y-auto flex-1 p-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-primary [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-primary/80">
-          <DialogHeader className="mb-4">
-            <DialogTitle>Select options - {sandwich?.name}</DialogTitle>
-          </DialogHeader>
-
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <Label>Amount</Label>
-              <Select value={quantity} onValueChange={setQuantity}>
-                <SelectTrigger className="w-20">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {quantityOptions.map((value) => (
-                    <SelectItem key={value} value={value}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Only show bread type selection for sandwiches */}
-            {isSandwich(sandwich) && (
-              <div className="space-y-2">
-                <Label>Bread type</Label>
-                <Select value={breadType} onValueChange={setBreadType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {breadTypes.map((bread) => (
-                      <SelectItem key={bread.slug} value={bread.slug}>
-                        {bread.name}
-                        {bread.surcharge > 0 &&
-                          ` (+€${bread.surcharge.toFixed(2)})`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+    <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 flex items-end justify-center bg-noon-ink/50 data-[state=open]:animate-in data-[state=open]:fade-in-0 sm:items-center sm:p-6">
+          <DialogPrimitive.Content
+            aria-describedby={undefined}
+            className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-[18px] bg-cream text-noon shadow-[0_30px_60px_-30px_rgba(47,42,92,0.6)] outline-none data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-10 sm:max-h-[88vh] sm:w-[480px] sm:rounded-[14px] sm:data-[state=open]:slide-in-from-bottom-4"
+          >
+            <div className="overflow-y-auto">
+              <div className="relative h-48 shrink-0 overflow-hidden bg-blush sm:h-60">
+                {imageKey && (
+                  <Image
+                    loader={productImageLoader(sandwich.image, { aspect: 2 })}
+                    src={imageKey}
+                    alt={sandwich.name}
+                    fill
+                    sizes="(min-width: 640px) 480px, 100vw"
+                    className="object-cover"
+                  />
+                )}
+                <DialogPrimitive.Close
+                  aria-label="Sluiten"
+                  className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-cream/95 text-noon shadow-sm"
+                >
+                  <X className="h-5 w-5" />
+                </DialogPrimitive.Close>
               </div>
-            )}
 
-            {sandwich.hasSauceOptions && (
-              <div className="space-y-2">
-                <Label>Sauce</Label>
-                <Select value={sauce} onValueChange={setSauce}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="geen">No Sauce</SelectItem>
-                    {sandwich?.sauceOptions?.map((sauceOption) => (
-                      <SelectItem
-                        key={sauceOption.name}
-                        value={sauceOption.name}
-                      >
-                        {sauceOption.name}
-                        {sauceOption.price > 0 &&
-                          ` (+€${sauceOption.price.toFixed(2)})`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+              <div className="flex flex-col gap-6 px-5 pb-6 pt-5 sm:px-7">
+                <div className="flex flex-col gap-1.5">
+                  <DialogPrimitive.Title className="m-0 font-display text-[26px] font-normal leading-[1.15] tracking-[0.02em] text-noon">
+                    {sandwich?.name}
+                  </DialogPrimitive.Title>
+                  {sandwich?.description && (
+                    <p className="m-0 text-sm leading-[1.5] text-mist">{sandwich.description}</p>
+                  )}
+                  <span className="text-base font-semibold">{formatEuro(sandwich?.price)}</span>
+                </div>
 
-            {sandwich.hasToppings && (
-              <div className="space-y-2">
-                <Label>Toppings</Label>
-                <div className="overflow-y-auto p-3 space-y-2 max-h-32 rounded-md border">
-                  {sandwich?.toppingOptions?.map((toppingOption) => {
-                    const topping = toppingOption.topping;
-                    if (!topping) return null;
-                    return (
-                      <div
-                        key={topping._id}
-                        className="flex items-center space-x-2"
-                      >
-                        <Checkbox
-                          id={topping._id}
-                          checked={selectedToppings.includes(topping.name)}
-                          onCheckedChange={(checked) =>
-                            handleToppingChange(topping.name, checked)
-                          }
-                        />
-                        <Label
-                          htmlFor={topping._id}
-                          className="flex-1 text-sm font-normal cursor-pointer"
-                        >
-                          {topping.name}
-                          {topping.price > 0 && (
-                            <span className="ml-1 text-gray-500">
-                              (+€{Number(topping.price || 0).toFixed(2)})
-                            </span>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-sm font-semibold">Aantal</span>
+                  <QuantityStepper
+                    label={sandwich?.name}
+                    value={quantity}
+                    onChange={setQuantity}
+                    min={1}
+                    size="sm"
+                  />
+                </div>
+
+                {/* Only show bread type selection for sandwiches */}
+                {isSandwich(sandwich) && (
+                  <fieldset role="radiogroup" className="m-0 flex flex-col gap-2 border-0 p-0">
+                    <legend className="mb-2 p-0 text-sm font-semibold">Brood</legend>
+                    {breadTypes.map((bread) => {
+                      const active = breadType === bread.slug;
+                      return (
+                        <button
+                          key={bread.slug}
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          onClick={() => setBreadType(bread.slug)}
+                          className={cn(
+                            "flex h-12 items-center gap-3 rounded-[10px] border px-4 text-left text-sm transition-colors",
+                            active ? "border-noon bg-blush" : "border-noon/15 bg-paper hover:border-noon/40"
                           )}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                        >
+                          <span
+                            className={cn(
+                              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border",
+                              active ? "border-noon bg-noon" : "border-noon/30"
+                            )}
+                          >
+                            {active && <span className="h-2 w-2 rounded-full bg-cream" />}
+                          </span>
+                          <span className="flex-1 font-medium">{bread.name}</span>
+                          <span className="tabular-nums text-mist">
+                            {bread.surcharge > 0 ? `+${formatEuro(bread.surcharge)}` : "Inbegrepen"}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </fieldset>
+                )}
 
-            {/* Price Display */}
-            <div className="pt-4 mt-4 border-t">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Base price:</span>
-                  <span>€{sandwich?.price?.toFixed(2) || "0.00"}</span>
-                </div>
-                {!isDrink(sandwich) &&
-                  breadTypes.find((b) => b.slug === breadType)?.surcharge > 0 && (
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>Bread surcharge:</span>
-                      <span>
-                        +€
-                        {breadTypes
-                          .find((b) => b.slug === breadType)
-                          ?.surcharge.toFixed(2)}
-                      </span>
+                {sandwich.hasSauceOptions && (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="sauce" className="text-sm font-semibold">
+                      Saus
+                    </Label>
+                    <Select value={sauce} onValueChange={setSauce}>
+                      <SelectTrigger id="sauce">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="geen">Geen saus</SelectItem>
+                        {sandwich?.sauceOptions?.map((sauceOption) => (
+                          <SelectItem key={sauceOption.name} value={sauceOption.name}>
+                            {sauceOption.name}
+                            {sauceOption.price > 0 && ` (+${formatEuro(sauceOption.price)})`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {sandwich.hasToppings && (
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm font-semibold">
+                      Toppings <span className="font-normal text-mist">· kies wat je wilt</span>
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {sandwich?.toppingOptions?.map((toppingOption) => {
+                        const topping = toppingOption.topping;
+                        if (!topping) return null;
+                        const active = selectedToppings.includes(topping.name);
+                        return (
+                          <Chip
+                            key={topping._id}
+                            active={active}
+                            onClick={() => handleToppingChange(topping.name, !active)}
+                            className="inline-flex items-center gap-1.5"
+                          >
+                            {active ? (
+                              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                            ) : (
+                              <Plus className="h-3.5 w-3.5" strokeWidth={2.4} />
+                            )}
+                            {topping.name}
+                            {topping.price > 0 && (
+                              <span className="opacity-70">+{formatEuro(topping.price)}</span>
+                            )}
+                          </Chip>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-[10px] bg-blush/60 px-4 py-3 text-[13px]">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllergyInfo(!showAllergyInfo)}
+                    aria-expanded={showAllergyInfo}
+                    className="flex w-full items-center gap-2 font-semibold text-noon"
+                  >
+                    <Info className="h-4 w-4" />
+                    Allergeneninformatie
+                    <ChevronDown
+                      className={cn("ml-auto h-4 w-4 transition-transform", showAllergyInfo && "rotate-180")}
+                    />
+                  </button>
+                  {showAllergyInfo && (
+                    <div className="mt-2 flex flex-col gap-2 text-mist">
+                      {sandwich.allergyInfo?.length > 0 ? (
+                        <p className="m-0">
+                          Bevat of kan bevatten:{" "}
+                          <span className="capitalize text-noon">{sandwich.allergyInfo.join(", ")}</span>
+                        </p>
+                      ) : (
+                        <p className="m-0">Geen allergeneninformatie beschikbaar.</p>
+                      )}
+                      {sandwich.allergyNotes && <p className="m-0 italic">{sandwich.allergyNotes}</p>}
                     </div>
                   )}
-                {sandwich?.hasSauceOptions && sauce !== "geen" && (
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Sauce:</span>
-                    <span>
-                      +€
-                      {sandwich.sauceOptions
-                        ?.find((s) => s.name === sauce)
-                        ?.price?.toFixed(2) || "0.00"}
-                    </span>
-                  </div>
-                )}
-                {sandwich?.hasToppings && selectedToppings.length > 0 && (
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Toppings:</span>
-                    <span>
-                      +€
-                      {selectedToppings
-                        .reduce((total, toppingName) => {
-                          const toppingOption = sandwich.toppingOptions?.find(
-                            (t) => t.topping?.name === toppingName
-                          );
-                          return total + (toppingOption?.topping?.price || 0);
-                        }, 0)
-                        .toFixed(2)}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between pt-2 text-sm font-medium border-t">
-                  <span>Price per item:</span>
-                  <span>€{totalPerItem.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total ({quantity}x):</span>
-                  <span>€{totalPrice.toFixed(2)}</span>
+
+                <div className="flex flex-col gap-1.5 border-t border-noon/10 pt-4 text-sm">
+                  <div className="flex justify-between text-mist">
+                    <span>Basisprijs</span>
+                    <span className="tabular-nums">{formatEuro(sandwich?.price)}</span>
+                  </div>
+                  {!isDrink(sandwich) && selectedBread?.surcharge > 0 && (
+                    <div className="flex justify-between text-mist">
+                      <span>{selectedBread.name}</span>
+                      <span className="tabular-nums">+{formatEuro(selectedBread.surcharge)}</span>
+                    </div>
+                  )}
+                  {sandwich?.hasSauceOptions && sauce !== "geen" && (
+                    <div className="flex justify-between text-mist">
+                      <span>Saus</span>
+                      <span className="tabular-nums">+{formatEuro(sauceSurcharge)}</span>
+                    </div>
+                  )}
+                  {sandwich?.hasToppings && selectedToppings.length > 0 && (
+                    <div className="flex justify-between text-mist">
+                      <span>Toppings</span>
+                      <span className="tabular-nums">+{formatEuro(toppingSurcharge)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-mist">
+                    <span>Per stuk</span>
+                    <span className="tabular-nums">{formatEuro(totalPerItem)}</span>
+                  </div>
+                  <div className="mt-1 flex items-baseline justify-between text-lg font-bold">
+                    <span>Totaal ({amount}×)</span>
+                    <span className="tabular-nums">{formatEuro(totalPrice)}</span>
+                  </div>
+                  <span className="text-xs text-mist">Prijzen excl. btw</span>
                 </div>
               </div>
             </div>
-          </div>
 
-          <DialogFooter className="flex justify-between items-center mt-6 w-full">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    onClick={() => setShowAllergyInfo(!showAllergyInfo)}
-                    className="flex justify-center items-center w-8 h-8 rounded-md cursor-pointer"
-                  >
-                    <Info className="w-5 h-5 text-foreground" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-xs">Click for allergy information</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button onClick={handleSubmit}>Add to order</Button>
+            <div className="border-t border-noon/10 bg-cream px-5 pb-5 pt-4 sm:px-7">
+              <PrimaryButton onClick={handleSubmit} className="w-full">
+                Voeg toe aan bestelling
+              </PrimaryButton>
             </div>
-          </DialogFooter>
-
-          {/* Allergy Information Dialog */}
-          {showAllergyInfo && (
-            <div className="flex fixed inset-0 z-50 justify-center items-center bg-black/50">
-              <div className="bg-background p-6 rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">Allergy Information</h3>
-                  <Button
-                    variant="ghost"
-                    className="!hover:bg-transparent"
-                    size="sm"
-                    onClick={() => setShowAllergyInfo(false)}
-                  >
-                    ✕
-                  </Button>
-                </div>
-                {renderAllergyInfo()}
-              </div>
-            </div>
-          )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Overlay>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 };
 

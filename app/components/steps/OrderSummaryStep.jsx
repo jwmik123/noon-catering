@@ -1,96 +1,51 @@
 "use client";
 import React from "react";
-import { FileText } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import QuoteButton from "@/app/components/QuoteButton";
+import { EXTRA_GROUPS, extraPrice } from "@/app/assets/extras";
+import { Card, Heading, OptionCard, SecondaryButton, formatEuro } from "@/app/components/order/ui";
 import { isDrink } from "@/lib/product-helpers";
 
-// Helper function to render variety selection for both old and new formats
-const renderVarietySelection = (varietySelection) => {
-  if (!varietySelection || Object.keys(varietySelection).length === 0) {
-    return null;
-  }
-
-  const categoryLabels = {
-    sandwiches: "Broodjes",
-    salads: "Salades",
-    bowls: "Bowls"
-  };
-
-  const subCategoryLabels = {
-    meat: "Vlees",
-    chicken: "Kip",
-    fish: "Vis",
-    veggie: "Vegetarisch",
-    vegan: "Veganistisch"
-  };
-
-  // Check if it's the new hierarchical format (contains hyphens)
-  const hasHierarchicalFormat = Object.keys(varietySelection).some(key => key.includes('-'));
-
-  if (hasHierarchicalFormat) {
-    // New format: group by main category
-    const categoryGroups = {};
-
-    Object.entries(varietySelection).forEach(([key, quantity]) => {
-      if (quantity > 0) {
-        if (key.includes('-')) {
-          const [mainCategory, subCategory] = key.split('-');
-          if (!categoryGroups[mainCategory]) {
-            categoryGroups[mainCategory] = [];
-          }
-          categoryGroups[mainCategory].push({
-            subCategory,
-            quantity
-          });
-        } else {
-          // Backward compatibility: treat as sandwiches
-          if (!categoryGroups.sandwiches) {
-            categoryGroups.sandwiches = [];
-          }
-          categoryGroups.sandwiches.push({
-            subCategory: key,
-            quantity
-          });
-        }
-      }
-    });
-
-    return Object.entries(categoryGroups).map(([mainCategory, items]) => {
-      const categoryLabel = categoryLabels[mainCategory] || mainCategory;
-
-      return (
-        <div key={mainCategory} className="space-y-2">
-          <div className="font-medium text-gray-700 text-sm">{categoryLabel}:</div>
-          {items.map(({ subCategory, quantity }) => {
-            const subLabel = subCategoryLabels[subCategory] || subCategory;
-            return (
-              <div key={`${mainCategory}-${subCategory}`} className="flex justify-between pl-4">
-                <span className="text-gray-600">{subLabel}</span>
-                <span>{quantity} items</span>
-              </div>
-            );
-          })}
-        </div>
-      );
-    });
-  } else {
-    // Old format: direct subcategory mapping (backward compatibility)
-    return Object.entries(varietySelection)
-      .filter(([_, quantity]) => quantity > 0)
-      .map(([key, quantity]) => {
-        const label = subCategoryLabels[key] || key;
-        return (
-          <div key={key} className="flex justify-between">
-            <span>{label}</span>
-            <span>{quantity} broodjes</span>
-          </div>
-        );
-      });
-  }
+const CATEGORY_LABELS = {
+  sandwiches: "Broodjes",
+  salades: "Salades",
+  salads: "Salades",
+  lunchboxes: "Lunchboxes",
+  bowls: "Bowls",
 };
+
+const SUBCATEGORY_LABELS = {
+  vlees: "vlees",
+  meat: "vlees",
+  kip: "kip",
+  chicken: "kip",
+  vis: "vis",
+  fish: "vis",
+  veggie: "veggie",
+  vegan: "vegan",
+};
+
+// "sandwiches-kip" -> "Broodjes · kip", also for lunchboxes and the old format
+const varietyLabel = (key) => {
+  const parts = key.split("-");
+  const sub = (value) => SUBCATEGORY_LABELS[value] || value;
+  if (parts.length === 1) return `Broodjes · ${sub(parts[0])}`;
+  const category = CATEGORY_LABELS[parts[0]] || parts[0];
+  return parts.length === 3
+    ? `${category} · ${parts[1]} · ${sub(parts[2])}`
+    : `${category} · ${sub(parts[1])}`;
+};
+
+const Line = ({ label, detail, amount }) => (
+  <div className="flex items-baseline justify-between gap-4 text-sm">
+    <span className="min-w-0">
+      <span className="text-noon">{label}</span>
+      {detail && <span className="block text-xs leading-[1.4] text-mist">{detail}</span>}
+    </span>
+    <span className="shrink-0 tabular-nums text-noon">{amount}</span>
+  </div>
+);
 
 const OrderSummaryStep = ({
   formData,
@@ -100,7 +55,6 @@ const OrderSummaryStep = ({
   breadTypes,
   sauceTypes,
   toppingTypes,
-  secondaryButtonClasses,
   totalAmount,
   pricing,
 }) => {
@@ -140,254 +94,147 @@ const OrderSummaryStep = ({
       ? extrasCount
       : formData.totalSandwiches;
 
-  return (
-    <div className="space-y-6">
-      <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
-        <FileText className="w-5 h-5" />
-        <h2 className="text-gray-700">Bestelsamenvatting</h2>
-      </div>
+  const activeExtras = EXTRA_GROUPS.filter((group) => formData[group.flag]).flatMap((group) =>
+    group.items
+      .filter((item) => formData[group.id]?.[item.key] > 0)
+      .map((item) => ({ group, item, quantity: formData[group.id][item.key] }))
+  );
 
-      <div className="space-y-4">
-        <div className="p-6 space-y-4 rounded-lg bg-custom-gray/10">
+  return (
+    <div className="flex flex-col gap-8">
+      <Heading title="Bestelsamenvatting" />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <Card className="flex flex-col gap-5 self-start p-5 md:p-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-500">
-                Totaal aantal items
-              </p>
-              <p className="text-lg font-medium">{displayItemCount}</p>
+              <p className="eyebrow m-0 text-mist">Aantal items</p>
+              <p className="m-0 mt-1 text-lg font-semibold text-noon">{displayItemCount}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Type bestelling</p>
-              <p className="text-lg font-medium">
-                {formData.selectionType === "custom"
-                  ? "Eigen selectie"
-                  : "Verrassing aanbod"}
+              <p className="eyebrow m-0 text-mist">Type bestelling</p>
+              <p className="m-0 mt-1 text-lg font-semibold text-noon">
+                {formData.selectionType === "custom" ? "Eigen selectie" : "Verrassing aanbod"}
               </p>
             </div>
           </div>
 
           {formData.selectionType === "custom" ? (
-            <div className="pt-4 mt-4 border-t">
-              <p className="mb-2 text-sm text-gray-500">Geselecteerde broodjes</p>
-              <div className="space-y-4">
-                {Object.entries(formData.customSelection)
-                  .filter(([_, selections]) => selections?.length > 0)
-                  .map(([id, selections]) => {
-                    const sandwich = sandwichOptions.find((s) => s._id === id);
-                    return (
-                      <div key={id} className="space-y-2">
-                        <div className="font-medium text-gray-900">
-                          {sandwich?.name || "Onbekend broodje"}
-                        </div>
-                        {selections.map((selection, index) => {
-                          const breadType = breadTypes.find(
-                            (b) => b.slug === selection.breadType
-                          )?.name;
+            <div className="flex flex-col gap-4 border-t border-noon/10 pt-5">
+              {Object.entries(formData.customSelection)
+                .filter(([_, selections]) => selections?.length > 0)
+                .map(([id, selections]) => {
+                  const sandwich = sandwichOptions.find((s) => s._id === id);
+                  return (
+                    <div key={id} className="flex flex-col gap-1.5">
+                      <p className="m-0 text-sm font-semibold text-noon">
+                        {sandwich?.name || "Onbekend broodje"}
+                      </p>
+                      {selections.map((selection, index) => {
+                        const breadType = breadTypes.find(
+                          (b) => b.slug === selection.breadType
+                        )?.name;
 
-                          return (
-                            <div
-                              key={index}
-                              className="flex justify-between pl-4 text-sm"
-                            >
-                              <span className="text-gray-600">
+                        return (
+                          <Line
+                            key={index}
+                            label={
+                              <span className="text-mist">
                                 {selection.quantity}x
-                                {!isDrink(sandwich) &&
-                                  breadType &&
-                                  ` - ${breadType}`}
-                                {selection.sauce !== "geen" &&
-                                  ` met ${selection.sauce}`}
-                                {selection.toppings &&
-                                  selection.toppings.length > 0 &&
+                                {!isDrink(sandwich) && breadType && ` - ${breadType}`}
+                                {selection.sauce !== "geen" && ` met ${selection.sauce}`}
+                                {selection.toppings?.length > 0 &&
                                   ` met ${selection.toppings.join(", ")}`}
                               </span>
-                              <span className="font-medium text-gray-900">
-                                €{selection.subTotal.toFixed(2)}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                            }
+                            amount={formatEuro(selection.subTotal)}
+                          />
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+            </div>
+          ) : (
+            formData.totalSandwiches > 0 && (
+              <div className="flex flex-col gap-2 border-t border-noon/10 pt-5">
+                <p className="eyebrow m-0 text-mist">Verdeling van items</p>
+                {Object.entries(formData.varietySelection || {})
+                  .filter(([_, quantity]) => quantity > 0)
+                  .map(([key, quantity]) => {
+                    const price = getVarietyPrice(key);
+                    return (
+                      <Line
+                        key={key}
+                        label={varietyLabel(key)}
+                        detail={price > 0 ? `${quantity} × ${formatEuro(price)}` : `${quantity} items`}
+                        amount={formatEuro(price * quantity)}
+                      />
                     );
                   })}
               </div>
-              <div className="pt-4 mt-4 border-t">
-                <div className="flex justify-between text-lg font-medium">
-                  <span>Totaal bedrag</span>
-                  <span>€{totalAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between mt-1 text-sm text-gray-500">
-                  <span>Totaal aantal items</span>
-                  <span>{formData.totalSandwiches} items</span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="pt-4 mt-4 border-t">
-              {formData.totalSandwiches > 0 && (
-                <>
-              <p className="mb-2 text-sm text-gray-500">
-                Verdeling van items
-              </p>
-              <div className="space-y-3">
-                {renderVarietySelection(formData.varietySelection)}
+            )
+          )}
 
-                {/* Detailed pricing breakdown */}
-                {formData.varietySelection && Object.keys(formData.varietySelection).length > 0 && (
-                  <div className="pt-3 mt-3 border-t">
-                    <p className="mb-2 text-xs font-medium text-gray-600">Prijs overzicht:</p>
-                    {Object.entries(formData.varietySelection)
-                      .filter(([_, quantity]) => quantity > 0)
-                      .map(([key, quantity]) => {
-                        const price = getVarietyPrice(key);
-                        const total = price * quantity;
-                        return (
-                          <div key={key} className="flex justify-between text-xs text-gray-600">
-                            <span>{key}</span>
-                            <span>{quantity} × €{price.toFixed(2)} = €{total.toFixed(2)}</span>
-                          </div>
-                        );
-                      })}
-                  </div>
-                )}
-
-                <div className="pt-3 border-t">
-                  <div className="flex justify-between font-medium">
-                    <span>Totaal items</span>
-                    <span>{formData.totalSandwiches} items</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-600 mt-1">
-                    <span>Verrassing subtotaal</span>
-                    <span>
-                      €{Object.entries(formData.varietySelection || {})
-                        .reduce((sum, [key, quantity]) => sum + (getVarietyPrice(key) * quantity), 0)
-                        .toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-                </>
-              )}
-              {/* Drinks section for variety selection */}
-              {formData.addDrinks && (formData.drinks?.freshOrangeJuice > 0 || formData.drinks?.sodas > 0) && (
-                <div className="pt-4 mt-4 border-t">
-                  <p className="mb-2 text-sm text-gray-500">Dranken</p>
-                  <div className="space-y-2">
-                    {formData.drinks?.freshOrangeJuice > 0 && (
-                      <div className="flex justify-between">
-                        <span>Vers sinaasappelsap</span>
-                        <span>{formData.drinks.freshOrangeJuice}x €{(formData.drinks.freshOrangeJuice * (pricing?.drinks?.freshOrangeJuice || 3.35)).toFixed(2)}</span>
-                      </div>
-                    )}
-                    {formData.drinks?.sodas > 0 && (
-                      <div className="flex justify-between">
-                        <span>Frisdranken</span>
-                        <span>{formData.drinks.sodas}x €{(formData.drinks.sodas * (pricing?.drinks?.sodas || 2.35)).toFixed(2)}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              {/* Soup section for variety selection */}
-              {formData.addSoup && (formData.soup?.soup_small > 0 || formData.soup?.soup_large > 0) && (
-                <div className="pt-4 mt-4 border-t">
-                  <p className="mb-2 text-sm text-gray-500">Soep</p>
-                  <div className="space-y-2">
-                    {formData.soup?.soup_small > 0 && (
-                      <div className="flex justify-between">
-                        <span>Soep 400ml</span>
-                        <span>{formData.soup.soup_small}x €{(formData.soup.soup_small * (pricing?.soup?.soup_small || 3.80)).toFixed(2)}</span>
-                      </div>
-                    )}
-                    {formData.soup?.soup_large > 0 && (
-                      <div className="flex justify-between">
-                        <span>Soep 1000ml</span>
-                        <span>{formData.soup.soup_large}x €{(formData.soup.soup_large * (pricing?.soup?.soup_large || 6.40)).toFixed(2)}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              {/* Desserts section for variety selection */}
-              {formData.addDesserts && (formData.desserts?.desserts > 0 || formData.desserts?.cookies > 0) && (
-                <div className="pt-4 mt-4 border-t">
-                  <p className="mb-2 text-sm text-gray-500">Desserts</p>
-                  <div className="space-y-2">
-                    {formData.desserts?.desserts > 0 && (
-                      <div className="flex justify-between">
-                        <span>Desserts</span>
-                        <span>{formData.desserts.desserts}x €{(formData.desserts.desserts * (pricing?.desserts?.desserts || 3.50)).toFixed(2)}</span>
-                      </div>
-                    )}
-                    {formData.desserts?.cookies > 0 && (
-                      <div className="flex justify-between">
-                        <span>Koekjes</span>
-                        <span>{formData.desserts.cookies}x €{(formData.desserts.cookies * (pricing?.desserts?.cookies || 2.50)).toFixed(2)}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-              <div className="pt-4 mt-4 border-t">
-                <div className="flex justify-between text-lg font-medium">
-                  <span>Totaal bedrag</span>
-                  <span>€{totalAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between mt-1 text-sm text-gray-500">
-                  <span>Totaal aantal items</span>
-                  <span>{displayItemCount} items</span>
-                </div>
-              </div>
+          {formData.selectionType !== "custom" && activeExtras.length > 0 && (
+            <div className="flex flex-col gap-2 border-t border-noon/10 pt-5">
+              <p className="eyebrow m-0 text-mist">Extra&apos;s</p>
+              {activeExtras.map(({ group, item, quantity }) => (
+                <Line
+                  key={item.key}
+                  label={item.label}
+                  detail={`${quantity} × ${formatEuro(extraPrice(pricing, group, item))}`}
+                  amount={formatEuro(quantity * extraPrice(pricing, group, item))}
+                />
+              ))}
             </div>
           )}
-        </div>
-        <div>
-          <Label className="text-base">Kies je verpakking</Label>
-          <RadioGroup
-            value={formData.packagingType || "individual"}
-            onValueChange={(value) => updateFormData("packagingType", value)}
-            className="mt-3 space-y-3"
-          >
-            <div className="flex items-start space-x-3">
-              <RadioGroupItem value="individual" id="packaging-individual" className="mt-0.5" />
-              <Label htmlFor="packaging-individual" className="font-normal cursor-pointer">
-                Individueel verpakt
-              </Label>
+
+          <div className="flex items-baseline justify-between border-t border-noon/10 pt-5">
+            <span className="text-[15px] font-semibold text-noon">
+              Totaal bedrag <span className="text-xs font-normal text-mist">excl. btw</span>
+            </span>
+            <span className="text-xl font-bold tabular-nums text-noon">{formatEuro(totalAmount)}</span>
+          </div>
+        </Card>
+
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2.5">
+            <span className="text-[15px] font-semibold text-noon">Kies je verpakking</span>
+            <div role="radiogroup" aria-label="Verpakking" className="flex flex-col gap-2">
+              <OptionCard
+                active={(formData.packagingType || "individual") === "individual"}
+                title="Individueel verpakt"
+                onClick={() => updateFormData("packagingType", "individual")}
+              />
+              <OptionCard
+                active={formData.packagingType === "plateau"}
+                title="Op plateau"
+                subtitle="Door twee gesneden en feestelijk verpakt op plateau"
+                onClick={() => updateFormData("packagingType", "plateau")}
+              />
             </div>
-            <div className="flex items-start space-x-3">
-              <RadioGroupItem value="plateau" id="packaging-plateau" className="mt-0.5" />
-              <Label htmlFor="packaging-plateau" className="font-normal cursor-pointer">
-                Door twee gesneden en feestelijk verpakt op plateau
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
-        <div>
-          <Label htmlFor="allergies" className="text-base">
-            Allergieën of opmerkingen?
-          </Label>
-          <Textarea
-            placeholder="Voeg allergieën of opmerkingen toe"
-            className="mt-2"
-            value={formData.allergies}
-            onChange={(e) => updateFormData("allergies", e.target.value)}
-          />
-        </div>
-        <div className="flex gap-2">
-          <div className="pt-4 mt-4 w-full">
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <Label htmlFor="allergies" className="text-[15px] font-semibold text-noon">
+              Allergieën of opmerkingen?
+            </Label>
+            <Textarea
+              id="allergies"
+              placeholder="Voeg allergieën of opmerkingen toe"
+              value={formData.allergies}
+              onChange={(e) => updateFormData("allergies", e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <QuoteButton
               formData={formData}
               sandwichOptions={sandwichOptions}
-              buttonClasses={secondaryButtonClasses}
               pricing={pricing}
             />
-          </div>
-          <div className="pt-4 mt-4 w-full">
-            <button
-              onClick={() => setCurrentStep(2)}
-              className="px-2 py-2 w-full font-medium text-gray-700 rounded-md bg-custom-gray/10 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >
-              Bestelling bijwerken
-            </button>
+            <SecondaryButton onClick={() => setCurrentStep(2)}>Bestelling bijwerken</SecondaryButton>
           </div>
         </div>
       </div>

@@ -60,6 +60,7 @@ export async function generateQuote(formData, sandwichOptions, pricing) {
                   sandwichId: { _type: "reference", _ref: sandwichId },
                   selections: selections.map((selection) => ({
                     breadType: selection.breadType,
+                    breadName: selection.breadName || null,
                     sauce: selection.sauce,
                     toppings: selection.toppings,
                     quantity: selection.quantity,

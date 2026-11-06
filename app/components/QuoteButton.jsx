@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { generateQuote } from "@/app/actions/generateQuote";
+import { SecondaryButton } from "@/app/components/order/ui";
 
 export default function QuoteButton({
   formData,
-  buttonClasses,
   sandwichOptions,
   pricing,
 }) {
@@ -54,14 +54,8 @@ export default function QuoteButton({
   };
 
   return (
-    <button
-      onClick={handleDownloadQuote}
-      disabled={isGenerating}
-      className={`${buttonClasses} w-full justify-center ${
-        isGenerating ? "opacity-50 cursor-not-allowed" : ""
-      }`}
-    >
-      {isGenerating ? "Generating..." : "Download Quote (PDF)"}
-    </button>
+    <SecondaryButton onClick={handleDownloadQuote} disabled={isGenerating} className="w-full">
+      {isGenerating ? "Bezig met genereren..." : "Offerte downloaden (PDF)"}
+    </SecondaryButton>
   );
 }

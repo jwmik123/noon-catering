@@ -7,13 +7,13 @@ export default function PrivacyPage() {
         <div className="w-full mb-12">
           <a
             href="/"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-primary hover:bg-primary/90"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors rounded-[10px] bg-primary hover:bg-primary/90"
           >
             ← Back to Home
           </a>
         </div>
       </div>
-      <h1 className="mb-8 text-3xl font-bold">Privacy Policy</h1>
+      <h1 className="mb-8 font-display text-3xl font-normal tracking-[0.02em] text-noon md:text-4xl">Privacy Policy</h1>
 
       <p className="mb-8">
         We are committed to protecting your privacy. This privacy policy
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
       </p>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">1. Data We Collect</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">1. Data We Collect</h2>
         <p className="mb-4">
           We collect personal data such as name, company name, email, phone
           number, and order details via forms on our website.
@@ -29,7 +29,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">
+        <h2 className="mb-4 text-xl font-semibold text-noon">
           2. Purpose of Processing
         </h2>
         <p className="mb-4">
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">3. Data Sharing</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">3. Data Sharing</h2>
         <p className="mb-4">
           We do not share your personal data with third parties, except where
           required for order fulfillment or by law.
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">4. Data Storage</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">4. Data Storage</h2>
         <p className="mb-4">
           Your data is securely stored and retained only as long as necessary
           for the purposes above.
@@ -55,14 +55,14 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">5. Cookies</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">5. Cookies</h2>
         <p className="mb-4">
           We use cookies to enhance your experience and analyze website usage.
         </p>
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">6. Your Rights</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">6. Your Rights</h2>
         <p className="mb-4">
           You may request access to, correction, or deletion of your data by
           contacting us at bestel@noonsandwicherie.be.
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">7. Contact Information</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">7. Contact Information</h2>
         <p className="mb-4">
           NOON Sandwicherie & Koffie
           <br />

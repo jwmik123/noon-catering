@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
-import { isDrink } from "@/lib/product-helpers";
+import { breadLabel, isDrink } from "@/lib/product-helpers";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 import { calculateOrderTotal, getVarietyPrice } from "@/lib/pricing-utils";
 import { parseDateString } from "@/lib/utils";
@@ -432,7 +432,7 @@ const InvoicePDF = ({
           if (!selection) return null;
 
           const qty = selection.quantity || 0;
-          const breadType = selection.breadType || "-";
+          const breadType = breadLabel(selection) || "-";
           const sauce = selection.sauce || "geen";
           const toppings = selection.toppings || [];
           const subTotal = selection.subTotal || 0;

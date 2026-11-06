@@ -1,20 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle } from "lucide-react";
+import Image from "next/image";
 import { Suspense } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Card, Heading } from "@/app/components/order/ui";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const quoteId = searchParams.get("quoteId");
   const formData = searchParams.get("formData");
-  const commonButtonClasses =
-    "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const secondaryButtonClasses = `${commonButtonClasses} bg-muted text-muted-foreground hover:bg-muted/90 focus:ring-muted`;
-
   useEffect(() => {
     setLoading(false);
   }, [quoteId]);
@@ -22,44 +18,36 @@ function SuccessContent() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-noon" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="space-y-6">
-        <div className="flex items-center gap-2 text-lg font-medium text-muted-foreground">
-          <CheckCircle className="w-5 h-5" />
-          <h2>Confirmation</h2>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-accent border border-accent rounded-lg p-6">
-            <h3 className="text-lg font-medium text-accent-foreground mb-2">
-              Thank you for your order!
-            </h3>
-            <p className="text-accent-foreground">
-              We have received your order and will process it.
-            </p>
-            <p className="text-accent-foreground mt-6">
-              You will receive a confirmation by email.
-            </p>
-          </div>
-
-          <div className="bg-muted rounded-lg p-6 space-y-4">
-            <div className="flex space-x-4 items-center">
-              <p className="text-sm text-muted-foreground">Quote ID:</p>
-              <p className="font-medium">{quoteId}</p>
-            </div>
-          </div>
-          <div className="border-t pt-4 mt-4">
-            <Link href="/">
-              <Button>Back to homepage</Button>
-            </Link>
-          </div>
-        </div>
+    <div className="flex min-h-[80vh] items-center justify-center bg-cream px-4 py-12">
+      <div className="flex w-full max-w-xl flex-col items-start gap-8">
+        <Image
+          src="/images/logo-noon-catering.svg"
+          alt="NOON Sandwicherie & Koffie"
+          width={96}
+          height={80}
+          className="h-20 w-auto"
+        />
+        <Heading
+          eyebrow="Bevestiging"
+          title="Bedankt voor je bestelling!"
+          lead="We hebben je bestelling ontvangen en gaan ermee aan de slag. Je ontvangt een bevestiging per e-mail."
+        />
+        <Card className="flex w-full items-center justify-between gap-4 p-5">
+          <span className="text-sm text-mist">Offertenummer</span>
+          <span className="font-semibold text-noon">{quoteId}</span>
+        </Card>
+        <Link
+          href="/"
+          className="flex h-12 items-center justify-center rounded-[10px] border border-noon/25 px-5 text-sm font-semibold text-noon transition-colors hover:border-noon/60"
+        >
+          Terug naar de homepage
+        </Link>
       </div>
     </div>
   );
@@ -70,8 +58,8 @@ export default function PaymentSuccess() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="min-h-screen flex items-center justify-center bg-cream">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-noon" />
         </div>
       }
     >

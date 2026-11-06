@@ -7,7 +7,7 @@ import {
   Preview,
   Section,
 } from "@react-email/components";
-import { isDrink } from "@/lib/product-helpers";
+import { breadLabel, isDrink } from "@/lib/product-helpers";
 import { calculateOrderTotal } from "@/lib/pricing-utils";
 import { calculateVATBreakdown } from "@/lib/vat-calculations";
 import { parseDateString } from "@/lib/utils";
@@ -177,7 +177,7 @@ export default function OrderConfirmation({
                     <Text key={index} style={detailText}>
                       {selection.quantity}x {getDisplayName(sandwichId)}
                       {shouldShowBreadType(sandwichId, selection?.breadType) &&
-                        ` - ${selection?.breadType}`}
+                        ` - ${breadLabel(selection)}`}
                       {selection?.sauce !== "none" &&
                         ` with ${selection?.sauce}`}
                       {` - €${selection.subTotal.toFixed(2)}`}

@@ -1,17 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  Users,
-  Utensils,
-  FileText,
-  Calendar,
-  Building2,
-  CreditCard,
-} from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
 import { client } from "@/sanity/lib/client";
 import { PRODUCT_QUERY, BREAD_TYPES_QUERY, SAUCE_TYPES_QUERY, TOPPING_TYPES_QUERY, PRICING_QUERY, SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
 import Wizard from "@/app/components/wizard/Wizard";
-import SandwichAmountStep from "@/app/components/steps/SandwichAmountStep";
+import StartScreen from "@/app/components/order/StartScreen";
 import SelectionTypeStep from "@/app/components/steps/SelectionTypeStep";
 import OrderSummaryStep from "@/app/components/steps/OrderSummaryStep";
 import DeliveryStep from "@/app/components/steps/DeliveryStep";
@@ -19,6 +12,22 @@ import ContactStep from "@/app/components/steps/ContactStep";
 import PaymentStep from "@/app/components/steps/PaymentStep";
 import { useOrderForm } from "@/app/hooks/useOrderForm";
 import { useOrderValidation } from "@/app/hooks/useOrderValidation";
+import { toDateString } from "@/lib/delivery-dates";
+
+// Step 1 is the start screen at "/"; every later step has its own address.
+const START = 1;
+const SELECTION = 2;
+const OVERVIEW = 3;
+const STEP_PARAMS = {
+  [SELECTION]: "keuze",
+  [OVERVIEW]: "samenvatting",
+  4: "levering",
+  5: "gegevens",
+  6: "betaling",
+};
+const STEP_BY_PARAM = Object.fromEntries(
+  Object.entries(STEP_PARAMS).map(([step, param]) => [param, Number(step)])
+);
 
 const Home = () => {
   const [sandwichOptions, setSandwichOptions] = useState([]);
@@ -74,47 +83,102 @@ const Home = () => {
     // Check if we're restoring a quote (client-side only)
     if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get("restore") ? 3 : 1; // Step 3 is the overview step
+      return searchParams.get("restore") ? OVERVIEW : START;
     }
-    return 1;
+    return START;
   });
+
+  // Every step gets its own browser history entry, so the browser's back and
+  // forward buttons move between the steps instead of leaving the site.
+  // Native pushState keeps this page mounted (Next.js patches it to stay in
+  // sync); the step is always read back from the URL.
+  const stepFromUrl = () => {
+    const param = new URLSearchParams(window.location.search).get("step");
+    return STEP_BY_PARAM[param] || START;
+  };
+  const writeStepToHistory = (step, replace) => {
+    const url = step === START ? "/" : `/?step=${STEP_PARAMS[step]}`;
+    // Already on this step: no extra entry.
+    const same = stepFromUrl() === step && !window.location.search.includes("restore");
+    window.history[replace || same ? "replaceState" : "pushState"](null, "", url);
+  };
+  const goToStep = (step, { replace = false } = {}) => {
+    setCurrentStep(step);
+    if (typeof window === "undefined") return;
+    // Next.js hooks into history after this page's first effects have run.
+    window.setTimeout(() => writeStepToHistory(step, replace), 0);
+  };
+
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    // After a refresh the order is gone, so always start at the beginning.
+    // (A restored quote rewrites the URL itself once it is loaded.)
+    if (params.get("step") && !params.get("restore")) goToStep(START, { replace: true });
+
+    const onPopState = () => {
+      let step = stepFromUrl();
+      // Nothing to show on a later step without an order in progress.
+      if (step !== START && !formDataRef.current.selectionType) {
+        step = START;
+        window.history.replaceState(null, "", "/");
+      }
+      setCurrentStep(step);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+    // Once, on mount.
+  }, []);
 
   useEffect(() => {
     // Handle quote restoration
     const wasRestored = restoreQuote();
     if (wasRestored) {
-      setCurrentStep(3);
+      goToStep(OVERVIEW, { replace: true });
     }
   }, [restoreQuote]);
+
+  const handleSelectDate = (selectedDate) => {
+    if (!selectedDate) return;
+
+    setDate(selectedDate);
+    updateFormData("deliveryDate", toDateString(selectedDate));
+    // Reset time when date changes
+    updateFormData("deliveryTime", "");
+
+    // If Saturday is selected (day 6), automatically enable pickup mode
+    if (selectedDate.getDay() === 6) {
+      updateFormData("isPickup", true);
+    }
+  };
+
+  const handleChooseType = (selectionType) => {
+    if (!isStepValid(START)) {
+      toast.error("Minimum 3 personen vereist", { toastId: "start-validation" });
+      return;
+    }
+    updateFormData("selectionType", selectionType);
+    goToStep(SELECTION);
+  };
 
   // Add useEffect to handle scrolling to top on step change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentStep]);
 
-  const commonButtonClasses =
-    "px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2";
-  const primaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
-  const secondaryButtonClasses = `${commonButtonClasses} bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary`;
-
   const steps = [
-    { icon: Users, title: "Hoeveel personen?" },
-    { icon: Utensils, title: "Keuze" },
-    { icon: FileText, title: "Samenvatting" },
-    { icon: Calendar, title: "Levering" },
-    { icon: Building2, title: "Bedrijfsgegevens" },
-    { icon: CreditCard, title: "Betaling" },
+    { title: "Personen" },
+    { title: "Keuze" },
+    { title: "Samenvatting" },
+    { title: "Levering" },
+    { title: "Gegevens" },
+    { title: "Betaling" },
   ];
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case 1:
-        return (
-          <SandwichAmountStep
-            formData={formData}
-            updateFormData={updateFormData}
-          />
-        );
       case 2:
         return (
           <SelectionTypeStep
@@ -132,12 +196,11 @@ const Home = () => {
           <OrderSummaryStep
             formData={formData}
             updateFormData={updateFormData}
-            setCurrentStep={setCurrentStep}
+            setCurrentStep={goToStep}
             sandwichOptions={sandwichOptions}
             breadTypes={breadTypes}
             sauceTypes={sauceTypes}
             toppingTypes={toppingTypes}
-            secondaryButtonClasses={secondaryButtonClasses}
             totalAmount={totalAmount}
             pricing={pricing}
           />
@@ -148,7 +211,7 @@ const Home = () => {
             formData={formData}
             updateFormData={updateFormData}
             date={date}
-            setDate={setDate}
+            onSelectDate={handleSelectDate}
             setDeliveryCost={setDeliveryCost}
             setDeliveryError={setDeliveryError}
             totalAmount={totalAmount}
@@ -183,17 +246,27 @@ const Home = () => {
     }
   };
 
+  if (currentStep === START) {
+    return (
+      <StartScreen
+        formData={formData}
+        updateFormData={updateFormData}
+        disabledDates={disabledDates}
+        onSelectDate={handleSelectDate}
+        onChoose={handleChooseType}
+      />
+    );
+  }
+
   return (
     <>
       <Wizard
         currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
+        setCurrentStep={goToStep}
         steps={steps}
         isStepValid={isStepValid}
         getValidationMessage={getValidationMessage}
-        secondaryButtonClasses={secondaryButtonClasses}
-        primaryButtonClasses={primaryButtonClasses}
-        formData={formData}
+        totalAmount={totalAmount}
       >
         {renderStepContent()}
       </Wizard>

@@ -630,6 +630,7 @@ export const invoice = defineType({
                       type: "object",
                       fields: [
                         defineField({ name: "breadType", title: "Bread Type", type: "string" }),
+                        defineField({ name: "breadName", title: "Bread Name", type: "string" }),
                         defineField({ name: "sauce", title: "Sauce", type: "string" }),
                         defineField({ name: "quantity", title: "Quantity", type: "number" }),
                         defineField({ name: "subTotal", title: "Subtotal", type: "number" }),

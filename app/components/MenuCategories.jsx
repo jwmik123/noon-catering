@@ -1,8 +1,10 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Image from "next/image";
 import SelectionManager from "./SelectionManager";
-import { urlFor } from "@/sanity/lib/image";
 import SelectedSandwichesList from "./SelectedSandwichesList";
+import { Heading, formatEuro } from "@/app/components/order/ui";
+import { productImageKey, productImageLoader } from "@/lib/sanity-image";
+import { cn } from "@/lib/utils";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -10,17 +12,70 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
+function ProductCard({ item, formData, updateFormData, breadTypes, sauceTypes, toppingTypes }) {
+  const selected = (formData.customSelection[item._id] || []).reduce(
+    (total, selection) => total + selection.quantity,
+    0
+  );
+  const imageKey = productImageKey(item.image);
+
+  return (
+    <article
+      className={cn(
+        "flex overflow-hidden rounded-[14px] border bg-paper transition-colors sm:flex-col",
+        selected > 0 ? "border-noon" : "border-noon/10 hover:border-noon/25"
+      )}
+    >
+      {/* Mobile: a fixed square thumbnail, so every product is cropped the same.
+          Desktop: a 5:4 photo across the top of the card. */}
+      <div className="relative m-3 mr-0 h-[104px] w-[104px] shrink-0 overflow-hidden rounded-[10px] bg-blush sm:m-0 sm:aspect-[5/4] sm:h-auto sm:w-auto sm:rounded-none">
+        {imageKey && (
+          <Image
+            loader={productImageLoader(item.image, { aspect: 5 / 4 })}
+            src={imageKey}
+            alt={item.name}
+            fill
+            sizes="(min-width: 1280px) 280px, (min-width: 640px) 45vw, 104px"
+            className="object-cover"
+          />
+        )}
+        {selected > 0 && (
+          <span className="absolute right-2 top-2 flex h-7 min-w-7 items-center justify-center rounded-full bg-coral px-1.5 text-xs font-bold tabular-nums text-white">
+            {selected}
+          </span>
+        )}
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3.5 sm:p-4">
+        <h4 className="m-0 text-[15px] font-semibold text-noon sm:text-base">{item.name}</h4>
+        {item.description && (
+          <p className="m-0 line-clamp-3 text-[13px] leading-[1.5] text-mist">{item.description}</p>
+        )}
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+          <span className="text-[15px] font-semibold tabular-nums text-noon">{formatEuro(item.price)}</span>
+          <SelectionManager
+            sandwich={item}
+            formData={formData}
+            updateFormData={updateFormData}
+            totalAllowed={formData.totalSandwiches}
+            breadTypes={breadTypes}
+            sauceTypes={sauceTypes}
+            toppingTypes={toppingTypes}
+          />
+        </div>
+      </div>
+    </article>
+  );
+}
+
 const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes, sauceTypes, toppingTypes }) => {
   const categoryRefs = useRef({});
-  const buttonRefs = useRef({});
   const [activeCategory, setActiveCategory] = useState("");
-  const [indicatorStyle, setIndicatorStyle] = useState({});
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isManualScrolling, setIsManualScrolling] = useState(false);
   const scrollTriggersRef = useRef([]);
 
   if (!Array.isArray(sandwichOptions) || !formData || !updateFormData) {
-    return <div className="p-4 text-red-600">Missing required props</div>;
+    return <div className="p-4 text-destructive">Missing required props</div>;
   }
 
   // Get type categories only for navigation (not subcategories)
@@ -163,28 +218,6 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
 
 
 
-  // Update indicator position when active category changes
-  useEffect(() => {
-    const updateIndicatorPosition = () => {
-      const activeButton = buttonRefs.current[activeCategory];
-      if (!activeButton) return;
-
-      // Get the index of active category
-      const activeIndex = typeCategories.findIndex(cat => cat.value === activeCategory);
-      if (activeIndex === -1) return;
-
-      setIndicatorStyle({
-        transform: `translateX(${activeIndex * 100}%)`,
-        width: `${100 / typeCategories.length}%`,
-      });
-    };
-
-    if (activeCategory && typeCategories.length > 0) {
-      // Small delay to ensure DOM is ready
-      requestAnimationFrame(updateIndicatorPosition);
-    }
-  }, [activeCategory, typeCategories]);
-
   const handleRemoveSelection = (sandwichId, indexToRemove) => {
     const currentSelections = formData.customSelection[sandwichId] || [];
     const updatedSelections = currentSelections.filter(
@@ -220,71 +253,54 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
   };
 
   return (
-    <div className="w-full">
-      {/* Navigation tabs - Type categories only */}
-      <div className="sticky top-32 z-10 bg-primary rounded-md text-white">
-        <div className="relative grid w-full px-2 py-3 sm:px-3 sm:py-2 md:px-4 md:py-2" style={{ gridTemplateColumns: `repeat(${typeCategories.length}, 1fr)` }}>
-          {/* Sliding indicator - simplified approach */}
-          <div
-            className={`absolute inset-y-3 sm:inset-y-2 md:inset-y-2 bg-white rounded-md ${
-              prefersReducedMotion
-                ? ''
-                : 'transition-transform duration-300 ease-out'
-            }`}
-            style={{
-              width: indicatorStyle.width || `${100 / typeCategories.length}%`,
-              transform: indicatorStyle.transform || 'translateX(0)',
-              left: '0.5rem',
-              right: '0.5rem',
-              willChange: !prefersReducedMotion && activeCategory ? 'transform' : 'auto',
-            }}
-          />
-          {typeCategories.map((category) => (
-            <button
-              key={category.id}
-              ref={(el) => (buttonRefs.current[category.value] = el)}
-              onClick={() => scrollToCategory(category.value)}
-              className={`relative z-10 w-full px-1 py-2 sm:px-2 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm font-medium rounded-md transition-colors outline-none ${
-                activeCategory === category.value
-                  ? "text-primary font-bold"
-                  : "text-white hover:text-gray-200"
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="grid w-full grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10">
+      <div className="min-w-0">
+        {/* Navigation - type categories only */}
+        <nav
+          aria-label="Menu"
+          className="sticky top-[66px] z-20 -mx-4 overflow-x-auto bg-cream/95 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-4 backdrop-blur md:top-[82px] md:-mx-8 md:px-8 lg:mx-0 lg:px-0"
+        >
+          <div className="flex min-w-max gap-6 border-b border-noon/10">
+            {typeCategories.map((category) => (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => scrollToCategory(category.value)}
+                aria-current={activeCategory === category.value ? "true" : undefined}
+                className={cn(
+                  "eyebrow -mb-px border-b-2 py-3.5 outline-none transition-colors",
+                  activeCategory === category.value
+                    ? "border-noon text-noon"
+                    : "border-transparent text-noon/50 hover:text-noon"
+                )}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        </nav>
 
-      {/* All categories in one scrollable container */}
-      <div className="mt-4 sm:mt-6 space-y-8 sm:space-y-10 md:space-y-12">
-        {typeCategories.map((typeCategory) => {
-          const subCategories = subcategoriesByType.get(typeCategory.value) || [];
+        {/* All categories in one scrollable container */}
+        <div className="mt-8 flex flex-col gap-12">
+          {typeCategories.map((typeCategory) => {
+            const subCategories = subcategoriesByType.get(typeCategory.value) || [];
 
-          return (
-            <section
-              key={typeCategory.id}
-              id={`category-${typeCategory.value}`}
-              ref={(el) => (categoryRefs.current[typeCategory.value] = el)}
-              data-category={typeCategory.value}
-              className="scroll-mt-36 sm:scroll-mt-48"
-            >
-              {/* Type Category title */}
-              <h2 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-foreground">
-                {typeCategory.name}
-              </h2>
+            return (
+              <section
+                key={typeCategory.id}
+                id={`category-${typeCategory.value}`}
+                ref={(el) => (categoryRefs.current[typeCategory.value] = el)}
+                data-category={typeCategory.value}
+                className="flex scroll-mt-32 flex-col gap-6 md:scroll-mt-36"
+              >
+                <Heading as="h2" size="md" title={typeCategory.name} />
 
-              {/* Subcategories within this type category */}
-              <div className="space-y-8">
                 {subCategories.map((subCategory) => (
-                  <div key={`${typeCategory.value}-${subCategory.value}`}>
-                    {/* Subcategory heading */}
-                    <h3 className="text-lg sm:text-xl font-semibold mb-4 text-foreground/80">
-                      {subCategory.name}
-                    </h3>
-
-                    {/* Products in this subcategory */}
-                    <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+                  <div key={`${typeCategory.value}-${subCategory.value}`} className="flex flex-col gap-3">
+                    {subCategory.name !== typeCategory.name && (
+                      <h3 className="eyebrow m-0">{subCategory.name}</h3>
+                    )}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                       {sandwichOptions
                         .filter((item) => {
                           const typeCategoryValue = item.typeCategory?.value || item.typeCategory;
@@ -293,65 +309,34 @@ const MenuCategories = ({ sandwichOptions, formData, updateFormData, breadTypes,
                                  subCategoryValue === subCategory.value;
                         })
                         .map((item) => (
-                          <div key={item._id} className="relative">
-                            {/* this is the card for each sandwich */}
-                            <div
-                              key={item._id}
-                              className="relative flex justify-between gap-4 p-4 rounded-lg shadow-md min-h-44"
-                            >
-                              <div className="w-1/2">
-                                <div className="flex flex-col gap-1">
-                                  <h3 className="text-lg font-bold">{item.name}</h3>
-                                  <p className="text-sm">{item.description}</p>
-                                  <p className="mt-1 text-sm font-medium">
-                                    €{item.price.toFixed(2)}
-                                  </p>
-                                  {item.subCategory && (
-                                    <div className="mt-2 text-xs font-medium rounded text-muted-foreground">
-                                      <span className="px-2 py-1 rounded-sm bg-muted">
-                                        {item.subCategory?.name || item.subCategory}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              <div className="relative w-1/2 -m-4 overflow-hidden">
-                                <div
-                                  className="absolute inset-0 bg-center bg-cover"
-                                  style={{
-                                    backgroundImage: `url(${urlFor(item.image).url()})`,
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            <SelectionManager
-                              sandwich={item}
-                              formData={formData}
-                              updateFormData={updateFormData}
-                              totalAllowed={formData.totalSandwiches}
-                              breadTypes={breadTypes}
-                              sauceTypes={sauceTypes}
-                              toppingTypes={toppingTypes}
-                            />
-                          </div>
+                          <ProductCard
+                            key={item._id}
+                            item={item}
+                            formData={formData}
+                            updateFormData={updateFormData}
+                            breadTypes={breadTypes}
+                            sauceTypes={sauceTypes}
+                            toppingTypes={toppingTypes}
+                          />
                         ))}
                     </div>
                   </div>
                 ))}
-              </div>
-            </section>
-          );
-        })}
+              </section>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Add the selected sandwiches list */}
-      <SelectedSandwichesList
-        selections={formData.customSelection}
-        sandwichOptions={sandwichOptions}
-        onRemove={handleRemoveSelection}
-        breadTypes={breadTypes}
-      />
+      <aside className="lg:sticky lg:top-[106px] lg:max-h-[calc(100vh-200px)] lg:self-start lg:overflow-y-auto">
+        <SelectedSandwichesList
+          selections={formData.customSelection}
+          sandwichOptions={sandwichOptions}
+          onRemove={handleRemoveSelection}
+          breadTypes={breadTypes}
+          target={formData.numberOfPeople}
+        />
+      </aside>
     </div>
   );
 };

@@ -1,111 +1,49 @@
 import React from "react";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, Chip } from "@/app/components/order/ui";
+import { isDateDisabled } from "@/lib/delivery-dates";
 import { getAvailableTimeSlots } from "@/lib/delivery-slots";
 
-const DeliveryCalendar = ({ date, setDate, updateFormData, formData, disabledDates = [] }) => {
-  const handleSelect = (selectedDate) => {
-    if (!selectedDate) return;
-
-    setDate(selectedDate);
-
-    // Extract the date components directly from the selected date
-    // to avoid any timezone conversion issues
-    const year = selectedDate.getFullYear();
-    const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-    const day = String(selectedDate.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
-
-    updateFormData("deliveryDate", formattedDate);
-    // Reset time when date changes
-    updateFormData("deliveryTime", "");
-
-    // If Saturday is selected (day 6), automatically enable pickup mode
-    if (selectedDate.getDay() === 6) {
-      updateFormData("isPickup", true);
-    }
-  };
-
-  // Disable dates without any slot at least 24h away, Sundays, and blocked periods
-  const disabledDays = (date) => {
-    if (getAvailableTimeSlots(date).length === 0) return true;
-    // Disable Sundays (0 = Sunday)
-    if (date.getDay() === 0) return true;
-
-    // Disable dates blocked via Sanity site settings
-    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    for (const period of disabledDates) {
-      if (period.endDate) {
-        if (dateStr >= period.startDate && dateStr <= period.endDate) return true;
-      } else {
-        if (dateStr === period.startDate) return true;
-      }
-    }
-
-    return false;
-  };
-
+const DeliveryCalendar = ({ date, onSelectDate, updateFormData, formData, disabledDates = [] }) => {
   const timeSlots = getAvailableTimeSlots(date).map((value) => ({
     value,
     label: value,
   }));
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 text-lg font-medium text-gray-700">
-        <CalendarIcon className="w-5 h-5" />
-        <h2 className="text-gray-700">Delivery details</h2>
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="">
-          <label className="block mb-2 text-sm font-medium text-gray-700">
-            Delivery date
-          </label>
-          <div className="flex flex-col items-center justify-center">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={handleSelect}
-              disabled={disabledDays}
-              initialFocus
-            />
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-[auto_minmax(0,1fr)]">
+      <Card className="flex flex-col gap-3 p-5">
+        <span className="text-[15px] font-semibold text-noon">Datum</span>
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={onSelectDate}
+          disabled={(day) => isDateDisabled(day, disabledDates)}
+          className="mx-auto"
+          initialFocus
+        />
+      </Card>
+      <Card className="flex flex-col gap-3 p-5">
+        <span className="text-[15px] font-semibold text-noon">Tijdstip</span>
+        {!date ? (
+          <p className="m-0 text-sm text-mist">Kies eerst een datum.</p>
+        ) : timeSlots.length > 0 ? (
+          <div className="grid grid-cols-3 gap-2 lg:grid-cols-4">
+            {timeSlots.map((slot) => (
+              <Chip
+                key={slot.value}
+                active={formData.deliveryTime === slot.value}
+                onClick={() => updateFormData("deliveryTime", slot.value)}
+                className="px-2 tabular-nums"
+              >
+                {slot.label}
+              </Chip>
+            ))}
           </div>
-        </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-700">
-            Delivery time
-          </label>
-          <Select
-            value={formData.deliveryTime}
-            onValueChange={(value) => updateFormData("deliveryTime", value)}
-            disabled={!date}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a time" />
-            </SelectTrigger>
-            <SelectContent>
-              {timeSlots.length > 0 ? (
-                timeSlots.map((slot) => (
-                  <SelectItem key={slot.value} value={slot.value}>
-                    {slot.label}
-                  </SelectItem>
-                ))
-              ) : (
-                <SelectItem value="no-slots-available" disabled>
-                  No time slots available
-                </SelectItem>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+        ) : (
+          <p className="m-0 text-sm text-mist">Geen tijdstippen beschikbaar op deze dag.</p>
+        )}
+      </Card>
     </div>
   );
 };

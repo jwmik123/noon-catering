@@ -92,6 +92,7 @@ export const quote = defineType({
                       type: "object",
                       fields: [
                         defineField({ name: "breadType", type: "string" }),
+                        defineField({ name: "breadName", type: "string" }),
                         defineField({ name: "sauce", type: "string" }),
                         defineField({ name: "topping", type: "string" }),
                         defineField({ name: "quantity", type: "number" }),

@@ -1,16 +1,49 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import DeliveryCalendar from "@/app/components/DeliveryCalendar";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
+import { Card, Heading, Notice, OptionCard } from "@/app/components/order/ui";
+
+const InvoiceAddressFields = ({ formData, updateFormData }) => {
+  const field = (id, name, label, required = true) => (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Input
+        id={id}
+        type="text"
+        value={formData[name]}
+        onChange={(e) => updateFormData(name, e.target.value)}
+        required={required}
+      />
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h3 className="m-0 text-[15px] font-semibold text-noon">Factuuradres</h3>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {field("invoiceStreet", "invoiceStreet", "Straat")}
+        <div className="grid grid-cols-2 gap-4">
+          {field("invoiceHouseNumber", "invoiceHouseNumber", "Huisnummer")}
+          {field("invoiceHouseNumberAddition", "invoiceHouseNumberAddition", "Toevoeging", false)}
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {field("invoicePostalCode", "invoicePostalCode", "Postcode")}
+        {field("invoiceCity", "invoiceCity", "Stad")}
+      </div>
+    </div>
+  );
+};
 
 const DeliveryStep = ({
   formData,
   updateFormData,
   date,
-  setDate,
+  onSelectDate,
   setDeliveryCost,
   setDeliveryError,
   totalAmount,
@@ -19,294 +52,118 @@ const DeliveryStep = ({
   // Check if selected date is a Saturday
   const isSaturday = date && date.getDay() === 6;
 
-  const [googleMapsDeliveryInfo, setGoogleMapsDeliveryInfo] = useState(null);
-
-  const handleDeliveryCostUpdate = (cost, distance) => {
+  const handleDeliveryCostUpdate = (cost) => {
     setDeliveryCost(cost);
-    setGoogleMapsDeliveryInfo({ cost, distance });
 
     // Clear any existing delivery errors when using Google Maps
     if (cost !== null) {
       setDeliveryError(null);
     }
   };
+
+  const choosePickup = () => {
+    updateFormData("isPickup", true);
+    // Clear delivery address and cost when pickup is selected
+    setDeliveryCost(0);
+    setDeliveryError(null);
+    // For pickup orders, we always use invoice address (not delivery address)
+    // Set sameAsDelivery to false to ensure billing address is used
+    updateFormData("sameAsDelivery", false);
+  };
+
   return (
-    <>
+    <div className="flex flex-col gap-8">
+      <Heading title="Levering" />
+
       <DeliveryCalendar
         updateFormData={updateFormData}
         date={date}
-        setDate={setDate}
+        onSelectDate={onSelectDate}
         formData={formData}
         disabledDates={disabledDates}
       />
 
-      <div className="space-y-6">
-        {/* Pickup Option */}
-        <div className={`p-4 border mt-4 rounded-md ${isSaturday ? 'bg-yellow-50 border-yellow-300' : 'bg-blue-50 border-blue-200'}`}>
-          <div className="flex gap-2 items-center">
-            <Checkbox
-              id="isPickup"
-              checked={formData.isPickup}
-              disabled={isSaturday}
-              onCheckedChange={(checked) => {
-                updateFormData("isPickup", checked);
-                if (checked) {
-                  // Clear delivery address and cost when pickup is selected
-                  setDeliveryCost(0);
-                  setDeliveryError(null);
-                  // For pickup orders, we always use invoice address (not delivery address)
-                  // Set sameAsDelivery to false to ensure billing address is used
-                  updateFormData("sameAsDelivery", false);
-                }
-              }}
-            />
-            <Label htmlFor="isPickup" className="text-sm font-medium">
-              Bestelling ophalen bij NOON Sandwicherie
-              {isSaturday && <span className="ml-2 text-yellow-700">(Alleen ophalen mogelijk op zaterdag)</span>}
-            </Label>
-          </div>
-        </div>
-
-        {/* Only show delivery address fields if not pickup */}
-        {!formData.isPickup && (
-          <div>
-            <h3 className="text-lg font-medium text-gray-700 mb-4">
-              Bezorgadres
-            </h3>
-
-            <div className="space-y-4">
-              <AddressAutocomplete
-                formData={formData}
-                updateFormData={updateFormData}
-                onDeliveryCostUpdate={handleDeliveryCostUpdate}
-                totalAmount={totalAmount}
-                label="Bezorgadres"
-                placeholder="Begin met typen van je adres in Gent..."
-              />
-
-              {/* Show current address components if filled */}
-              {(formData.street || formData.houseNumber || formData.postalCode || formData.city) && (
-                <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Adresgegevens:</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                    <div>Straat: {formData.street}</div>
-                    <div>Nummer: {formData.houseNumber}{formData.houseNumberAddition}</div>
-                    <div>Postcode: {formData.postalCode}</div>
-                    <div>Stad: {formData.city}</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Show delivery cost info */}
-              {googleMapsDeliveryInfo && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <p className="text-sm text-blue-800">
-                    📍 Afstand: {googleMapsDeliveryInfo.distance}km
-                  </p>
-                  <p className="text-sm text-blue-800">
-                    🚚 Bezorging: {googleMapsDeliveryInfo.cost === 0
-                      ? "Gratis bezorging!"
-                      : `€${googleMapsDeliveryInfo.cost}`}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Invoice Address Section */}
-        <div className="pt-6 border-t">
-          {formData.isPickup ? (
-            // If pickup is selected, only show invoice address fields
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-700">
-                Factuuradres
-              </h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="invoiceStreet">Straat</Label>
-                  <Input
-                    id="invoiceStreet"
-                    type="text"
-                    value={formData.invoiceStreet}
-                    onChange={(e) =>
-                      updateFormData("invoiceStreet", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="invoiceHouseNumber">Huisnummer</Label>
-                    <Input
-                      id="invoiceHouseNumber"
-                      type="text"
-                      value={formData.invoiceHouseNumber}
-                      onChange={(e) =>
-                        updateFormData("invoiceHouseNumber", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="invoiceHouseNumberAddition">Toevoeging</Label>
-                    <Input
-                      id="invoiceHouseNumberAddition"
-                      type="text"
-                      value={formData.invoiceHouseNumberAddition}
-                      onChange={(e) =>
-                        updateFormData(
-                          "invoiceHouseNumberAddition",
-                          e.target.value
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="invoicePostalCode">Postcode</Label>
-                  <Input
-                    id="invoicePostalCode"
-                    type="text"
-                    value={formData.invoicePostalCode}
-                    onChange={(e) =>
-                      updateFormData("invoicePostalCode", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="invoiceCity">Stad</Label>
-                  <Input
-                    id="invoiceCity"
-                    type="text"
-                    value={formData.invoiceCity}
-                    onChange={(e) =>
-                      updateFormData("invoiceCity", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          ) : (
-            // If delivery is selected, show "same as delivery" checkbox
-            <>
-              <div className="flex gap-2 items-center">
-                <Checkbox
-                  id="sameAsDelivery"
-                  checked={formData.sameAsDelivery}
-                  onCheckedChange={(checked) => {
-                    updateFormData("sameAsDelivery", checked);
-                    if (checked) {
-                      // Copy delivery address to invoice address
-                      updateFormData("invoiceStreet", formData.street);
-                      updateFormData("invoiceHouseNumber", formData.houseNumber);
-                      updateFormData(
-                        "invoiceHouseNumberAddition",
-                        formData.houseNumberAddition
-                      );
-                      updateFormData("invoicePostalCode", formData.postalCode);
-                      updateFormData("invoiceCity", formData.city);
-                    }
-                  }}
-                />
-                <Label
-                  htmlFor="sameAsDelivery"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Factuur- en bezorgadres zijn hetzelfde
-                </Label>
-              </div>
-
-              {!formData.sameAsDelivery && (
-                <div className="mt-6 space-y-6">
-                  <h3 className="text-lg font-medium text-gray-700">
-                    Factuuradres
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="invoiceStreet">Straat</Label>
-                      <Input
-                        id="invoiceStreet"
-                        type="text"
-                        value={formData.invoiceStreet}
-                        onChange={(e) =>
-                          updateFormData("invoiceStreet", e.target.value)
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="invoiceHouseNumber">Huisnummer</Label>
-                        <Input
-                          id="invoiceHouseNumber"
-                          type="text"
-                          value={formData.invoiceHouseNumber}
-                          onChange={(e) =>
-                            updateFormData("invoiceHouseNumber", e.target.value)
-                          }
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="invoiceHouseNumberAddition">Toevoeging</Label>
-                        <Input
-                          id="invoiceHouseNumberAddition"
-                          type="text"
-                          value={formData.invoiceHouseNumberAddition}
-                          onChange={(e) =>
-                            updateFormData(
-                              "invoiceHouseNumberAddition",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="invoicePostalCode">Postcode</Label>
-                      <Input
-                        id="invoicePostalCode"
-                        type="text"
-                        value={formData.invoicePostalCode}
-                        onChange={(e) =>
-                          updateFormData("invoicePostalCode", e.target.value)
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="invoiceCity">Stad</Label>
-                      <Input
-                        id="invoiceCity"
-                        type="text"
-                        value={formData.invoiceCity}
-                        onChange={(e) =>
-                          updateFormData("invoiceCity", e.target.value)
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+      <div className="flex flex-col gap-2.5">
+        <span className="text-[15px] font-semibold text-noon">Bezorgen of ophalen?</span>
+        <div role="radiogroup" aria-label="Bezorgen of ophalen" className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <OptionCard
+            active={!formData.isPickup}
+            disabled={isSaturday}
+            title="Bezorgen"
+            subtitle={isSaturday ? "Niet mogelijk op zaterdag" : "Op jouw locatie in en rond Gent"}
+            onClick={() => updateFormData("isPickup", false)}
+          />
+          <OptionCard
+            active={formData.isPickup}
+            disabled={isSaturday}
+            title="Ophalen bij NOON Sandwicherie"
+            subtitle={isSaturday ? "Alleen ophalen mogelijk op zaterdag" : "Keizer Leopoldstraat 1, Gent"}
+            onClick={choosePickup}
+          />
         </div>
       </div>
-    </>
+
+      {/* Only show delivery address fields if not pickup */}
+      {!formData.isPickup && (
+        <div className="flex flex-col gap-3">
+          <AddressAutocomplete
+            formData={formData}
+            updateFormData={updateFormData}
+            onDeliveryCostUpdate={handleDeliveryCostUpdate}
+            totalAmount={totalAmount}
+            label="Bezorgadres"
+            placeholder="Begin met typen van je adres in Gent..."
+          />
+
+          {/* Show current address components if filled */}
+          {(formData.street || formData.houseNumber || formData.postalCode || formData.city) && (
+            <Notice>
+              {formData.street} {formData.houseNumber}
+              {formData.houseNumberAddition}, {formData.postalCode} {formData.city}
+            </Notice>
+          )}
+        </div>
+      )}
+
+      {/* Invoice Address Section */}
+      <Card className="flex flex-col gap-5 p-5 md:p-6">
+        {formData.isPickup ? (
+          // If pickup is selected, only show invoice address fields
+          <InvoiceAddressFields formData={formData} updateFormData={updateFormData} />
+        ) : (
+          // If delivery is selected, show "same as delivery" checkbox
+          <>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="sameAsDelivery"
+                checked={formData.sameAsDelivery}
+                onCheckedChange={(checked) => {
+                  updateFormData("sameAsDelivery", checked);
+                  if (checked) {
+                    // Copy delivery address to invoice address
+                    updateFormData("invoiceStreet", formData.street);
+                    updateFormData("invoiceHouseNumber", formData.houseNumber);
+                    updateFormData(
+                      "invoiceHouseNumberAddition",
+                      formData.houseNumberAddition
+                    );
+                    updateFormData("invoicePostalCode", formData.postalCode);
+                    updateFormData("invoiceCity", formData.city);
+                  }
+                }}
+              />
+              <Label htmlFor="sameAsDelivery" className="text-sm font-medium text-noon">
+                Factuur- en bezorgadres zijn hetzelfde
+              </Label>
+            </div>
+
+            {!formData.sameAsDelivery && (
+              <InvoiceAddressFields formData={formData} updateFormData={updateFormData} />
+            )}
+          </>
+        )}
+      </Card>
+    </div>
   );
 };
 

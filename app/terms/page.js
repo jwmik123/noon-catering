@@ -7,16 +7,16 @@ export default function TermsPage() {
         <div className="w-full mb-12">
           <a
             href="/"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors rounded-md bg-primary hover:bg-primary/90"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors rounded-[10px] bg-primary hover:bg-primary/90"
           >
             ← Terug naar Home
           </a>
         </div>
       </div>
-      <h1 className="mb-8 text-3xl font-bold">Algemene Voorwaarden - NOON Sandwicherie & Koffie</h1>
+      <h1 className="mb-8 font-display text-3xl font-normal tracking-[0.02em] text-noon md:text-4xl">Algemene Voorwaarden - NOON Sandwicherie & Koffie</h1>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 1 - Definities</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 1 - Definities</h2>
         <p className="mb-4">
           NOON Sandwicherie: aanbieder van cateringdiensten. <br />
           Opdrachtgever: contractpartner van NOON Sandwicherie.
@@ -24,7 +24,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 2 - Toepasselijkheid</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 2 - Toepasselijkheid</h2>
         <p className="mb-4">
           Deze algemene voorwaarden gelden voor alle aanbiedingen, offertes en overeenkomsten.
           Afwijkingen zijn enkel geldig indien schriftelijk overeengekomen.
@@ -32,7 +32,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 3 - Offertes en Bestellingen</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 3 - Offertes en Bestellingen</h2>
         <p className="mb-4">
           Offertes zijn vrijblijvend en geldig gedurende 14 dagen, tenzij anders vermeld.
           Aanvaarding dient binnen deze termijn schriftelijk bevestigd te worden.
@@ -49,7 +49,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 4 - Levering & Koeriersdiensten</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 4 - Levering & Koeriersdiensten</h2>
         <p className="mb-4">
           NOON Sandwicherie is niet verantwoordelijk voor vertragingen veroorzaakt door externe leveringsdiensten.
           We streven ernaar alle bestellingen op het afgesproken tijdstip te leveren, maar kunnen dit niet garanderen.
@@ -57,7 +57,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 5 - Stiptheid</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 5 - Stiptheid</h2>
         <p className="mb-4">
           We vragen de opdrachtgever ervoor te zorgen dat afgesproken tijdstippen worden gerespecteerd
           zodat een vlotte uitvoering mogelijk is. Bij vertraging kan NOON Sandwicherie aangepaste service leveren,
@@ -66,7 +66,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 6 - Betaling</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 6 - Betaling</h2>
         <p className="mb-4">
           Facturen dienen betaald te worden binnen 30 dagen na factuurdatum.
           Bij laattijdige betaling geldt een intrestvoet van 2% per maand op het totaalbedrag.
@@ -80,7 +80,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 7 - Annulering</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 7 - Annulering</h2>
         <p className="mb-4">
           Bij annulering worden volgende kosten aangerekend:
         </p>
@@ -96,7 +96,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 8 - Wijziging Aantal Personen</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 8 - Wijziging Aantal Personen</h2>
         <p className="mb-4">
           Wijzigingen in het aantal personen moeten minstens 24 uur op voorhand schriftelijk worden doorgegeven,
           bij voorkeur voorafgegaan door een telefoongesprek. Wijzigingen binnen deze termijn kunnen niet meer
@@ -105,7 +105,7 @@ export default function TermsPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="mb-4 text-2xl font-semibold">Artikel 9 - Klachten</h2>
+        <h2 className="mb-4 text-xl font-semibold text-noon">Artikel 9 - Klachten</h2>
         <p className="mb-4">
           Klachten dienen schriftelijk gemeld te worden op de dag van levering.
           Aansprakelijkheid is beperkt tot het factuurbedrag.

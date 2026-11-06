@@ -1,9 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { CreditCard, Tag, X } from "lucide-react";
+import { X } from "lucide-react";
 import { generateQuote } from "@/app/actions/generateQuote";
 import { calculateTotalWithVAT, formatVATBreakdown } from "@/lib/vat-calculations";
 import { getInvoiceChannel } from "@/lib/invoice-channel";
+import { Card, Heading, Notice, OptionCard, PrimaryButton, SecondaryButton, formatEuro } from "@/app/components/order/ui";
+import { Input } from "@/components/ui/input";
+
+const PriceLine = ({ label, value, className }) => (
+  <div className={`flex items-baseline justify-between gap-4 text-sm ${className || ""}`}>
+    <span className="text-mist">{label}</span>
+    <span className="font-medium tabular-nums text-noon">{value}</span>
+  </div>
+);
 
 const PaymentStep = ({
   formData,
@@ -130,227 +139,140 @@ const PaymentStep = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
-        <CreditCard className="w-5 h-5" />
-        <h2 className="text-gray-700">Betaling</h2>
-      </div>
+    <div className="flex flex-col gap-8">
+      <Heading title="Betaling" />
 
-      {/* Coupon Code */}
-      <div className="p-4 rounded-lg border border-gray-200 bg-white">
-        <div className="flex gap-2 items-center mb-3">
-          <Tag className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Kortingscode</span>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="flex flex-col gap-6">
+          {/* Payment Method Selection - Only show for non-company orders */}
+          {!formData.isCompany && (
+            <div className="flex flex-col gap-2.5">
+              <span className="text-[15px] font-semibold text-noon">Kies je betaalmethode</span>
+              <div role="radiogroup" aria-label="Betaalmethode" className="flex flex-col gap-2">
+                <OptionCard
+                  active={paymentMethod === "online"}
+                  title="Betaal direct online"
+                  subtitle="Bancontact, creditcard, etc."
+                  onClick={() => setPaymentMethod("online")}
+                />
+                {invoiceChannel ? (
+                  <OptionCard
+                    active={paymentMethod === "invoice"}
+                    title={
+                      invoiceChannel === "peppol"
+                        ? "Betaal via factuur (Peppol e-factuur)"
+                        : "Betaal via factuur (per e-mail)"
+                    }
+                    subtitle="Binnen 14 dagen na factuurdatum"
+                    onClick={() => setPaymentMethod("invoice")}
+                  />
+                ) : (
+                  <p className="m-0 px-1 text-sm text-mist">
+                    Betalen via factuur is niet mogelijk: jullie organisatie is
+                    niet bereikbaar via Peppol.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Coupon Code */}
+          <div className="flex flex-col gap-2.5">
+            <label htmlFor="couponCode" className="text-[15px] font-semibold text-noon">
+              Kortingscode
+            </label>
+
+            {appliedCoupon ? (
+              <Notice tone="success" className="flex items-center justify-between gap-3">
+                <span>
+                  <strong className="font-semibold">{appliedCoupon.code}</strong>{" "}
+                  {appliedCoupon.discountType === "percentage"
+                    ? `${appliedCoupon.discountValue}% korting`
+                    : `${formatEuro(appliedCoupon.discountValue)} korting`}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="transition-opacity hover:opacity-70"
+                  aria-label="Verwijder kortingscode"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </Notice>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  id="couponCode"
+                  type="text"
+                  value={couponInput}
+                  onChange={(e) => {
+                    setCouponInput(e.target.value.toUpperCase());
+                    setCouponError(null);
+                  }}
+                  onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                  placeholder="Voer kortingscode in"
+                  className="h-12"
+                />
+                <SecondaryButton
+                  onClick={handleApplyCoupon}
+                  disabled={couponLoading || !couponInput.trim()}
+                  className="shrink-0"
+                >
+                  {couponLoading ? "..." : "Toepassen"}
+                </SecondaryButton>
+              </div>
+            )}
+
+            {couponError && <p className="m-0 text-sm text-destructive">{couponError}</p>}
+          </div>
         </div>
 
-        {appliedCoupon ? (
-          <div className="flex justify-between items-center px-3 py-2 bg-green-50 rounded-md border border-green-200">
-            <div>
-              <span className="text-sm font-medium text-green-700">{appliedCoupon.code}</span>
-              <span className="ml-2 text-sm text-green-600">
-                {appliedCoupon.discountType === "percentage"
-                  ? `${appliedCoupon.discountValue}% korting`
-                  : `€${appliedCoupon.discountValue.toFixed(2)} korting`}
-              </span>
-            </div>
-            <button
-              onClick={handleRemoveCoupon}
-              className="text-green-600 hover:text-green-800 transition-colors"
-              aria-label="Verwijder kortingscode"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={couponInput}
-              onChange={(e) => {
-                setCouponInput(e.target.value.toUpperCase());
-                setCouponError(null);
-              }}
-              onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
-              placeholder="Voer kortingscode in"
-              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-            <button
-              onClick={handleApplyCoupon}
-              disabled={couponLoading || !couponInput.trim()}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {couponLoading ? "..." : "Toepassen"}
-            </button>
-          </div>
-        )}
-
-        {couponError && (
-          <p className="mt-2 text-sm text-red-600">{couponError}</p>
-        )}
-      </div>
-
-      {/* Price Breakdown */}
-      <div className="p-6 rounded-lg border border-gray-200 bg-custom-gray/10">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">Subtotaal:</span>
-            <span className="font-medium">€{totalAmount.toFixed(2)}</span>
-          </div>
+        {/* Price Breakdown */}
+        <Card className="flex flex-col gap-3 self-start p-5 md:p-6">
+          <PriceLine label="Subtotaal" value={formatEuro(totalAmount)} />
 
           {appliedCoupon && discountAmount > 0 && (
-            <div className="flex justify-between items-center text-green-700">
-              <span>
-                Korting ({appliedCoupon.code}
-                {appliedCoupon.discountType === "percentage"
+            <PriceLine
+              label={`Korting (${appliedCoupon.code}${
+                appliedCoupon.discountType === "percentage"
                   ? ` −${appliedCoupon.discountValue}%`
-                  : ""}
-                ):
-              </span>
-              <span className="font-medium">−€{discountAmount.toFixed(2)}</span>
-            </div>
+                  : ""
+              })`}
+              value={`−${formatEuro(discountAmount)}`}
+            />
           )}
 
-          {deliveryCost !== null ? (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Bezorging:</span>
-              <span className="font-medium">
-                {deliveryCost === 0 ? "Gratis" : `€${deliveryCost.toFixed(2)}`}
-              </span>
-            </div>
-          ) : (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Bezorging:</span>
-              <span className="font-medium text-green-600">Gratis</span>
-            </div>
-          )}
-
-          <div className="flex justify-between items-center">
-            <span className="text-gray-600">BTW Eten (6%):</span>
-            <span className="font-medium">{vatBreakdown.foodVAT}</span>
-          </div>
-
+          <PriceLine
+            label="Bezorging"
+            value={deliveryCost ? formatEuro(deliveryCost) : "Gratis"}
+          />
+          <PriceLine label="BTW eten (6%)" value={vatBreakdown.foodVAT} />
           {deliveryCost > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">BTW Bezorging (21%):</span>
-              <span className="font-medium">{vatBreakdown.deliveryVAT}</span>
-            </div>
+            <PriceLine label="BTW bezorging (21%)" value={vatBreakdown.deliveryVAT} />
           )}
+          <PriceLine
+            label="Totaal BTW"
+            value={vatBreakdown.totalVAT}
+            className="border-t border-noon/10 pt-3"
+          />
 
-          <div className="flex justify-between items-center border-t pt-2">
-            <span className="text-gray-600">Totaal BTW:</span>
-            <span className="font-medium">{vatBreakdown.totalVAT}</span>
+          <div className="flex items-baseline justify-between border-t border-noon/10 pt-4">
+            <span className="text-base font-bold text-noon">Totaal</span>
+            <span className="text-2xl font-bold tabular-nums text-noon">{vatBreakdown.total}</span>
           </div>
 
-          <div className="pt-4 border-t">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold">Totaal:</span>
-              <span className="text-lg font-bold">{vatBreakdown.total}</span>
-            </div>
-          </div>
-        </div>
+          {deliveryError && <Notice tone="warning">{deliveryError}</Notice>}
 
-        {deliveryError && (
-          <div className="p-3 mt-4 rounded-md border bg-accent border-accent">
-            <p className="text-sm text-accent-foreground">{deliveryError}</p>
-          </div>
-        )}
+          {/* Payment Button */}
+          <PrimaryButton onClick={handlePayment} loading={isProcessing} className="mt-2 w-full">
+            {isProcessing
+              ? "Verwerken..."
+              : formData.isCompany || paymentMethod === "online"
+                ? "Ga naar betaling"
+                : "Plaats bestelling"}
+          </PrimaryButton>
+        </Card>
       </div>
-
-      {/* Payment Method Selection - Only show for non-company orders */}
-      {!formData.isCompany && (
-        <div className="space-y-4">
-          <p className="text-sm text-gray-600">Kies je betaalmethode:</p>
-
-          <div className="space-y-3">
-            <div
-              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                paymentMethod === "online"
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-200 hover:border-green-300"
-              }`}
-              onClick={() => setPaymentMethod("online")}
-            >
-              <div className="flex gap-3 items-center">
-                <input
-                  type="radio"
-                  checked={paymentMethod === "online"}
-                  onChange={() => setPaymentMethod("online")}
-                  className="text-green-600 focus:ring-green-500"
-                />
-                <div>
-                  <p className="font-medium">Betaal direct online</p>
-                  <p className="text-sm text-gray-500">
-                    Bancontact, creditcard, etc.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {invoiceChannel ? (
-            <div
-              className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                paymentMethod === "invoice"
-                  ? "border-green-500 bg-green-50"
-                  : "border-gray-200 hover:border-green-300"
-              }`}
-              onClick={() => setPaymentMethod("invoice")}
-            >
-              <div className="flex gap-3 items-center">
-                <input
-                  type="radio"
-                  checked={paymentMethod === "invoice"}
-                  onChange={() => setPaymentMethod("invoice")}
-                  className="text-blue-600 focus:ring-blue-500"
-                />
-                <div>
-                  <p className="font-medium">
-                    {invoiceChannel === "peppol"
-                      ? "Betaal via factuur (Peppol e-factuur)"
-                      : "Betaal via factuur (per e-mail)"}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Binnen 14 dagen na factuurdatum
-                  </p>
-                </div>
-              </div>
-            </div>
-            ) : (
-              <p className="px-1 text-sm text-gray-500">
-                Betalen via factuur is niet mogelijk: jullie organisatie is
-                niet bereikbaar via Peppol.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Payment Button */}
-      <button
-        onClick={handlePayment}
-        disabled={isProcessing}
-        className={`w-full px-6 py-3 bg-green-600 text-white rounded-lg font-medium
-          hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500
-          focus:ring-offset-2 transition-colors
-          ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        <div className="flex gap-2 justify-center items-center">
-          {isProcessing ? (
-            <>
-              <div className="w-5 h-5 rounded-full border-t-2 border-white animate-spin" />
-              <span>Verwerken...</span>
-            </>
-          ) : (
-            <>
-              <CreditCard className="w-5 h-5" />
-              <span>
-                {formData.isCompany || paymentMethod === "online"
-                  ? "Ga naar betaling"
-                  : "Plaats bestelling"}
-              </span>
-            </>
-          )}
-        </div>
-      </button>
     </div>
   );
 };

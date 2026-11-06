@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Notice } from "@/app/components/order/ui";
 import { loadGoogleMaps, validateAddressAndCalculateDelivery } from "@/lib/google-maps";
 
 const AddressAutocomplete = ({
@@ -46,7 +47,7 @@ const AddressAutocomplete = ({
 
       } catch (error) {
         console.error('Failed to initialize Google Maps autocomplete:', error);
-        setError('Failed to load address suggestions');
+        setError('Adressuggesties konden niet geladen worden');
       }
     };
 
@@ -64,7 +65,7 @@ const AddressAutocomplete = ({
     const place = autocompleteRef.current.getPlace();
 
     if (!place.geometry) {
-      setError('Please select a valid address from the suggestions');
+      setError('Kies een geldig adres uit de suggesties');
       return;
     }
     setIsLoading(true);
@@ -116,7 +117,7 @@ const AddressAutocomplete = ({
 
     } catch (error) {
       console.error('Address validation error:', error);
-      setError('Failed to validate address. Please try again.');
+      setError('Adres controleren is mislukt. Probeer het opnieuw.');
       setValidationResult(null);
     } finally {
       setIsLoading(false);
@@ -192,42 +193,31 @@ const AddressAutocomplete = ({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="address-autocomplete">{label}</Label>
+      <Label htmlFor="address-autocomplete" className="text-[15px] font-semibold text-noon">
+        {label}
+      </Label>
       <Input
         ref={inputRef}
         id="address-autocomplete"
         type="text"
         placeholder={placeholder}
         onChange={handleInputChange}
-        className={error ? "border-red-500" : ""}
+        className={error ? "border-destructive" : ""}
         disabled={isLoading}
       />
 
-      {isLoading && (
-        <p className="text-sm text-blue-600">
-          Validating address...
-        </p>
-      )}
+      {isLoading && <p className="m-0 text-sm text-mist">Adres controleren...</p>}
 
-      {error && (
-        <p className="text-sm text-red-600">
-          {error}
-        </p>
-      )}
+      {error && <p className="m-0 text-sm text-destructive">{error}</p>}
 
       {validationResult && validationResult.isValid && (
-        <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-sm text-green-800">
-            ✓ Valid delivery address in {validationResult.city}
-          </p>
-          <p className="text-xs text-green-700 mt-1">
-            Distance: {validationResult.distance}km •
-            Delivery: {validationResult.isFreeDelivery
-              ? "Free"
-              : `€${validationResult.deliveryCost}`
-            }
-          </p>
-        </div>
+        <Notice tone="success">
+          Geldig bezorgadres in {validationResult.city}
+          <span className="block text-xs opacity-80">
+            Afstand: {validationResult.distance}km · Bezorging:{" "}
+            {validationResult.isFreeDelivery ? "Gratis" : `€${validationResult.deliveryCost}`}
+          </span>
+        </Notice>
       )}
     </div>
   );

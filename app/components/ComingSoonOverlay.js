@@ -31,7 +31,7 @@ export default function ComingSoonOverlay() {
       setIsUnlocked(true);
       setError('');
     } else {
-      setError('Incorrect password');
+      setError('Onjuist wachtwoord');
       setPassword('');
     }
   };
@@ -45,18 +45,18 @@ export default function ComingSoonOverlay() {
   if (isLoading) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-cream">
       <div className="text-center px-4 max-w-md w-full">
         {/* Logo or branding */}
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+        <h1 className="font-display font-normal text-4xl md:text-5xl tracking-[0.02em] text-noon mb-4">
           Noon Sandwicherie & Koffie
         </h1>
 
         {/* Maintenance message */}
-        <p className="text-2xl md:text-3xl text-gray-600 mb-2">
+        <p className="font-lead text-xl md:text-2xl text-noon mb-2">
           We zijn even in onderhoud
         </p>
-        <p className="text-gray-500 mb-8">
+        <p className="text-mist mb-8">
           Binnenkort zijn we weer bereikbaar. Bedankt voor je geduld!
         </p>
 
@@ -70,18 +70,18 @@ export default function ComingSoonOverlay() {
                 setPassword(e.target.value);
                 setError('');
               }}
-              placeholder="Enter password to preview"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-center"
+              placeholder="Wachtwoord"
+              className="w-full px-4 py-3 border border-input bg-paper rounded-[10px] focus:outline-none focus:border-noon focus:ring-1 focus:ring-noon text-center"
               autoFocus
             />
             {error && (
-              <p className="text-red-500 text-sm">{error}</p>
+              <p className="text-destructive text-sm">{error}</p>
             )}
             <button
               type="submit"
-              className="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+              className="w-full bg-coral text-white px-6 py-3 rounded-[10px] text-[13px] font-bold uppercase tracking-[0.1em] hover:brightness-95 transition-[filter]"
             >
-              Access Site
+              Naar de site
             </button>
           </div>
         </form>

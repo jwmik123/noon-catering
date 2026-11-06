@@ -56,6 +56,24 @@ module.exports = {
           oranje: "#f29169", /* Orange */
           lichtroze: "#efdcd8", /* Light pink */
         },
+        // Brand palette shared with noonsandwicherie.be
+        cream: "#FCF9F2",
+        paper: "#FFFDF9",
+        blush: "#EDE0DE",
+        noon: {
+          DEFAULT: "#524A98",
+          dark: "#3B3578",
+          ink: "#2F2A5C",
+        },
+        coral: {
+          DEFAULT: "#F29169",
+          soft: "#FBE7DD",
+        },
+        mist: "#6F6A93",
+        leaf: {
+          DEFAULT: "#2F6B4F",
+          soft: "#E3EEE6",
+        },
       },
       backgroundColor: {
         DEFAULT: "hsl(var(--background))",
@@ -69,7 +87,9 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["Poppins", "sans-serif"],
+        sans: ["var(--font-open-sans)", "sans-serif"],
+        display: ["var(--font-abril)", "serif"],
+        lead: ["var(--font-montserrat)", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

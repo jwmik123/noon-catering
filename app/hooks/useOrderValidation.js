@@ -113,9 +113,9 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
             .reduce((total, selection) => total + selection.quantity, 0);
           const remaining = formData.numberOfPeople - totalSelected;
           if (remaining > 0) {
-            return `Please select ${remaining} more sandwich${
-              remaining === 1 ? "" : "es"
-            } for ${formData.numberOfPeople} people`;
+            return `Selecteer nog ${remaining} item${
+              remaining === 1 ? "" : "s"
+            } voor ${formData.numberOfPeople} personen`;
           }
         }
         if (formData.selectionType === "variety") {
@@ -126,24 +126,24 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
           }
 
           if (Number(total) !== Number(formData.numberOfPeople)) {
-            return `The total must be ${formData.numberOfPeople} items for ${formData.numberOfPeople} people`;
+            return `Het totaal moet ${formData.numberOfPeople} items zijn voor ${formData.numberOfPeople} personen`;
           }
         }
         return "";
       case 4:
         if (!formData.deliveryDate) {
-          return formData.isPickup ? "Please select a pick up date" : "Please select a delivery date";
+          return formData.isPickup ? "Kies een ophaaldatum" : "Kies een bezorgdatum";
         }
         if (!formData.deliveryTime) {
-          return formData.isPickup ? "Please select a pick up time" : "Please select a delivery time";
+          return formData.isPickup ? "Kies een ophaaltijd" : "Kies een bezorgtijd";
         }
         if (!isSlotBookable(formData.deliveryDate, formData.deliveryTime)) {
-          return "Orders must be placed at least 24 hours in advance. Please choose a later time";
+          return "Bestel minimaal 24 uur op voorhand. Kies een later tijdstip";
         }
         // Skip address validation for pickup orders
         if (!formData.isPickup) {
           if (!formData.fullAddress && (!formData.street || !formData.houseNumber || !formData.postalCode || !formData.city)) {
-            return "Please provide a complete delivery address";
+            return "Vul een volledig bezorgadres in";
           }
           if (deliveryError && (
             deliveryError === "We do not deliver to this postal code." ||
@@ -151,7 +151,7 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
             deliveryError.includes("within our delivery") ||
             deliveryError.includes("10km")
           )) {
-            return "Please select an address within our delivery area";
+            return "Kies een adres binnen ons bezorggebied";
           }
         }
         return "";

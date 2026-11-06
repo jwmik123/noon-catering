@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { AlertTriangle, Building2, CheckCircle2, Loader2, Plus, X, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2, Plus, X, XCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "react-toastify";
+import { Card, Heading, SecondaryButton } from "@/app/components/order/ui";
 
 const ContactStep = ({
   formData,
@@ -145,21 +146,18 @@ const ContactStep = ({
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      toast.error("Failed to generate PDF. Please try again.");
+      toast.error("Factuurvoorbeeld maken is mislukt. Probeer het opnieuw.");
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex gap-2 items-center text-lg font-medium text-gray-700">
-        <Building2 className="w-5 h-5" />
-        <h2 className="text-gray-700">Contact- en bedrijfsgegevens</h2>
-      </div>
+    <div className="flex flex-col gap-8">
+      <Heading title="Contact- en bedrijfsgegevens" />
 
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Contact Details */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-gray-700 text-md">Contactgegevens</h3>
+        <Card className="flex flex-col gap-4 self-start p-5 md:p-6">
+          <h2 className="m-0 text-[15px] font-semibold text-noon">Contactgegevens</h2>
 
           <div className="space-y-2">
             <Label htmlFor="name">Volledige naam*</Label>
@@ -201,7 +199,7 @@ const ContactStep = ({
                     const updated = (formData.additionalEmails || []).filter((_, i) => i !== idx);
                     updateFormData("additionalEmails", updated);
                   }}
-                  className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  className="flex-shrink-0 p-1 text-mist hover:text-noon transition-colors"
                   aria-label="Verwijder e-mailadres"
                 >
                   <X className="w-4 h-4" />
@@ -247,7 +245,7 @@ const ContactStep = ({
                     const updated = (formData.additionalPhoneNumbers || []).filter((_, i) => i !== idx);
                     updateFormData("additionalPhoneNumbers", updated);
                   }}
-                  className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  className="flex-shrink-0 p-1 text-mist hover:text-noon transition-colors"
                   aria-label="Verwijder telefoonnummer"
                 >
                   <X className="w-4 h-4" />
@@ -262,11 +260,11 @@ const ContactStep = ({
               <Plus className="w-3 h-3" /> Telefoonnummer toevoegen
             </button>
           </div>
-        </div>
+        </Card>
 
         {/* Company Details Section */}
-        <div className="pt-6 border-t">
-          <div className="flex gap-2 items-center">
+        <Card className="flex flex-col self-start p-5 md:p-6">
+          <div className="flex gap-3 items-center">
             <Checkbox
               id="isCompany"
               checked={formData.isCompany}
@@ -276,7 +274,7 @@ const ContactStep = ({
             />
             <Label
               htmlFor="isCompany"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="text-sm font-medium text-noon peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Dit is GEEN zakelijke bestelling
             </Label>
@@ -317,7 +315,7 @@ const ContactStep = ({
                   <VATCheckStatus checking={isCheckingVAT} vatCheck={vatCheck} />
                 )}
 
-                <div className="flex gap-2 items-center pt-1">
+                <div className="flex gap-3 items-center pt-1">
                   <Checkbox
                     id="noVatNumber"
                     checked={formData.noVatNumber || false}
@@ -327,7 +325,7 @@ const ContactStep = ({
                   />
                   <Label
                     htmlFor="noVatNumber"
-                    className="text-sm font-normal text-gray-600"
+                    className="text-sm font-normal leading-[1.4] text-mist"
                   >
                     Onze organisatie heeft geen btw-nummer (bv. vzw of
                     overheidsinstelling)
@@ -372,17 +370,12 @@ const ContactStep = ({
               </div>
 
               {/* Download Invoice Button */}
-              <div className="pt-4">
-                <button
-                  onClick={handleDownloadInvoice}
-                  className="px-4 py-2 w-full text-sm font-medium text-white rounded-md transition-colors bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-                >
-                  Factuurvoorbeeld downloaden
-                </button>
-              </div>
+              <SecondaryButton onClick={handleDownloadInvoice} className="w-full">
+                Factuurvoorbeeld downloaden
+              </SecondaryButton>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );
@@ -424,7 +417,7 @@ const useNumberCheck = ({ value, result, enabled, requestKey, onResult, fallback
 const EnterpriseCheckStatus = ({ checking, enterpriseCheck }) => {
   if (checking) {
     return (
-      <p className="flex gap-2 items-center text-sm text-gray-500">
+      <p className="flex gap-2 items-center text-sm text-mist">
         <Loader2 className="w-4 h-4 animate-spin" />
         Ondernemingsnummer controleren...
       </p>
@@ -433,7 +426,7 @@ const EnterpriseCheckStatus = ({ checking, enterpriseCheck }) => {
 
   if (!enterpriseCheck) {
     return (
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-mist">
         Staan jullie op Peppol met je ondernemingsnummer? Dan sturen we de
         factuur via Peppol, anders per e-mail.
       </p>
@@ -442,7 +435,7 @@ const EnterpriseCheckStatus = ({ checking, enterpriseCheck }) => {
 
   if (enterpriseCheck.status === "invalid") {
     return (
-      <p className="flex gap-2 items-start text-sm text-red-600">
+      <p className="flex gap-2 items-start text-sm text-destructive">
         <XCircle className="flex-shrink-0 mt-0.5 w-4 h-4" />
         Dit ondernemingsnummer is ongeldig. Controleer het nummer, of laat het
         veld leeg.
@@ -451,7 +444,7 @@ const EnterpriseCheckStatus = ({ checking, enterpriseCheck }) => {
   }
 
   return (
-    <p className="flex gap-2 items-start text-sm text-green-700">
+    <p className="flex gap-2 items-start text-sm text-leaf">
       <CheckCircle2 className="flex-shrink-0 mt-0.5 w-4 h-4" />
       {enterpriseCheck.peppol
         ? "Geldig ondernemingsnummer. Bereikbaar via Peppol: de factuur gaat via Peppol."
@@ -463,7 +456,7 @@ const EnterpriseCheckStatus = ({ checking, enterpriseCheck }) => {
 const VATCheckStatus = ({ checking, vatCheck }) => {
   if (checking) {
     return (
-      <p className="flex gap-2 items-center text-sm text-gray-500">
+      <p className="flex gap-2 items-center text-sm text-mist">
         <Loader2 className="w-4 h-4 animate-spin" />
         BTW-nummer controleren...
       </p>
@@ -474,7 +467,7 @@ const VATCheckStatus = ({ checking, vatCheck }) => {
 
   if (vatCheck.status === "invalid") {
     return (
-      <p className="flex gap-2 items-start text-sm text-red-600">
+      <p className="flex gap-2 items-start text-sm text-destructive">
         <XCircle className="flex-shrink-0 mt-0.5 w-4 h-4" />
         Dit btw-nummer is ongeldig. Controleer het nummer, of vink hieronder
         aan dat jullie organisatie geen btw-nummer heeft.
@@ -486,7 +479,7 @@ const VATCheckStatus = ({ checking, vatCheck }) => {
 
   if (isBelgian && vatCheck.peppol === false) {
     return (
-      <p className="flex gap-2 items-start text-sm text-amber-700">
+      <p className="flex gap-2 items-start text-sm text-[#8A4A2C]">
         <AlertTriangle className="flex-shrink-0 mt-0.5 w-4 h-4" />
         <span>
           Geldig btw-nummer{vatCheck.name ? ` (${vatCheck.name})` : ""}, maar
@@ -501,7 +494,7 @@ const VATCheckStatus = ({ checking, vatCheck }) => {
 
   if (vatCheck.status === "unverified") {
     return (
-      <p className="flex gap-2 items-start text-sm text-gray-500">
+      <p className="flex gap-2 items-start text-sm text-mist">
         <AlertTriangle className="flex-shrink-0 mt-0.5 w-4 h-4" />
         We konden dit nummer nu niet controleren bij de EU (VIES). Controleer
         het zelf nog even goed.
@@ -510,7 +503,7 @@ const VATCheckStatus = ({ checking, vatCheck }) => {
   }
 
   return (
-    <p className="flex gap-2 items-start text-sm text-green-700">
+    <p className="flex gap-2 items-start text-sm text-leaf">
       <CheckCircle2 className="flex-shrink-0 mt-0.5 w-4 h-4" />
       Geldig btw-nummer{vatCheck.name ? ` – ${vatCheck.name}` : ""}
       {vatCheck.peppol ? ". Bereikbaar via Peppol." : ""}

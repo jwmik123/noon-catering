@@ -1,16 +1,24 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Abril_Fatface, Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import Footer from "@/app/components/Footer";
 import ComingSoonOverlay from "@/app/components/ComingSoonOverlay";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// The typefaces of noonsandwicherie.be
+const abril = Abril_Fatface({
+  variable: "--font-abril",
+  weight: "400",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  weight: "500",
+  subsets: ["latin"],
+});
+
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
   subsets: ["latin"],
 });
 
@@ -27,7 +35,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="nl">
       <head>
         {/* Google Tag Manager */}
         <script
@@ -58,7 +66,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${abril.variable} ${montserrat.variable} ${openSans.variable} antialiased min-h-screen flex flex-col`}
       >
         {/* Google Tag Manager (noscript) */}
         <noscript>
@@ -72,7 +80,13 @@ export default function RootLayout({ children }) {
         <ComingSoonOverlay />
         <main className="flex-grow">{children}</main>
         <Footer />
-        <ToastContainer />
+        <ToastContainer
+          position="top-center"
+          autoClose={4500}
+          hideProgressBar
+          newestOnTop
+          closeOnClick
+        />
       </body>
     </html>
   );

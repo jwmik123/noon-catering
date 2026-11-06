@@ -1,10 +1,13 @@
+import { X } from "lucide-react";
 import { isDrink } from "@/lib/product-helpers";
+import { Card, ProgressBar, formatEuro } from "@/app/components/order/ui";
 
 const SelectedSandwichesList = ({
   selections,
   sandwichOptions,
   onRemove,
   breadTypes,
+  target = 0,
 }) => {
   // Group selections by sandwich
   const groupedSelections = Object.entries(selections)
@@ -15,113 +18,78 @@ const SelectedSandwichesList = ({
         selections: sandwichSelections,
       };
     })
-    .filter((group) => group.selections.length > 0);
+    .filter((group) => group.sandwich && group.selections.length > 0);
 
-  // Separate drinks and sandwiches
-  const drinkSelections = groupedSelections.filter(({ sandwich }) =>
-    isDrink(sandwich)
-  );
-  const sandwichSelections = groupedSelections.filter(
-    ({ sandwich }) => !isDrink(sandwich)
-  );
+  const allSelections = groupedSelections.flatMap((group) => group.selections);
+  const count = allSelections.reduce((total, selection) => total + selection.quantity, 0);
+  const total = allSelections.reduce((sum, selection) => sum + selection.subTotal, 0);
+  const remaining = target - count;
 
-  if (groupedSelections.length === 0) {
-    return (
-      <div className="bg-muted p-4 rounded-lg text-muted-foreground text-center mt-8">
-        Geen items geselecteerd
-      </div>
-    );
-  }
-
-  // Helper function to get sauce name
-  const getSauceName = (sandwich, sauceId) => {
-    if (sauceId === "geen") return "";
-    const sauceOption = sandwich.sauceOptions?.find(
-      (sauce) => sauce.name === sauceId
-    );
-    return sauceOption ? ` with ${sauceOption.name}` : "";
-  };
-
-  // Helper function to get topping name
-  const getToppingName = (sandwich, toppings) => {
-    if (!toppings || toppings.length === 0) return "";
-
-    const toppingNames = toppings.map((toppingName) => {
-      const toppingOption = sandwich.toppingOptions?.find(
-        (topping) => topping.name === toppingName
-      );
-      return toppingOption ? toppingOption.name : toppingName;
-    });
-
-    return toppingNames.length > 0 ? ` with ${toppingNames.join(", ")}` : "";
+  // What was chosen on top of the plain product
+  const describe = (sandwich, selection) => {
+    const bread = isDrink(sandwich)
+      ? null
+      : breadTypes.find((b) => b.slug === selection.breadType)?.name;
+    const sauce = selection.sauce && selection.sauce !== "geen" ? selection.sauce : null;
+    return [bread, sauce, ...(selection.toppings || [])].filter(Boolean).join(" · ");
   };
 
   return (
-    <div className="bg-custom-gray/10 px-4 py-2 mt-8 rounded-lg">
-      <div className="divide-y divide-gray-300">
-        {/* Render Sandwiches */}
-        {sandwichSelections.length > 0 && (
-          <div>
-            {sandwichSelections.map(({ sandwich, selections }) => (
-              <div key={sandwich._id} className="space-y-2 py-4">
-                <div className="font-medium">{sandwich.name}</div>
-                {selections.map((selection, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between text-sm text-custom-gray pl-4"
-                  >
-                    <span>
-                      {selection.quantity}x -{" "}
-                      {
-                        breadTypes.find((b) => b.slug === selection.breadType)
-                          ?.name
-                      }
-                      {getSauceName(sandwich, selection.sauce)}
-                      {getToppingName(sandwich, selection.toppings)}
-                    </span>
-                    <button
-                      onClick={() => onRemove(sandwich._id, index)}
-                      className="text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
+    <Card className="flex flex-col gap-4 p-5">
+      <h2 className="m-0 font-display text-[22px] font-normal tracking-[0.02em] text-noon">
+        Jouw bestelling
+      </h2>
 
-        {/* Render Drinks */}
-        {drinkSelections.length > 0 && (
-          <div>
-            {drinkSelections.map(({ sandwich, selections }) => (
-              <div key={sandwich._id} className="space-y-2 py-4">
-                <div className="font-medium">{sandwich.name}</div>
-                {selections.map((selection, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between text-sm text-custom-gray pl-4"
-                  >
-                    <span>
-                      {selection.quantity}x
-                      {getSauceName(sandwich, selection.sauce)}
-                      {getToppingName(sandwich, selection.toppings)}
-                    </span>
-                    <button
-                      onClick={() => onRemove(sandwich._id, index)}
-                      className="text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-baseline justify-between text-sm">
+          <span className="text-mist">
+            <strong className="text-lg font-semibold tabular-nums text-noon">{count}</strong> van {target}
+          </span>
+          <span className="font-semibold text-noon">
+            {remaining > 0 ? `Nog ${remaining} te gaan` : "Compleet"}
+          </span>
+        </div>
+        <ProgressBar value={target > 0 ? (count / target) * 100 : 0} />
       </div>
-    </div>
+
+      {groupedSelections.length === 0 ? (
+        <p className="m-0 border-t border-noon/10 pt-4 text-sm text-mist">Geen items geselecteerd</p>
+      ) : (
+        <ul className="m-0 flex list-none flex-col gap-3 border-t border-noon/10 p-0 pt-4">
+          {groupedSelections.flatMap(({ sandwich, selections }) =>
+            selections.map((selection, index) => (
+              <li key={`${sandwich._id}-${index}`} className="flex items-start gap-2 text-sm">
+                <span className="w-7 shrink-0 font-semibold tabular-nums text-noon">
+                  {selection.quantity}×
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-medium text-noon">{sandwich.name}</span>
+                  {describe(sandwich, selection) && (
+                    <span className="block text-xs leading-[1.4] text-mist">
+                      {describe(sandwich, selection)}
+                    </span>
+                  )}
+                </span>
+                <span className="tabular-nums text-noon">{formatEuro(selection.subTotal)}</span>
+                <button
+                  type="button"
+                  onClick={() => onRemove(sandwich._id, index)}
+                  aria-label={`${sandwich.name} verwijderen`}
+                  className="-mr-1 -mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-mist hover:bg-blush hover:text-noon"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            ))
+          )}
+        </ul>
+      )}
+
+      <div className="flex items-baseline justify-between border-t border-noon/10 pt-4">
+        <span className="text-sm text-mist">Totaal excl. btw</span>
+        <span className="text-lg font-bold tabular-nums text-noon">{formatEuro(total)}</span>
+      </div>
+    </Card>
   );
 };
 

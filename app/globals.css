@@ -1,32 +1,31 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 12 36% 91%; /* Lichtroze - Light pink background */
-    --foreground: 246 35% 25%; /* Darker Paars for text */
-    --card: 12 36% 91%;
-    --card-foreground: 246 35% 25%;
-    --popover: 12 36% 91%;
-    --popover-foreground: 246 35% 25%;
-    --primary: 246 35% 44%; /* Paars - Purple */
-    --primary-foreground: 12 36% 91%;
-    --secondary: 17 82% 69%; /* Oranje - Orange */
-    --secondary-foreground: 246 35% 25%;
-    --muted: 17 82% 80%; /* Lighter orange for muted elements */
-    --muted-foreground: 246 35% 35%;
-    --accent: 17 82% 69%; /* Oranje - Orange accent */
-    --accent-foreground: 246 35% 25%;
-    --destructive: 0 84.2% 60.2%;
+    /* Noon palette, as on noonsandwicherie.be */
+    --background: 42 63% 97%; /* #fcf9f2 */
+    --foreground: 247 39% 34%; /* #3b3578 */
+    --card: 40 100% 99%;
+    --card-foreground: 247 39% 34%;
+    --popover: 40 100% 99%;
+    --popover-foreground: 247 39% 34%;
+    --primary: 246 35% 44%; /* #524a98 */
+    --primary-foreground: 42 63% 97%;
+    --secondary: 17 82% 68%; /* #f29169 */
+    --secondary-foreground: 247 37% 26%;
+    --muted: 8 29% 94%;
+    --muted-foreground: 247 17% 50%;
+    --accent: 8 29% 90%; /* #ede0de */
+    --accent-foreground: 247 39% 34%;
+    --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 98%;
-    --border: 246 35% 60%; /* Lighter Paars for borders */
-    --input: 246 35% 60%;
+    --border: 250 22% 90%;
+    --input: 250 20% 84%;
     --ring: 246 35% 44%;
-    --radius: 0.5rem;
-    --custom-gray: 0 0% 35.3%; /* #685D5E */
+    --radius: 0.625rem;
+    --custom-gray: 247 17% 50%;
   }
 
   .dark {
@@ -59,7 +58,7 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: "Poppins", sans-serif;
+    font-family: var(--font-open-sans), sans-serif;
   }
 }
 
@@ -70,4 +69,78 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer components {
+  /* Small tracked label, as in the noonsandwicherie.be navigation */
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.08em] text-noon;
+  }
+}
+
+/* Toasts (react-toastify) in the brand style */
+:root {
+  --toastify-color-light: #fffdf9;
+  --toastify-text-color-light: #3b3578;
+  --toastify-color-error: #b42a2a;
+  --toastify-color-success: #2f6b4f;
+  --toastify-color-info: #524a98;
+  --toastify-color-warning: #f29169;
+  --toastify-font-family: var(--font-open-sans), sans-serif;
+  --toastify-toast-bd-radius: 10px;
+  --toastify-toast-width: 420px;
+}
+
+.Toastify__toast {
+  border: 1px solid rgba(82, 74, 152, 0.14);
+  box-shadow: 0 18px 40px -24px rgba(47, 42, 92, 0.45);
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.Toastify__close-button {
+  color: #6f6a93;
+  opacity: 0.8;
+  align-self: center;
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container {
+    padding: 12px;
+  }
+  .Toastify__toast {
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+}
+
+/* Google Places suggestions below the address field */
+.pac-container {
+  margin-top: 6px;
+  border: 1px solid rgba(82, 74, 152, 0.14);
+  border-radius: 10px;
+  background: #fffdf9;
+  box-shadow: 0 18px 40px -24px rgba(47, 42, 92, 0.45);
+  font-family: var(--font-open-sans), sans-serif;
+}
+
+.pac-item {
+  border-color: rgba(82, 74, 152, 0.1);
+  padding: 8px 12px;
+  color: #6f6a93;
+}
+
+.pac-item:hover,
+.pac-item-selected {
+  background: #ede0de;
+}
+
+.pac-item-query {
+  color: #3b3578;
+}
+
+/* The start screen has its own short footer line */
+body[data-hide-footer="true"] .site-footer {
+  display: none;
 }

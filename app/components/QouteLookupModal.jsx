@@ -10,10 +10,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { PrimaryButton, SecondaryButton } from "@/app/components/order/ui";
 
 export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
   const [quoteId, setQuoteId] = useState("");
@@ -50,7 +49,7 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
         router.push("/?restore=true");
       }
     } catch (error) {
-      setError("Something went wrong when fetching the quote");
+      setError("Er ging iets mis bij het ophalen van de offerte");
     } finally {
       setIsLoading(false);
     }
@@ -59,29 +58,21 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || (
-          <Button
-            variant="outline"
-            className="text-green-500 border-green-500 hover:bg-green-50"
-          >
-            Load existing quote
-          </Button>
-        )}
+        {trigger || <SecondaryButton>Bestaande offerte ophalen</SecondaryButton>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Load quote</DialogTitle>
+          <DialogTitle>Offerte ophalen</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-2 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="quoteId">Quote ID</Label>
+            <Label htmlFor="quoteId">Offertenummer</Label>
             <Input
               type="text"
               id="quoteId"
               value={quoteId}
               onChange={(e) => setQuoteId(e.target.value)}
-              placeholder="F.E. Q12345678"
-              className="focus:ring-green-500 focus:border-green-500"
+              placeholder="Bijv. Q12345678"
               required
             />
           </div>
@@ -92,26 +83,13 @@ export default function QuoteLookupModal({ trigger, onQuoteLoaded }) {
             </Alert>
           )}
 
-          <div className="flex justify-end mt-6 space-x-2">
+          <div className="flex justify-end gap-2 pt-2">
             <DialogClose asChild>
-              <Button variant="outline" type="button">
-                Cancel
-              </Button>
+              <SecondaryButton>Annuleren</SecondaryButton>
             </DialogClose>
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="text-white bg-green-500 hover:bg-green-600"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Load quote"
-              )}
-            </Button>
+            <PrimaryButton type="submit" loading={isLoading}>
+              {isLoading ? "Laden..." : "Ophalen"}
+            </PrimaryButton>
           </div>
         </form>
       </DialogContent>

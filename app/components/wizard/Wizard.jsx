@@ -1,8 +1,15 @@
 "use client";
 import React from "react";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Phone } from "lucide-react";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { cn } from "@/lib/utils";
+import {
+  CATERING_PHONE,
+  CATERING_PHONE_HREF,
+  PrimaryButton,
+  formatEuro,
+} from "@/app/components/order/ui";
 
 const Wizard = ({
   currentStep,
@@ -11,113 +18,118 @@ const Wizard = ({
   children,
   isStepValid,
   getValidationMessage,
-  secondaryButtonClasses,
-  primaryButtonClasses,
-  formData, // Add formData prop
+  totalAmount,
 }) => {
   const handleNextStep = () => {
     const validationMessage = getValidationMessage(currentStep);
     if (!isStepValid(currentStep) && validationMessage) {
       toast.error(validationMessage);
     } else if (isStepValid(currentStep)) {
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep(currentStep + 1);
     }
   };
 
   const handlePrevStep = () => {
-    setCurrentStep((prev) => prev - 1);
+    setCurrentStep(currentStep - 1);
   };
 
+  const isLastStep = currentStep === steps.length;
+  const progress = (currentStep / steps.length) * 100;
+
   return (
-    <div className="min-h-[70vh] bg-background">
-      <div className="sticky top-0 z-10 border-b bg-background">
-        <div className="container px-4 py-1 mx-auto">
-          <div className="flex justify-between items-center">
-            <Image
-              src={"/tsb-logo-full.png"}
-              alt="NOON Sandwicherie & Koffie Logo"
-              className="w-16 md:w-20"
-              width={250}
-              height={250}
-            />
-            {/* Back Button */}
-            {currentStep > 1 && (
-              <button
-                onClick={handlePrevStep}
-                className={`flex gap-1 items-center ${secondaryButtonClasses}`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Terug
-              </button>
-            )}
+    <div className="flex min-h-[70vh] flex-col bg-cream">
+      <header className="sticky top-0 z-30 bg-cream/95 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between gap-6 px-4 md:h-20 md:px-8">
+          <Image
+            src="/images/logo-noon-catering.svg"
+            alt="NOON Sandwicherie & Koffie"
+            width={72}
+            height={60}
+            className="h-12 w-auto md:h-[60px]"
+            priority
+          />
 
-            {/* Progress Text */}
-            <div className="hidden text-sm font-medium text-gray-500 md:block">
-              Step {currentStep} of {steps.length}
-            </div>
-
-            {/* Next Button */}
-            {currentStep < steps.length && (
-              <div className="flex items-end">
-                <button
-                  onClick={handleNextStep}
-                  className={`${primaryButtonClasses} !bg-green-500 flex items-center gap-1 ${
-                    !isStepValid(currentStep) ? "opacity-50" : ""
-                  }`}
+          <ol className="hidden items-center gap-7 lg:flex">
+            {steps.map((step, index) => {
+              const number = index + 1;
+              const done = number < currentStep;
+              const active = number === currentStep;
+              return (
+                <li
+                  key={step.title}
+                  aria-current={active ? "step" : undefined}
+                  className={cn(
+                    "eyebrow flex items-center gap-1.5 transition-colors",
+                    active ? "text-noon" : done ? "text-noon/70" : "text-noon/35"
+                  )}
                 >
-                  {currentStep === steps.length - 1 ? "Betaling" : "Volgende"}
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Steps */}
-      <div className="container px-4 py-4 mx-auto">
-        <div className="flex justify-between items-center mb-4">
-          {steps.map((step, index) => {
-            const StepIcon = step.icon;
-            return (
-              <div
-                key={index}
-                className={`flex flex-col items-center ${
-                  index + 1 === currentStep
-                    ? "text-black"
-                    : index + 1 < currentStep
-                      ? "text-green-600"
-                      : "text-gray-400"
-                }`}
-              >
-                <div className="flex justify-center items-center w-8 h-8 rounded-full border-2 border-current bg-background">
-                  <StepIcon className="w-4 h-4" />
-                </div>
-                <span className="hidden mt-1 text-xs md:block">
+                  {done && <Check className="h-3.5 w-3.5 text-noon/70" strokeWidth={3} />}
                   {step.title}
-                </span>
-              </div>
-            );
-          })}
+                </li>
+              );
+            })}
+          </ol>
+
+          <span className="text-[13px] text-mist lg:hidden">
+            Stap {currentStep} van {steps.length} · {steps[currentStep - 1]?.title}
+          </span>
+
+          <a
+            href={CATERING_PHONE_HREF}
+            className="hidden items-center gap-2 text-[13px] font-medium text-noon hover:text-noon-dark sm:flex"
+          >
+            <Phone className="h-3.5 w-3.5" />
+            {CATERING_PHONE}
+          </a>
         </div>
-        <div className="h-2 rounded-full bg-muted">
+        <div className="h-0.5 bg-blush">
           <div
-            className="h-full rounded-full transition-all duration-300 bg-primary"
-            style={{
-              width: `${((currentStep - 1) / (steps.length - 1)) * 100}%`,
-            }}
+            className="h-full bg-coral transition-[width] duration-500"
+            style={{ width: `${progress}%` }}
           />
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="pb-8 mx-auto md:px-4 md:container">
-        <div className="p-6 rounded-lg shadow-md bg-background">
-          {children}
+      <div className="mx-auto w-full max-w-[1240px] flex-1 px-4 py-8 md:px-8 md:py-12">{children}</div>
+
+      {/* Back and next stay in view, also on the long menu */}
+      <div className="sticky bottom-0 z-30 border-t border-noon/10 bg-cream/95 backdrop-blur">
+        <div className="mx-auto flex h-[72px] max-w-[1240px] items-center gap-4 px-4 md:px-8">
+          <button
+            type="button"
+            onClick={handlePrevStep}
+            className="flex h-12 items-center gap-1 rounded-[10px] pr-3 text-sm font-semibold text-noon hover:text-noon-dark"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Terug
+          </button>
+
+          {totalAmount > 0 && !isLastStep && (
+            <span className="ml-auto text-right leading-tight">
+              <span className="block text-base font-bold tabular-nums text-noon">
+                {formatEuro(totalAmount)}
+              </span>
+              <span className="block text-[11px] text-mist">excl. btw</span>
+            </span>
+          )}
+
+          {!isLastStep && (
+            <PrimaryButton
+              onClick={handleNextStep}
+              className={cn(
+                "shrink-0",
+                !(totalAmount > 0) && "ml-auto",
+                !isStepValid(currentStep) && "opacity-50"
+              )}
+            >
+              {currentStep === steps.length - 1 ? "Naar betaling" : "Volgende"}
+              <ChevronRight className="-mr-1 h-4 w-4" strokeWidth={2.6} />
+            </PrimaryButton>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Wizard; 
+export default Wizard;

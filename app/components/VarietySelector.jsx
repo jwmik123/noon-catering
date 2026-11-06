@@ -1,392 +1,319 @@
-import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { HelpCircle, ChevronDown, ChevronRight } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { EXTRA_GROUPS } from "@/app/assets/extras";
+import { Card, Chip, QuantityStepper, formatEuro } from "@/app/components/order/ui";
+import { cn } from "@/lib/utils";
 
-const VarietySelector = ({ totalSandwiches, formData, updateFormData, pricing }) => {
-  const [selectedMainCategories, setSelectedMainCategories] = useState({});
-  const [selectedCombinations, setSelectedCombinations] = useState({});
-  const [expandedCategories, setExpandedCategories] = useState({});
+// Kinds of filling, each with its own tint in the distribution bar. Tints of
+// purple only: salmon never sits next to the purple.
+const KINDS = [
+  { value: "vlees", label: "Vlees", color: "#524A98", ink: "#FFFFFF" },
+  { value: "kip", label: "Kip", color: "#7A73B5", ink: "#FFFFFF" },
+  { value: "vis", label: "Vis", color: "#928CC4", ink: "#FFFFFF" },
+  { value: "veggie", label: "Veggie", color: "#B9B4DA", ink: "#2F2A5C" },
+  { value: "vegan", label: "Vegan", color: "#DCD9EC", ink: "#2F2A5C" },
+];
 
-  // For lunchboxes: track which box type is selected
-  const [selectedBoxTypes, setSelectedBoxTypes] = useState({});
+// Kinds not offered per main category
+const EXCLUDED_KINDS = {
+  sandwiches: ["vis"],
+  salades: ["vlees", "vis"],
+};
 
-  // Get categories from pricing data
-  const mainCategories = pricing?.categoryPricing?.filter(cat =>
-    ['sandwiches', 'salades', 'lunchboxes'].includes(cat.typeCategory)
-  ) || [];
+const kindsFor = (category) =>
+  KINDS.filter((kind) => !EXCLUDED_KINDS[category]?.includes(kind.value));
 
-  // Standard subcategories for sandwiches, salads, and lunchbox proteins
-  const subCategories = [
-    { value: "vlees", label: "Vlees" },
-    { value: "kip", label: "Kip" },
-    { value: "vis", label: "Vis" },
-    { value: "veggie", label: "Veggie" },
-    { value: "vegan", label: "Vegan" }
-  ];
+// Shares of the sandwiches; salads and lunchboxes are always picked by hand.
+const MIXES = [
+  { id: "balanced", label: "Gebalanceerd", ratios: { vlees: 0.3, kip: 0.3, veggie: 0.25, vegan: 0.15 } },
+  { id: "greener", label: "Meer veggie", ratios: { vlees: 0.15, kip: 0.15, veggie: 0.4, vegan: 0.3 } },
+  { id: "meatFree", label: "Vleesvrij", ratios: { veggie: 0.6, vegan: 0.4 } },
+];
 
-  // Subcategories not offered per main category
-  const excludedSubCategories = {
-    sandwiches: ["vis"],
-    salades: ["vlees", "vis"],
-  };
+const CATEGORY_LABELS = { salades: "Salades", lunchboxes: "Lunchboxes" };
 
-  const getSubCategoriesFor = (mainCategory) =>
-    subCategories.filter(
-      (sub) => !excludedSubCategories[mainCategory]?.includes(sub.value)
-    );
+const sumValues = (selection) =>
+  Object.values(selection).reduce((sum, quantity) => sum + (quantity || 0), 0);
 
-  // Initialize from existing form data ONCE on mount
-  useEffect(() => {
-    if (formData.varietySelection && Object.keys(formData.varietySelection).length > 0) {
-      const newCombinations = {};
-      const newMainCategories = {};
-      const newBoxTypes = {};
-
-      Object.entries(formData.varietySelection).forEach(([key, value]) => {
-        if (value > 0) {
-          // Parse the key to determine category
-          const parts = key.split('-');
-
-          if (parts[0] === 'lunchboxes' && parts.length === 3) {
-            // Lunchbox format: lunchboxes-boxType-protein
-            newCombinations[key] = value;
-            newMainCategories.lunchboxes = true;
-            newBoxTypes[parts[1]] = true; // Track selected box types
-          } else if (parts.length === 2) {
-            // Regular format: category-subcategory
-            newCombinations[key] = value;
-            newMainCategories[parts[0]] = true;
-          }
-        }
-      });
-
-      setSelectedCombinations(newCombinations);
-      setSelectedMainCategories(newMainCategories);
-      setSelectedBoxTypes(newBoxTypes);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
-
-  // Handle main category selection
-  const handleMainCategoryChange = (category, checked) => {
-    const newSelectedMain = {
-      ...selectedMainCategories,
-      [category]: checked,
-    };
-    setSelectedMainCategories(newSelectedMain);
-
-    if (checked) {
-      setExpandedCategories(prev => ({ ...prev, [category]: true }));
-    } else {
-      // Remove all combinations for this main category
-      const newCombinations = { ...selectedCombinations };
-      Object.keys(newCombinations).forEach(key => {
-        if (key.startsWith(`${category}-`)) {
-          delete newCombinations[key];
-        }
-      });
-      setSelectedCombinations(newCombinations);
-      updateFormData("varietySelection", newCombinations);
-
-      // Clear box types if lunchboxes unchecked
-      if (category === 'lunchboxes') {
-        setSelectedBoxTypes({});
-      }
-    }
-  };
-
-  // Handle box type selection for lunchboxes
-  const handleBoxTypeChange = (boxType, checked) => {
-    const newBoxTypes = {
-      ...selectedBoxTypes,
-      [boxType]: checked,
-    };
-    setSelectedBoxTypes(newBoxTypes);
-
-    if (!checked) {
-      // Remove all combinations for this box type
-      const newCombinations = { ...selectedCombinations };
-      Object.keys(newCombinations).forEach(key => {
-        if (key.startsWith(`lunchboxes-${boxType}-`)) {
-          delete newCombinations[key];
-        }
-      });
-      setSelectedCombinations(newCombinations);
-      updateFormData("varietySelection", newCombinations);
-    }
-  };
-
-  // Handle subcategory selection
-  const handleSubCategoryChange = (mainCategory, subCategory, checked, boxType = null) => {
-    const combinationKey = boxType
-      ? `${mainCategory}-${boxType}-${subCategory}` // lunchboxes-daily-chicken
-      : `${mainCategory}-${subCategory}`; // sandwiches-meat
-
-    const newCombinations = { ...selectedCombinations };
-
-    if (checked) {
-      newCombinations[combinationKey] = 0; // Start with 0, user will set quantity
-    } else {
-      delete newCombinations[combinationKey];
-    }
-
-    setSelectedCombinations(newCombinations);
-    updateFormData("varietySelection", newCombinations);
-  };
-
-  // Handle quantity input
-  const handleQuantityChange = (combinationKey, value) => {
-    const numValue = value === "" ? 0 : Math.max(0, parseInt(value) || 0);
-    const newCombinations = {
-      ...selectedCombinations,
-      [combinationKey]: numValue,
-    };
-    setSelectedCombinations(newCombinations);
-
-    // Calculate total items from all combinations
-    const newTotal = Object.values(newCombinations).reduce((sum, val) => sum + (val || 0), 0);
-
-    // Update both varietySelection and totalSandwiches
-    updateFormData("varietySelection", newCombinations);
-    updateFormData("totalSandwiches", newTotal);
-  };
-
-  // Toggle category expansion
-  const toggleCategoryExpansion = (category) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
-  };
-
-  const currentTotal = Object.values(selectedCombinations).reduce(
-    (sum, val) => sum + (val || 0),
-    0
+// Spread the people not covered by salads or lunchboxes over the sandwiches.
+const splitMix = (mixId, people, selection) => {
+  const mix = MIXES.find((m) => m.id === mixId);
+  const next = Object.fromEntries(
+    Object.entries(selection).filter(([key]) => !key.startsWith("sandwiches-"))
   );
+  const rest = Math.max(0, people - sumValues(next));
+  const kinds = Object.keys(mix.ratios);
+  let spread = 0;
 
-  // Get category data from pricing
-  const getCategoryData = (categoryValue) => {
-    return mainCategories.find(cat => cat.typeCategory === categoryValue);
-  };
+  kinds.forEach((kind) => {
+    const quantity = Math.round(rest * mix.ratios[kind]);
+    spread += quantity;
+    if (quantity > 0) next[`sandwiches-${kind}`] = quantity;
+  });
 
-  // Get price for a combination
-  const getPrice = (mainCategory, subCategory, boxType = null) => {
-    const categoryData = getCategoryData(mainCategory);
-    if (!categoryData) return null;
+  // Rounding differences go to the largest share
+  const largest = kinds.reduce((a, b) => (mix.ratios[b] > mix.ratios[a] ? b : a));
+  const key = `sandwiches-${largest}`;
+  const corrected = (next[key] || 0) + rest - spread;
+  if (corrected > 0) next[key] = corrected;
+  else delete next[key];
 
-    if (mainCategory === 'lunchboxes' && boxType) {
-      // For lunchboxes, price is determined by box type
-      const boxTypeData = categoryData.boxTypes?.find(bt => bt.boxType === boxType);
-      return boxTypeData?.price;
-    } else {
-      // For sandwiches/salads, price is by subcategory
-      const subCatData = categoryData.subCategoryPricing?.find(sc => sc.subCategory === subCategory);
-      return subCatData?.price;
-    }
-  };
+  return next;
+};
 
-  if (!pricing) {
-    return <div className="text-gray-500">Loading pricing...</div>;
-  }
+const DistributionBar = ({ selection, target }) => {
+  const totals = KINDS.map((kind) => ({
+    ...kind,
+    quantity: Object.entries(selection).reduce(
+      (sum, [key, quantity]) => (key.split("-").pop() === kind.value ? sum + (quantity || 0) : sum),
+      0
+    ),
+  })).filter((kind) => kind.quantity > 0);
+  const scale = Math.max(target, totals.reduce((sum, kind) => sum + kind.quantity, 0)) || 1;
 
   return (
-    <div className="space-y-6">
-      <div className="relative group">
-        <div className="absolute top-0 right-0 p-2 transition-colors rounded-full hover:bg-blue-50">
-          <HelpCircle className="w-5 h-5 text-blue-600" />
+    <div className="flex h-11 gap-0.5 overflow-hidden rounded-[10px] bg-blush/50">
+      {totals.map((kind) => {
+        const share = (kind.quantity / scale) * 100;
+        return (
+          <div
+            key={kind.value}
+            title={`${kind.label}: ${kind.quantity}`}
+            className="flex min-w-0 items-center justify-center overflow-hidden whitespace-nowrap text-xs font-semibold transition-[width] duration-500"
+            style={{ width: `${share}%`, backgroundColor: kind.color, color: kind.ink }}
+          >
+            {share >= 20 ? `${kind.label} ${kind.quantity}` : share >= 5 ? kind.quantity : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const KindRow = ({ id, kind, price, selection, onQuantity }) => (
+  <div className="flex items-center gap-3">
+    <span className="h-3 w-3 shrink-0 rounded-[4px]" style={{ backgroundColor: kind.color }} aria-hidden />
+    <span className="min-w-0 flex-1">
+      <span className="block text-sm font-semibold text-noon">{kind.label}</span>
+      {price > 0 && <span className="block text-xs text-mist">{formatEuro(price)} per stuk</span>}
+    </span>
+    <QuantityStepper
+      label={kind.label}
+      size="sm"
+      value={selection[id] || 0}
+      onChange={(value) => onQuantity(id, value)}
+    />
+  </div>
+);
+
+const MoreOptions = ({ title, count, description, children }) => {
+  const [open, setOpen] = useState(count > 0);
+
+  return (
+    <Card className="p-4 md:p-5">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-3 text-left text-[15px] font-semibold text-noon"
+      >
+        <span>
+          {title}
+          {count > 0 && <span className="ml-2 text-[13px] font-normal text-mist">{count} gekozen</span>}
+        </span>
+        <ChevronDown className={cn("h-4 w-4 text-mist transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="mt-4 flex flex-col gap-4 border-t border-noon/10 pt-4">
+          {description && <p className="m-0 text-[13px] leading-[1.5] text-mist">{description}</p>}
+          {children}
         </div>
-        <div className="absolute right-0 z-10 invisible w-64 p-4 mt-2 transition-all duration-200 bg-white rounded-lg shadow-lg opacity-0 top-full group-hover:opacity-100 group-hover:visible">
-          <p className="text-sm text-gray-700">
-            Onze verrassing aanbod laat je verschillende soorten producten kiezen. Selecteer categorieën,
-            dan kies je de hoeveelheid voor elke soort. Voor lunchboxes, selecteer eerst het box type,
-            dan kies je de eiwitten voor het box type.
-          </p>
+      )}
+    </Card>
+  );
+};
+
+const VarietySelector = ({ formData, updateFormData, pricing }) => {
+  const selection = formData.varietySelection || {};
+  const people = formData.numberOfPeople || 0;
+  const hasExtras = EXTRA_GROUPS.some((group) =>
+    Object.values(formData[group.id] || {}).some((quantity) => quantity > 0)
+  );
+  const startFromMix = sumValues(selection) === 0 && !hasExtras;
+  const [mix, setMix] = useState(startFromMix ? "balanced" : "custom");
+
+  // Start from a balanced mix the first time this screen opens.
+  useEffect(() => {
+    if (startFromMix && people >= 3) {
+      updateFormData("varietySelection", splitMix("balanced", people, selection));
+    }
+    // Only on first render: later changes are the customer's.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!pricing) {
+    return <div className="text-mist">Prijzen laden...</div>;
+  }
+
+  const categories = pricing.categoryPricing || [];
+  const sandwiches = categories.find((cat) => cat.typeCategory === "sandwiches");
+  const otherCategories = categories.filter((cat) =>
+    ["salades", "lunchboxes"].includes(cat.typeCategory)
+  );
+
+  const applyMix = (mixId) => {
+    setMix(mixId);
+    updateFormData("varietySelection", splitMix(mixId, people, selection));
+  };
+
+  const changePeople = (value) => {
+    const next = parseInt(value) || 0;
+    updateFormData("numberOfPeople", next);
+    if (mix !== "custom" && next >= 3) {
+      updateFormData("varietySelection", splitMix(mix, next, selection));
+    }
+  };
+
+  const changeQuantity = (key, value) => {
+    const quantity = Math.max(0, Number(value) || 0);
+    const next = { ...selection };
+    if (quantity > 0) next[key] = quantity;
+    else delete next[key];
+    setMix("custom");
+    updateFormData("varietySelection", next);
+  };
+
+  const clearSelection = () => {
+    setMix("custom");
+    updateFormData("varietySelection", {});
+  };
+
+  const priceOf = (key) => {
+    const [category, second] = key.split("-");
+    const categoryData = categories.find((cat) => cat.typeCategory === category);
+    if (category === "lunchboxes") {
+      return categoryData?.boxTypes?.find((box) => box.boxType === second)?.price || 0;
+    }
+    return categoryData?.subCategoryPricing?.find((sub) => sub.subCategory === second)?.price || 0;
+  };
+  const subPrice = (category, kind) => priceOf(`${category}-${kind}`);
+
+  const distributed = sumValues(selection);
+  const mixPrice = Object.entries(selection).reduce(
+    (sum, [key, quantity]) => sum + priceOf(key) * (quantity || 0),
+    0
+  );
+  const countFor = (category) =>
+    sumValues(Object.fromEntries(Object.entries(selection).filter(([key]) => key.startsWith(`${category}-`))));
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Card className="flex flex-col gap-5 p-5 md:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[15px] font-semibold text-noon">Aantal personen</span>
+          <QuantityStepper
+            label="personen"
+            size="sm"
+            value={formData.numberOfPeople || ""}
+            onChange={changePeople}
+            min={3}
+          />
         </div>
-      </div>
 
-      <div className="space-y-6">
-        <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md">
-          Stap 1: Kies je hoofdcategorieën, dan selecteer je de opties binnen elke categorie.
+        <div className="flex flex-wrap gap-2">
+          {MIXES.map((option) => (
+            <Chip key={option.id} active={mix === option.id} onClick={() => applyMix(option.id)}>
+              {option.label}
+            </Chip>
+          ))}
+          {mix === "custom" && distributed > 0 && <Chip active>Aangepast</Chip>}
         </div>
 
-        {mainCategories.map((categoryData) => {
-          const mainCategory = categoryData.typeCategory;
-          const isLunchbox = mainCategory === 'lunchboxes';
+        <div className="flex flex-col gap-2">
+          <DistributionBar selection={selection} target={people} />
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm">
+            <span className={distributed < people ? "font-semibold text-noon" : "text-mist"}>
+              {distributed === people
+                ? `Alle ${people} items verdeeld`
+                : distributed < people
+                  ? `Nog ${people - distributed} te verdelen`
+                  : `${distributed - people} meer dan je aantal personen`}
+            </span>
+            <span className="font-semibold tabular-nums text-noon">
+              {formatEuro(mixPrice)} <span className="text-xs font-normal text-mist">excl. btw</span>
+            </span>
+          </div>
+        </div>
 
-          return (
-            <div key={mainCategory} className="border rounded-lg p-4">
-              {/* Main Category Header */}
-              <div className="flex items-center space-x-3 mb-2">
-                <Checkbox
-                  id={mainCategory}
-                  checked={selectedMainCategories[mainCategory] || false}
-                  onCheckedChange={(checked) =>
-                    handleMainCategoryChange(mainCategory, checked)
-                  }
-                />
-                <button
-                  type="button"
-                  onClick={() => toggleCategoryExpansion(mainCategory)}
-                  className="flex items-center space-x-2 text-lg font-semibold text-gray-800 hover:text-blue-600"
-                >
-                  {expandedCategories[mainCategory] ? (
-                    <ChevronDown className="w-5 h-5" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5" />
-                  )}
-                  <span className="capitalize">{mainCategory}</span>
-                </button>
-              </div>
+        <div className="flex flex-col gap-3 border-t border-noon/10 pt-5">
+          {kindsFor("sandwiches").map((kind) => (
+            <KindRow
+              key={kind.value}
+              id={`sandwiches-${kind.value}`}
+              kind={kind}
+              price={subPrice("sandwiches", kind.value)}
+              selection={selection}
+              onQuantity={changeQuantity}
+            />
+          ))}
+        </div>
 
-              {/* Category Description */}
-              {categoryData.description && (
-                <p className="text-sm text-gray-600 mb-4 ml-9">{categoryData.description}</p>
-              )}
+        {sandwiches?.description && (
+          <p className="m-0 text-[13px] leading-[1.5] text-mist">{sandwiches.description}</p>
+        )}
+      </Card>
 
-              {/* Content - Show when main category is selected and expanded */}
-              {selectedMainCategories[mainCategory] && expandedCategories[mainCategory] && (
-                <div className="ml-6 space-y-4 border-l-2 border-gray-200 pl-4">
-                  {isLunchbox ? (
-                    // LUNCHBOX: Show box types, then proteins
-                    <>
-                      <div className="text-sm font-medium text-gray-700 mb-3">
-                        Select Box Type(s):
-                      </div>
-                      {categoryData.boxTypes?.map((boxTypeData) => (
-                        <div key={boxTypeData.boxType} className="space-y-3">
-                          {/* Box Type Selection */}
-                          <div className="flex items-center space-x-3 bg-gray-50 p-3 rounded-md">
-                            <Checkbox
-                              id={`${mainCategory}-${boxTypeData.boxType}`}
-                              checked={selectedBoxTypes[boxTypeData.boxType] || false}
-                              onCheckedChange={(checked) =>
-                                handleBoxTypeChange(boxTypeData.boxType, checked)
-                              }
-                            />
-                            <div className="flex-1">
-                              <Label
-                                htmlFor={`${mainCategory}-${boxTypeData.boxType}`}
-                                className="font-medium text-base cursor-pointer"
-                              >
-                                {boxTypeData.displayName}
-                              </Label>
-                              {boxTypeData.description && (
-                                <p className="text-xs text-gray-500 mt-1">{boxTypeData.description}</p>
-                              )}
-                            </div>
-                            <div className="text-sm font-semibold text-gray-700">
-                              €{boxTypeData.price?.toFixed(2)}
-                            </div>
-                          </div>
+      {otherCategories.map((categoryData) => {
+        const category = categoryData.typeCategory;
+        return (
+          <MoreOptions
+            key={category}
+            title={CATEGORY_LABELS[category]}
+            count={countFor(category)}
+            description={categoryData.description}
+          >
+            {category === "lunchboxes"
+              ? categoryData.boxTypes?.map((box) => (
+                  <div key={box.boxType} className="flex flex-col gap-3">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-sm font-semibold text-noon">{box.displayName}</span>
+                      <span className="text-xs text-mist">{formatEuro(box.price)} per stuk</span>
+                    </div>
+                    {box.description && <p className="m-0 text-xs text-mist">{box.description}</p>}
+                    {kindsFor(category).map((kind) => (
+                      <KindRow
+                        key={kind.value}
+                        id={`lunchboxes-${box.boxType}-${kind.value}`}
+                        kind={kind}
+                        selection={selection}
+                        onQuantity={changeQuantity}
+                      />
+                    ))}
+                  </div>
+                ))
+              : kindsFor(category).map((kind) => (
+                  <KindRow
+                    key={kind.value}
+                    id={`${category}-${kind.value}`}
+                    kind={kind}
+                    price={subPrice(category, kind.value)}
+                    selection={selection}
+                    onQuantity={changeQuantity}
+                  />
+                ))}
+          </MoreOptions>
+        );
+      })}
 
-                          {/* Protein Options for this box type */}
-                          {selectedBoxTypes[boxTypeData.boxType] && (
-                            <div className="ml-8 space-y-2 border-l-2 border-blue-200 pl-4">
-                              <div className="text-xs text-gray-600 mb-2">
-                                Select proteins for {boxTypeData.displayName}:
-                              </div>
-                              {subCategories.map((subCategory) => {
-                                const combinationKey = `${mainCategory}-${boxTypeData.boxType}-${subCategory.value}`;
-                                const isSelected = combinationKey in selectedCombinations;
-                                const quantity = selectedCombinations[combinationKey] || 0;
-
-                                return (
-                                  <div key={combinationKey} className="flex items-center space-x-4">
-                                    <Checkbox
-                                      id={combinationKey}
-                                      checked={isSelected}
-                                      onCheckedChange={(checked) =>
-                                        handleSubCategoryChange(mainCategory, subCategory.value, checked, boxTypeData.boxType)
-                                      }
-                                    />
-                                    <Label htmlFor={combinationKey} className="font-medium min-w-[80px] text-sm">
-                                      {subCategory.label}
-                                    </Label>
-
-                                    {isSelected && (
-                                      <div className="flex items-center space-x-2">
-                                        <Input
-                                          type="number"
-                                          value={quantity || ""}
-                                          onChange={(e) => handleQuantityChange(combinationKey, e.target.value)}
-                                          className="w-20"
-                                          min="0"
-                                          placeholder="0"
-                                        />
-                                        <span className="text-sm text-gray-500">boxes</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </>
-                  ) : (
-                    // SANDWICHES/SALADS: Show subcategories with prices
-                    <>
-                      {getSubCategoriesFor(mainCategory).map((subCategory) => {
-                        const combinationKey = `${mainCategory}-${subCategory.value}`;
-                        const isSelected = combinationKey in selectedCombinations;
-                        const quantity = selectedCombinations[combinationKey] || 0;
-                        const price = getPrice(mainCategory, subCategory.value);
-
-                        return (
-                          <div key={subCategory.value} className="flex items-center space-x-4">
-                            <Checkbox
-                              id={combinationKey}
-                              checked={isSelected}
-                              onCheckedChange={(checked) =>
-                                handleSubCategoryChange(mainCategory, subCategory.value, checked)
-                              }
-                            />
-                            <Label htmlFor={combinationKey} className="font-medium min-w-[80px]">
-                              {subCategory.label}
-                            </Label>
-                            {price && (
-                              <span className="text-sm text-gray-600">
-                                €{price.toFixed(2)}/item
-                              </span>
-                            )}
-
-                            {isSelected && (
-                              <div className="flex items-center space-x-2">
-                                <Input
-                                  type="number"
-                                  value={quantity || ""}
-                                  onChange={(e) => handleQuantityChange(combinationKey, e.target.value)}
-                                  className="w-20"
-                                  min="0"
-                                  placeholder="0"
-                                />
-                                <span className="text-sm text-gray-500">items</span>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Summary */}
-      <div className="p-4 rounded-md bg-blue-50">
-        <p className="text-blue-700">
-          Huidige selectie: <span className="font-semibold">{currentTotal} items</span>
-        </p>
-        <p className="text-sm text-blue-600 mt-1">
-          Je kunt elke hoeveelheid selecteren die je wilt.
-        </p>
-      </div>
+      {distributed > 0 && (
+        <button
+          type="button"
+          onClick={clearSelection}
+          className="self-start text-[13px] text-mist underline underline-offset-2 hover:text-noon"
+        >
+          Alleen extra&apos;s bestellen? Maak de verdeling leeg
+        </button>
+      )}
     </div>
   );
 };
