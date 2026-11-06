@@ -151,6 +151,10 @@ const Home = () => {
     // If Saturday is selected (day 6), automatically enable pickup mode
     if (selectedDate.getDay() === 6) {
       updateFormData("isPickup", true);
+      // Same as choosing pickup by hand: no delivery cost, invoice address needed
+      setDeliveryCost(0);
+      setDeliveryError(null);
+      updateFormData("sameAsDelivery", false);
     }
   };
 

@@ -1,11 +1,12 @@
 "use client";
-import React from "react";
+import React, { useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import DeliveryCalendar from "@/app/components/DeliveryCalendar";
 import AddressAutocomplete from "@/app/components/AddressAutocomplete";
 import { Card, Heading, Notice, OptionCard } from "@/app/components/order/ui";
+import { validateAddressAndCalculateDelivery } from "@/lib/google-maps";
 
 const InvoiceAddressFields = ({ formData, updateFormData }) => {
   const field = (id, name, label, required = true) => (
@@ -61,7 +62,34 @@ const DeliveryStep = ({
     }
   };
 
+  // Bumped on every choice, so a slow calculation can't overwrite a newer one.
+  const deliveryChoice = useRef(0);
+
+  // Pickup set the cost to 0, so work it out again for the known address. Until
+  // then the cost stays empty, which keeps this step from being completed.
+  const chooseDelivery = async () => {
+    const choice = ++deliveryChoice.current;
+    updateFormData("isPickup", false);
+    setDeliveryCost(null);
+    setDeliveryError(null);
+
+    const address =
+      formData.fullAddress ||
+      (formData.street &&
+        `${formData.street} ${formData.houseNumber}, ${formData.postalCode} ${formData.city}`);
+    if (!address) return;
+
+    const result = await validateAddressAndCalculateDelivery(address, totalAmount);
+    if (choice !== deliveryChoice.current) return;
+    if (result.isValid) {
+      setDeliveryCost(result.deliveryCost);
+    } else {
+      setDeliveryError(result.error);
+    }
+  };
+
   const choosePickup = () => {
+    deliveryChoice.current += 1;
     updateFormData("isPickup", true);
     // Clear delivery address and cost when pickup is selected
     setDeliveryCost(0);
@@ -91,7 +119,7 @@ const DeliveryStep = ({
             disabled={isSaturday}
             title="Bezorgen"
             subtitle={isSaturday ? "Niet mogelijk op zaterdag" : "Op jouw locatie in en rond Gent"}
-            onClick={() => updateFormData("isPickup", false)}
+            onClick={chooseDelivery}
           />
           <OptionCard
             active={formData.isPickup}

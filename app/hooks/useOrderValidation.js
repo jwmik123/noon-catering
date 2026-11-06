@@ -145,6 +145,9 @@ export const useOrderValidation = (formData, deliveryError, deliveryCost) => {
           if (!formData.fullAddress && (!formData.street || !formData.houseNumber || !formData.postalCode || !formData.city)) {
             return "Vul een volledig bezorgadres in";
           }
+          if (deliveryCost === null) {
+            return "Bezorgkosten worden berekend. Kies anders opnieuw je adres uit de suggesties";
+          }
           if (deliveryError && (
             deliveryError === "We do not deliver to this postal code." ||
             deliveryError.includes("delivery area") ||
