@@ -205,12 +205,13 @@ const OrderSummaryStep = ({
               <OptionCard
                 active={(formData.packagingType || "individual") === "individual"}
                 title="Individueel verpakt"
+                subtitle="Elk broodje wordt individueel verpakt. Praktisch en gemakkelijk om mee te nemen."
                 onClick={() => updateFormData("packagingType", "individual")}
               />
               <OptionCard
                 active={formData.packagingType === "plateau"}
-                title="Op plateau"
-                subtitle="Door twee gesneden en feestelijk verpakt op plateau"
+                title="Gesneden & ready to eat"
+                subtitle="Elk broodje wordt doormidden gesneden en mooi gepresenteerd in een cateringdoos. Ideaal om meteen te serveren."
                 onClick={() => updateFormData("packagingType", "plateau")}
               />
             </div>
